@@ -43,32 +43,44 @@ export default function AuthGate({ children }) {
     }
     setBusy(true);
     try {
-      if (mode === "signin") {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (error) throw error;
+  if (mode === "signin") {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error) throw error;
+
+    setSession(data.session);
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+  } else if (mode === "signup") {
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: { full_name: fullName.trim() },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    if (error) throw error;
+    if (!data.session) {
+      setNotice("Pendaftaran berhasil. Buka email untuk konfirmasi akun, lalu masuk.");
     }
-      } else if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(), password,
-          options: { data: { full_name: fullName.trim() }, emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        if (!data.session) setNotice("Pendaftaran berhasil. Buka email untuk konfirmasi akun, lalu masuk.");
-      } else {
-        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-          redirectTo: `${window.location.origin}/`,
-        });
-        if (error) throw error;
-        setNotice("Tautan reset kata sandi dikirim ke email.");
-      }
-    } catch (error) {
-      setNotice(error?.message || "Autentikasi gagal. Silakan coba lagi.");
-    } finally {
-      setBusy(false);
-    }
+  } else {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/`,
+    });
+    if (error) throw error;
+    setNotice("Tautan reset kata sandi dikirim ke email.");
+  }
+} catch (error) {
+  setNotice(error?.message || "Autentikasi gagal. Silakan coba lagi.");
+} finally {
+  setBusy(false);
+}
   };
 
   if (!ready) return <main className="auth-loading">Memeriksa sesi Supabase…</main>;
