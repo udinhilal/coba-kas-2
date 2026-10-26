@@ -44,8 +44,19 @@ export default function AuthGate({ children }) {
     setBusy(true);
     try {
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-        if (error) throw error;
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  });
+  if (error) throw error;
+
+  setSession(data.session);
+  setEmail("");
+  setPassword("");
+  setConfirmPassword("");
+  setShowPassword(false);
+  setShowConfirmPassword(false);
+}
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(), password,
