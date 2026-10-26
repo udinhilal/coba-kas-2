@@ -9,6 +9,8 @@ export default function AuthGate({ children }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -79,8 +81,8 @@ export default function AuthGate({ children }) {
     <form className="auth-form" onSubmit={submit}>
       {mode === "signup" && <label>Nama lengkap<input autoComplete="name" value={fullName} onChange={e => setFullName(e.target.value)} required /></label>}
       <label>Email<input type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>
-      {mode !== "reset" && <label>Kata sandi<input type="password" minLength={8} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={e => setPassword(e.target.value)} required /></label>}
-      {mode === "signup" && <label>Ulangi kata sandi<input type="password" minLength={8} autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required /></label>}
+      {mode !== "reset" && <label>Kata sandi<div className="auth-password-field"><input type={showPassword ? "text" : "password"} minLength={8} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={e => setPassword(e.target.value)} required /><button className="auth-password-toggle" type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"} aria-pressed={showPassword}>{showPassword ? "Sembunyikan" : "Tampilkan"}</button></div></label>}
+      {mode === "signup" && <label>Ulangi kata sandi<div className="auth-password-field"><input type={showConfirmPassword ? "text" : "password"} minLength={8} autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required /><button className="auth-password-toggle" type="button" onClick={() => setShowConfirmPassword(value => !value)} aria-label={showConfirmPassword ? "Sembunyikan ulangi kata sandi" : "Tampilkan ulangi kata sandi"} aria-pressed={showConfirmPassword}>{showConfirmPassword ? "Sembunyikan" : "Tampilkan"}</button></div></label>}
       {notice && <p className="auth-message" role="status">{notice}</p>}
       <button className="primary-btn auth-submit" type="submit" disabled={busy}>{busy ? "Memproses…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Sign up" : "Kirim tautan reset"}</button>
     </form>
