@@ -91,8 +91,7 @@ export default function AuthGate({ children }) {
 
   const title = mode === "signin" ? "Masuk ke Kas Warga" : mode === "signup" ? "Daftar akun" : "Lupa kata sandi";
   return <main className="auth-shell"><section className="auth-card">
-    <div className="auth-brand"><span className="brand-mark">K</span><div><strong>kas warga</strong><small>RT 26 / RW 04</small></div></div>
-    <span className="eyebrow">Supabase Auth</span><h1>{title}</h1>
+    <div className="auth-brand"><span className="brand-mark">K</span><div><strong>kas warga</strong><small>RT 26 / RW 04</small></div></div><h1>{title}</h1>
     <p className="auth-description">{mode === "signin" ? "Sign in untuk masuk ke aplikasi." : mode === "signup" ? "Buat akun pengelola Kas Warga." : "Kami akan mengirim tautan reset ke email."}</p>
     <form className="auth-form" onSubmit={submit}>
       {mode === "signup" && <label>Nama lengkap<input autoComplete="name" value={fullName} onChange={e => setFullName(e.target.value)} required /></label>}
