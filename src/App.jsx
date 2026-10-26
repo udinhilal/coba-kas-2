@@ -4,6 +4,14 @@ import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, FileT
 import * as XLSX from "xlsx";
 import "./styles.css";
 
+const formatTanggalIndonesia = (date = new Date()) =>
+  new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+
 const seedResidents = [
   { id: 1, block: "A", subBlock: "A1", name: "Budi Santoso", house: "A-01" },
   { id: 2, block: "A", subBlock: "A2", name: "Siti Aminah", house: "A-02" },
@@ -215,7 +223,7 @@ export default function App({ user, onSignOut }) {
       </aside>
       <main className="main">
         <div className="connection-status"><span /> {isOnline ? "Online" : "Mode offline"} · {isOnline ? `Sinkron terakhir: ${lastSync}` : "Data tersimpan di perangkat"}</div>
-        <header className="topbar"><div><span className="eyebrow">Jumat, 23 Oktober 2026</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
+        <header className="topbar"><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
         {active === "overview" && !settingsOpen && <Overview entries={entries} residents={residents} total={total} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} startEditEntry={startEditEntry} deleteEntry={deleteEntry} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
