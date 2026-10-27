@@ -346,6 +346,13 @@ const record = {
   };
   return (
     <div className="app-shell">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root, body, .app-shell, .app-shell *, .login-screen, .login-screen * {
+          font-family: 'Inter', sans-serif !important;
+        }
+        :root, body, .app-shell { font-size: 14px; }
+      `}</style>
       {mobileMenuOpen && (
   <button
     type="button"
