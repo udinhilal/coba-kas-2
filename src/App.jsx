@@ -1,5 +1,5 @@
 // Pinned subject: simple RT finance app for a neighborhood treasurer. Plan: warm paper ledger meets modern utility, with terracotta as the one owned accent, a fast entry flow, and monthly recaps that make cash movement obvious.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, FileText, Home, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import "./styles.css";
@@ -31,16 +31,10 @@ const getTanggalTransaksi = () => {
   }).format(new Date());
 };
 
-const getDaftarPeriode = (tahunSebelumnya = 10, tahunBerikutnya = 10) => {
+const getDaftarPeriode = () => {
+  // Tampilkan hanya Januari–Desember pada tahun berjalan.
   const tahunSekarang = new Date().getFullYear();
-  const daftar = [];
-
-  // Semua pilihan bulan dibuat dinamis: 10 tahun sebelum sampai 10 tahun sesudah tahun berjalan.
-  for (let tahun = tahunSekarang - tahunSebelumnya; tahun <= tahunSekarang + tahunBerikutnya; tahun++) {
-    namaBulan.forEach((bulan) => daftar.push(`${bulan} ${tahun}`));
-  }
-
-  return daftar;
+  return namaBulan.map((bulan) => `${bulan} ${tahunSekarang}`);
 };
 
 const cocokPeriode = (item, periode) => {
@@ -94,6 +88,7 @@ const exportExcel = (entries, period = "Semua periode") => {
 
 export default function App({ user, onSignOut }) {
   const [active, setActive] = useState("overview");
+  const signOutStarted = useRef(false);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [lastSync, setLastSync] = useState(() => localStorage.getItem("kas-warga-rt-last-sync") || "Belum disinkronkan");
   const stored = readStored();
@@ -136,18 +131,50 @@ export default function App({ user, onSignOut }) {
     window.addEventListener("online", online); window.addEventListener("offline", offline);
     return () => { window.removeEventListener("online", online); window.removeEventListener("offline", offline); };
   }, []);
-  // Keluar otomatis dari sesi saat halaman ditinggalkan atau tab/jendela ditutup.
-  // Browser juga memicu pagehide saat halaman dimuat ulang atau navigasi ke luar aplikasi.
+  // Keluar otomatis: setelah 15 menit tanpa aktivitas, serta upaya saat tab/jendela ditutup.
+  // Catatan: browser dapat menghentikan permintaan jaringan saat ditutup; timeout tidak bergantung pada pagehide.
   useEffect(() => {
-    const handlePageHide = () => {
+    if (typeof onSignOut !== "function") return undefined;
+
+    let idleTimer;
+    const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
+
+    const jalankanLogout = (alasan = "otomatis") => {
+      if (signOutStarted.current) return;
+      signOutStarted.current = true;
+      window.removeEventListener("pagehide", handlePageHide);
       try {
-        onSignOut?.();
+        const hasil = onSignOut();
+        if (hasil && typeof hasil.catch === "function") {
+          hasil.catch((error) => {
+            console.error(`Gagal menjalankan logout ${alasan}:`, error);
+            signOutStarted.current = false;
+          });
+        }
       } catch (error) {
-        console.error("Gagal menjalankan keluar otomatis:", error);
+        console.error(`Gagal menjalankan logout ${alasan}:`, error);
+        signOutStarted.current = false;
       }
     };
+
+    const handlePageHide = () => jalankanLogout("saat halaman ditutup");
+    const aturUlangTimer = () => {
+      window.clearTimeout(idleTimer);
+      if (!signOutStarted.current) {
+        idleTimer = window.setTimeout(() => jalankanLogout("karena tidak aktif selama 15 menit"), IDLE_TIMEOUT_MS);
+      }
+    };
+
+    const aktivitas = ["pointerdown", "keydown", "mousemove", "touchstart", "scroll"];
+    aktivitas.forEach((eventName) => window.addEventListener(eventName, aturUlangTimer, { passive: true }));
     window.addEventListener("pagehide", handlePageHide);
-    return () => window.removeEventListener("pagehide", handlePageHide);
+    aturUlangTimer();
+
+    return () => {
+      window.clearTimeout(idleTimer);
+      aktivitas.forEach((eventName) => window.removeEventListener(eventName, aturUlangTimer));
+      window.removeEventListener("pagehide", handlePageHide);
+    };
   }, [onSignOut]);
   useEffect(() => {
     setEntries((current) => current.map((item) => item.resident ? item : { ...item, resident: residents.find((r) => r.block === item.block && r.subBlock === item.subBlock)?.name || "Nama belum diisi" }));
