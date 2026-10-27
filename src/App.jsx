@@ -1,6 +1,6 @@
 // Pinned subject: simple RT finance app for a neighborhood treasurer. Plan: warm paper ledger meets modern utility, with terracotta as the one owned accent, a fast entry flow, and monthly recaps that make cash movement obvious.
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, FileText, Home, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, FileText, Home, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import "./styles.css";
 
@@ -117,6 +117,7 @@ export default function App({ user, onSignOut }) {
   const [notice, setNotice] = useState("");
   const [summaryPeriod, setSummaryPeriod] = useState("Oktober 2026");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const fileInput = { current: null };
 
   useEffect(() => {
@@ -294,7 +295,15 @@ const record = {
   };
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      {mobileMenuOpen && (
+  <button
+    type="button"
+    className="mobile-menu-backdrop"
+    aria-label="Tutup menu"
+    onClick={() => setMobileMenuOpen(false)}
+  />
+)}
+      <aside className={`sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
         <div className="brand"><Logo /><div><strong>kas warga</strong><small>RT 26 / RW 04</small></div></div>
         <div className="side-label">Menu utama</div>
         <nav>
@@ -302,11 +311,11 @@ const record = {
             <button className={`nav-item ${active === id ? "active" : ""}`} key={id} onClick={() => { setActive(id); setSettingsOpen(false); if (id === "input") { setPaymentPeriod(getPeriodeSekarang()); setBlock(""); setPaymentSubBlock(""); setResident(""); setClean(""); setKas(""); setOther(""); setEditingEntry(null); } }}><Icon size={18} />{label}{id === "input" && <span className="nav-dot" />}</button>
           ))}
         </nav>
-        <div className="side-bottom"><button className={`nav-item ${settingsOpen ? "active" : ""}`} onClick={() => { setSettingsOpen(!settingsOpen); if (!settingsOpen) setActive("settings"); }}><Settings2 size={18} />Pengaturan</button><div className="profile"><span className="avatar">{(user?.user_metadata?.full_name || user?.email || "W").slice(0,2).toUpperCase()}</span><div><b>{user?.user_metadata?.full_name || "Pengelola"}</b><small>{user?.email || "Akun terverifikasi"}</small></div><button type="button" className="signout-btn" onClick={onSignOut}>Keluar</button></div></div>
+        <div className="side-bottom"><button className={`nav-item ${settingsOpen ? "active" : ""}`} onClick={() => {setSettingsOpen(!settingsOpen);if (!settingsOpen) setActive("settings");setMobileMenuOpen(false);}}><Settings2 size={18} />Pengaturan</button><div className="profile"><span className="avatar">{(user?.user_metadata?.full_name || user?.email || "W").slice(0,2).toUpperCase()}</span><div><b>{user?.user_metadata?.full_name || "Pengelola"}</b><small>{user?.email || "Akun terverifikasi"}</small></div><button type="button" className="signout-btn" onClick={onSignOut}>Keluar</button></div></div>
       </aside>
       <main className="main">
         <div className="connection-status"><span /> {isOnline ? "Online" : "Mode offline"} · {isOnline ? `Sinkron terakhir: ${lastSync}` : "Data tersimpan di perangkat"}</div>
-        <header className="topbar"><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
+        <header className="topbar"><buttontype="button"className="mobile-menu-toggle"onClick={() => setMobileMenuOpen(!mobileMenuOpen)}aria-label="Buka atau tutup menu">{mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}</button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
         {active === "overview" && !settingsOpen && <Overview entries={entries} residents={residents} total={total} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} startEditEntry={startEditEntry} deleteEntry={deleteEntry} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
