@@ -585,9 +585,11 @@ const record = {
 
         /* Cetak/PDF: tata letak ringkas, terutama saat ekspor dari ponsel.
            Seluruh data tetap dicetak; yang disembunyikan hanya navigasi dan kontrol layar. */
+        /* PDF/cetak selalu A4 portrait di HP maupun PC/laptop.
+           Konten panjang berlanjut ke halaman berikutnya, bukan dipotong. */
         @page {
-          size: A4 landscape;
-          margin: 8mm;
+          size: A4 portrait;
+          margin: 7mm;
         }
         @media print {
           html, body, #root, .app-shell {
@@ -691,7 +693,17 @@ const record = {
             border-collapse: collapse !important;
             table-layout: auto !important;
           }
-          table { font-size: 8px !important; }
+          /* Izinkan tabel panjang berlanjut ke halaman berikutnya. */
+          .table-card {
+            break-inside: auto !important;
+            page-break-inside: auto !important;
+          }
+          table {
+            font-size: 8px !important;
+            page-break-inside: auto !important;
+          }
+          thead { display: table-header-group !important; }
+          tbody { display: table-row-group !important; }
           th, td, .table-card th, .table-card td {
             padding: 4px 5px !important;
             line-height: 1.2 !important;
