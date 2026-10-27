@@ -315,7 +315,14 @@ const record = {
       </aside>
       <main className="main">
         <div className="connection-status"><span /> {isOnline ? "Online" : "Mode offline"} · {isOnline ? `Sinkron terakhir: ${lastSync}` : "Data tersimpan di perangkat"}</div>
-        <header className="topbar"><buttontype="button"className="mobile-menu-toggle"onClick={() => setMobileMenuOpen(!mobileMenuOpen)}aria-label="Buka atau tutup menu">{mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}</button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
+        <header className="topbar"><button
+  type="button"
+  className="mobile-menu-toggle"
+  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+  aria-label="Buka atau tutup menu"
+>
+  {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+</button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
         {active === "overview" && !settingsOpen && <Overview entries={entries} residents={residents} total={total} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} startEditEntry={startEditEntry} deleteEntry={deleteEntry} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
