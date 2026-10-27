@@ -154,7 +154,16 @@ export default function App({ user, onSignOut }) {
   const addExpense = (event) => {
     event.preventDefault();
     if (!expenseTitle.trim() || Number(expenseAmount) <= 0) return;
-    const record = { id: editingExpense || Date.now(), date: editingExpense ? editingExpense.date : "23 Okt 2026", title: expenseTitle.trim(), amount: Number(expenseAmount) };
+    
+const record = {
+  id: editingExpense ? editingExpense.id : Date.now(),
+  date: editingExpense
+    ? editingExpense.date
+    : getTanggalTransaksi(),
+  title: expenseTitle.trim(),
+  amount: Number(expenseAmount)
+};
+
     setCashOut(editingExpense ? cashOut.map((item) => item.id === editingExpense.id ? record : item) : [record, ...cashOut]);
     setEditingExpense(null);
     setExpenseTitle("");
@@ -213,7 +222,6 @@ export default function App({ user, onSignOut }) {
   setTimeout(() => setNotice(""), 2200);
 };
   
-  };
   const addResident = (e) => {
     e.preventDefault();
     const name = residentName.trim();
