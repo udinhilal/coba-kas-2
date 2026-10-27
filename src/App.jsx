@@ -352,6 +352,184 @@ const record = {
           font-family: 'Inter', sans-serif !important;
         }
         :root, body, .app-shell { font-size: 14px; }
+
+        /* Tema Emerald Modern: hijau elegan, latar segar, dan kartu bersih */
+        :root {
+          --emerald-forest: #123B31;
+          --emerald: #0F766E;
+          --emerald-hover: #115E59;
+          --mint: #34D399;
+          --page-bg: #F3F8F5;
+          --surface: #FFFFFF;
+          --border-soft: #DCE9E2;
+          --text-main: #20352E;
+          --text-muted: #6B7F76;
+        }
+        body, .app-shell, .main {
+          background: var(--page-bg) !important;
+          color: var(--text-main);
+        }
+        .sidebar {
+          background: var(--emerald-forest) !important;
+          color: #F2FBF6 !important;
+          border-color: #245347 !important;
+        }
+        .brand strong, .brand small, .side-label, .sidebar .nav-item,
+        .sidebar .profile, .sidebar .profile small {
+          color: #E5F4EC !important;
+        }
+        .brand-mark {
+          color: var(--mint) !important;
+        }
+        .sidebar .nav-item {
+          border-color: transparent !important;
+        }
+        .sidebar .nav-item:hover, .sidebar .nav-item.active {
+          background: rgba(52, 211, 153, .15) !important;
+          color: #FFFFFF !important;
+        }
+        .sidebar .nav-item.active {
+          box-shadow: inset 3px 0 0 var(--mint);
+        }
+        .avatar, .resident-avatar {
+          background: #D1FAE5 !important;
+          color: var(--emerald-forest) !important;
+        }
+        .main, .content {
+          color: var(--text-main);
+        }
+        .topbar, .section-head, .form-intro, .report-toolbar {
+          color: var(--text-main);
+        }
+        .eyebrow, .muted, .subcopy, .field-hint, .stat-card small,
+        .history-empty, .login-note {
+          color: var(--text-muted);
+        }
+        .hero-card, .recap-banner, .recap-banner.cashflow-banner,
+        .cashflow-banner, .report-heading {
+          background: linear-gradient(125deg, #123B31 0%, #0F766E 100%) !important;
+          color: #FFFFFF !important;
+          border-color: #0F766E !important;
+        }
+        .hero-card .eyebrow, .hero-card .hero-note,
+        .recap-banner .eyebrow, .recap-banner h2, .recap-banner p,
+        .cashflow-banner .eyebrow, .cashflow-banner h2, .cashflow-banner p {
+          color: #F0FDF4 !important;
+        }
+        .hero-art .sun, .login-sun {
+          background: var(--mint) !important;
+        }
+        .hero-art .hill, .login-orbit {
+          border-color: rgba(167, 243, 208, .5) !important;
+        }
+        .stat-card, .big-card, .table-card, .form-card, .history-card,
+        .backup-card, .balance-settings, .public-breakdown, .public-kpi,
+        .resident-card, .report-paper, .expense-form, .login-card {
+          background: var(--surface) !important;
+          border-color: var(--border-soft) !important;
+          box-shadow: 0 8px 24px rgba(18, 59, 49, .055) !important;
+        }
+        .stat-icon.green, .stat-icon.gold {
+          background: #D1FAE5 !important;
+          color: var(--emerald) !important;
+        }
+        .stat-icon.red {
+          background: #FCE7E7 !important;
+          color: #B45353 !important;
+        }
+        .primary-btn, .login-btn {
+          background: var(--emerald) !important;
+          color: #FFFFFF !important;
+          border-color: var(--emerald) !important;
+        }
+        .primary-btn:hover, .login-btn:hover {
+          background: var(--emerald-hover) !important;
+          border-color: var(--emerald-hover) !important;
+        }
+        .text-btn, .print-btn, .restore-btn {
+          color: var(--emerald) !important;
+        }
+        .outline-light {
+          color: #FFFFFF !important;
+          border-color: rgba(255,255,255,.65) !important;
+          background: rgba(255,255,255,.08) !important;
+        }
+        .outline-light:hover {
+          background: rgba(255,255,255,.18) !important;
+        }
+        input, select, textarea, .input-money {
+          border-color: #C9DCD2 !important;
+          background-color: #FFFFFF !important;
+          color: var(--text-main) !important;
+        }
+        input:focus, select:focus, textarea:focus {
+          border-color: var(--emerald) !important;
+          outline-color: rgba(15, 118, 110, .18) !important;
+          box-shadow: 0 0 0 3px rgba(15, 118, 110, .10) !important;
+        }
+        .input-money > span {
+          color: var(--emerald) !important;
+          background: #F0FDF4 !important;
+        }
+        .table-card table thead, .table-card thead tr {
+          background: #EAF4EE !important;
+        }
+        .table-card th {
+          color: #31594B !important;
+        }
+        .table-card tbody tr:hover {
+          background: #F5FBF7 !important;
+        }
+        .block-tag, .status-paid, .flow-in {
+          background: #D1FAE5 !important;
+          color: #065F46 !important;
+          border-color: #A7F3D0 !important;
+        }
+        .flow-out, .icon-btn.delete {
+          background: #FCE7E7 !important;
+          color: #B45353 !important;
+        }
+        .icon-btn.edit {
+          background: #E6F4ED !important;
+          color: var(--emerald) !important;
+        }
+        .bar, .bar i {
+          background: #D1FAE5 !important;
+        }
+        .bar i {
+          background: var(--emerald) !important;
+        }
+        .notebook-icon, .tip > span, .history-dot {
+          background: #D1FAE5 !important;
+          color: var(--emerald) !important;
+        }
+        .privacy-note {
+          background: #ECFDF5 !important;
+          border-color: #A7F3D0 !important;
+          color: #065F46 !important;
+        }
+        .connection-status span, .nav-dot {
+          background: var(--mint) !important;
+        }
+        .mobile-menu-backdrop {
+          background: rgba(8, 32, 25, .48) !important;
+        }
+        .toast {
+          background: #123B31 !important;
+          color: #FFFFFF !important;
+        }
+        .login-screen {
+          background: var(--page-bg) !important;
+        }
+        .login-art {
+          background: linear-gradient(145deg, #123B31 0%, #0F766E 100%) !important;
+        }
+        .login-copy {
+          color: var(--text-muted);
+        }
+        @media (max-width: 760px) {
+          .sidebar { background: var(--emerald-forest) !important; }
+        }
       `}</style>
       {mobileMenuOpen && (
   <button
