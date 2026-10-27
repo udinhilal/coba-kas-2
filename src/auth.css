@@ -38,3 +38,32 @@
 .auth-submit:not(:disabled):hover { filter: brightness(0.96); }
 .auth-links button:hover, .auth-password-toggle:hover { color: #065f46; }
 .auth-card { box-shadow: 0 18px 60px rgba(6, 78, 59, 0.10); }
+
+
+/* Paksa tombol utama login memakai warna emerald, mengalahkan style global */
+.auth-card .auth-submit,
+.auth-card .auth-submit:visited {
+  background: #059669 !important;
+  background-color: #059669 !important;
+  border: 1px solid #059669 !important;
+  color: #ffffff !important;
+}
+
+.auth-card .auth-submit:not(:disabled):hover {
+  background: #047857 !important;
+  background-color: #047857 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+}
+
+.auth-card .auth-submit:focus-visible {
+  outline: 3px solid #6ee7b7 !important;
+  outline-offset: 2px;
+}
+
+.auth-card .auth-submit:disabled {
+  background: #6ee7b7 !important;
+  background-color: #6ee7b7 !important;
+  border-color: #6ee7b7 !important;
+  color: #064e3b !important;
+}
