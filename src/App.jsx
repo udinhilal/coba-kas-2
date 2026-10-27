@@ -12,6 +12,38 @@ const formatTanggalIndonesia = (date = new Date()) =>
     year: "numeric",
   }).format(date);
 
+const namaBulan = [
+  "Januari", "Februari", "Maret", "April",
+  "Mei", "Juni", "Juli", "Agustus",
+  "September", "Oktober", "November", "Desember"
+];
+
+const getPeriodeSekarang = () => {
+  const sekarang = new Date();
+  return `${namaBulan[sekarang.getMonth()]} ${sekarang.getFullYear()}`;
+};
+
+const getTanggalTransaksi = () => {
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date());
+};
+
+const getDaftarPeriode = (jumlahTahun = 5) => {
+  const sekarang = new Date();
+  const daftar = [];
+
+  // Periode dari beberapa tahun sebelumnya sampai beberapa tahun ke depan.
+  for (let i = jumlahTahun; i >= -1; i--) {
+    const tahun = sekarang.getFullYear() - i;
+    namaBulan.forEach((bulan) => daftar.push(`${bulan} ${tahun}`));
+  }
+
+  return daftar;
+};
+
 const seedResidents = [
   { id: 1, block: "A", subBlock: "A1", name: "Budi Santoso", house: "A-01" },
   { id: 2, block: "A", subBlock: "A2", name: "Siti Aminah", house: "A-02" },
@@ -72,7 +104,7 @@ export default function App({ user, onSignOut }) {
   const [clean, setClean] = useState("");
   const [kas, setKas] = useState("");
   const [other, setOther] = useState("");
-  const [paymentPeriod, setPaymentPeriod] = useState("");
+  const [paymentPeriod, setPaymentPeriod] = useState(getPeriodeSekarang());
   const [residentName, setResidentName] = useState("");
   const [residentBlock, setResidentBlock] = useState("A");
   const [residentSubBlock, setResidentSubBlock] = useState("A1");
@@ -131,13 +163,56 @@ export default function App({ user, onSignOut }) {
     setTimeout(() => setNotice(""), 2200);
   };
   const addEntry = (e) => {
-    e.preventDefault();
-    const record = { id: editingEntry || Date.now(), date: editingEntry ? editingEntry.date : `23 ${paymentPeriod.replace("2026", "")}`.trim(), period: paymentPeriod, resident, block: block.trim().toUpperCase(), subBlock: paymentSubBlock || autoSubBlock, clean: Number(clean), kas: Number(kas), other: Number(other) };
-    setEntries(editingEntry ? entries.map((item) => item.id === editingEntry.id ? record : item) : [record, ...entries]);
-    setEditingEntry(null);
-    setPaymentPeriod(""); setBlock(""); setResident(""); setClean(""); setKas(""); setOther(""); setPaymentSubBlock("");
-    setNotice(editingEntry ? "Pembayaran diperbarui" : "Pembayaran tersimpan");
-    setTimeout(() => setNotice(""), 2200);
+  e.preventDefault();
+
+  const record = {
+    id: editingEntry ? editingEntry.id : Date.now(),
+
+    // Tanggal transaksi mengikuti tanggal saat ini.
+    // Jika mengedit transaksi lama, tanggalnya dipertahankan.
+    date: editingEntry
+      ? editingEntry.date
+      : getTanggalTransaksi(),
+
+    // Periode iuran dipilih terpisah dari tanggal transaksi.
+    period: paymentPeriod || getPeriodeSekarang(),
+
+    resident,
+    block: block.trim().toUpperCase(),
+    subBlock: paymentSubBlock || autoSubBlock,
+    clean: Number(clean),
+    kas: Number(kas),
+    other: Number(other),
+  };
+
+  setEntries(
+    editingEntry
+      ? entries.map((item) =>
+          item.id === editingEntry.id ? record : item
+        )
+      : [record, ...entries]
+  );
+
+  setEditingEntry(null);
+
+  // Setelah penyimpanan, form kembali ke periode bulan ini.
+  setPaymentPeriod(getPeriodeSekarang());
+  setBlock("");
+  setResident("");
+  setClean("");
+  setKas("");
+  setOther("");
+  setPaymentSubBlock("");
+
+  setNotice(
+    editingEntry
+      ? "Pembayaran diperbarui"
+      : "Pembayaran berhasil dicatat"
+  );
+
+  setTimeout(() => setNotice(""), 2200);
+};
+  
   };
   const addResident = (e) => {
     e.preventDefault();
@@ -216,7 +291,7 @@ export default function App({ user, onSignOut }) {
         <div className="side-label">Menu utama</div>
         <nav>
           {[["overview", Home, "Ringkasan"], ["input", ReceiptText, "Input pembayaran"], ["cashflow", WalletCards, "Arus keuangan"], ["recap", CalendarDays, "Rekap bulanan"], ["report", FileText, "Laporan warga"], ["public", Users, "Ringkasan publik"], ["residents", Users, "Data warga"]].map(([id, Icon, label]) => (
-            <button className={`nav-item ${active === id ? "active" : ""}`} key={id} onClick={() => { setActive(id); setSettingsOpen(false); if (id === "input") { setPaymentPeriod(""); setBlock(""); setPaymentSubBlock(""); setResident(""); setClean(""); setKas(""); setOther(""); setEditingEntry(null); } }}><Icon size={18} />{label}{id === "input" && <span className="nav-dot" />}</button>
+            <button className={`nav-item ${active === id ? "active" : ""}`} key={id} onClick={() => { setActive(id); setSettingsOpen(false); if (id === "input") { setPaymentPeriod(getPeriodeSekarang()); setBlock(""); setPaymentSubBlock(""); setResident(""); setClean(""); setKas(""); setOther(""); setEditingEntry(null); } }}><Icon size={18} />{label}{id === "input" && <span className="nav-dot" />}</button>
           ))}
         </nav>
         <div className="side-bottom"><button className={`nav-item ${settingsOpen ? "active" : ""}`} onClick={() => { setSettingsOpen(!settingsOpen); if (!settingsOpen) setActive("settings"); }}><Settings2 size={18} />Pengaturan</button><div className="profile"><span className="avatar">{(user?.user_metadata?.full_name || user?.email || "W").slice(0,2).toUpperCase()}</span><div><b>{user?.user_metadata?.full_name || "Pengelola"}</b><small>{user?.email || "Akun terverifikasi"}</small></div><button type="button" className="signout-btn" onClick={onSignOut}>Keluar</button></div></div>
@@ -269,7 +344,20 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
     const match = residents.find((r) => r.block.trim().toUpperCase() === nextBlock.trim().toUpperCase() && r.subBlock === nextSubBlock);
     setResident(match?.name || "");
   };
-  return <section className="content narrow"><div className="form-intro"><div className="notebook-icon"><BookOpen size={25} /></div><div><h2>Catat iuran warga</h2><p>Isi sekali, total dihitung otomatis. Praktis buat bendahara.</p></div></div><form className="form-card" onSubmit={addEntry}><div className="form-grid"><label>Periode<select value={paymentPeriod} onChange={e => setPaymentPeriod(e.target.value)}><option value="">Pilih periode</option>{["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"].map((month) => <option key={month}>{month} 2026</option>)}</select></label><label>Blok<input value={block} onChange={(e) => { const nextBlock = e.target.value.toUpperCase(); const firstSub = residents.find((r) => r.block.trim().toUpperCase() === nextBlock)?.subBlock || ""; setBlock(nextBlock); setPaymentSubBlock(firstSub); syncResident(nextBlock, firstSub); }} placeholder="Contoh: A" required /></label><label>Sub blok<select value={paymentSubBlock} onChange={(e) => { setPaymentSubBlock(e.target.value); syncResident(block, e.target.value); }} disabled={!normalizedBlock}><option value="">{normalizedBlock ? "Pilih sub blok" : "Isi blok dahulu"}</option>{subBlocksForBlock.map((sub) => <option key={sub} value={sub}>{sub}</option>)}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label><label>Iuran kebersihan<div className="input-money"><span>Rp</span><input type="number" min="0" value={clean} onChange={(e) => setClean(e.target.value)} /></div></label><label>Iuran kas RT<div className="input-money"><span>Rp</span><input type="number" min="0" value={kas} onChange={(e) => setKas(e.target.value)} /></div></label><label>Iuran lainnya <em>opsional</em><div className="input-money"><span>Rp</span><input type="number" min="0" value={other} onChange={(e) => setOther(e.target.value)} /></div></label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}</div></form><div className="tip"><span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
+  return <section className="content narrow"><div className="form-intro"><div className="notebook-icon"><BookOpen size={25} /></div><div><h2>Catat iuran warga</h2><p>Isi sekali, total dihitung otomatis. Praktis buat bendahara.</p></div></div><form className="form-card" onSubmit={addEntry}><div className="form-grid"><label>
+  Periode pembayaran
+  <select
+    value={paymentPeriod}
+    onChange={(e) => setPaymentPeriod(e.target.value)}
+    required
+  >
+    {getDaftarPeriode().map((periode) => (
+      <option key={periode} value={periode}>
+        {periode}
+      </option>
+    ))}
+  </select>
+</label><label>Blok<input value={block} onChange={(e) => { const nextBlock = e.target.value.toUpperCase(); const firstSub = residents.find((r) => r.block.trim().toUpperCase() === nextBlock)?.subBlock || ""; setBlock(nextBlock); setPaymentSubBlock(firstSub); syncResident(nextBlock, firstSub); }} placeholder="Contoh: A" required /></label><label>Sub blok<select value={paymentSubBlock} onChange={(e) => { setPaymentSubBlock(e.target.value); syncResident(block, e.target.value); }} disabled={!normalizedBlock}><option value="">{normalizedBlock ? "Pilih sub blok" : "Isi blok dahulu"}</option>{subBlocksForBlock.map((sub) => <option key={sub} value={sub}>{sub}</option>)}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label><label>Iuran kebersihan<div className="input-money"><span>Rp</span><input type="number" min="0" value={clean} onChange={(e) => setClean(e.target.value)} /></div></label><label>Iuran kas RT<div className="input-money"><span>Rp</span><input type="number" min="0" value={kas} onChange={(e) => setKas(e.target.value)} /></div></label><label>Iuran lainnya <em>opsional</em><div className="input-money"><span>Rp</span><input type="number" min="0" value={other} onChange={(e) => setOther(e.target.value)} /></div></label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}</div></form><div className="tip"><span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
 }
 function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{entries.map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
 function ResidentReport({ entries, cashOut, runningBalance }) { const incoming=entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing=cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content report-page"><div className="report-toolbar"><div><span className="eyebrow">Dokumen warga</span><h2>Laporan Pertanggungjawaban</h2><p className="subcopy">Ringkasan kas RT 26 / RW 04.</p></div><button className="primary-btn" onClick={()=>window.print()}><FileText size={17}/> Cetak / Simpan PDF</button></div><div className="report-paper"><div className="report-heading"><div><div className="report-kicker">RT 26 / RW 04</div><h1>Laporan Pertanggungjawaban Kas</h1><p>Periode berjalan</p></div></div><p className="report-intro">Ringkasan pemasukan dan pengeluaran kas warga untuk diketahui bersama.</p><div className="report-stats"><div><span>Total pemasukan</span><b>{money(incoming)}</b></div><div><span>Total pengeluaran</span><b>{money(outgoing)}</b></div><div><span>Saldo akhir</span><b>{money(runningBalance)}</b></div></div><h3>Rincian pemasukan</h3><table><tbody>{entries.map(e=><tr key={e.id}><td>{e.resident}</td><td>{e.date}</td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}</tbody></table><h3>Rincian pengeluaran</h3><table><tbody>{cashOut.map(e=><tr key={e.id}><td>{e.title}</td><td>{e.date}</td><td>{money(e.amount)}</td></tr>)}</tbody></table><div className="report-footer"><p>Demikian laporan ini dibuat untuk dapat diketahui bersama.</p><div><span>Bendahara RT</span><strong>Bendahara RT</strong></div></div></div></section>; }
