@@ -416,6 +416,45 @@ const record = {
         .cashflow-banner .eyebrow, .cashflow-banner h2, .cashflow-banner p {
           color: #F0FDF4 !important;
         }
+        .report-heading {
+          padding: 28px 32px !important;
+          border-radius: 12px !important;
+          min-height: 150px;
+          display: flex;
+          align-items: center;
+        }
+        .report-heading .report-kicker,
+        .report-heading h1,
+        .report-heading p {
+          color: #FFFFFF !important;
+        }
+        .report-heading h1 {
+          margin: 8px 0 !important;
+          line-height: 1.2 !important;
+        }
+        .report-period-control {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+          margin: 0 0 20px;
+          color: var(--text-muted);
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .report-period-control select {
+          min-width: 190px;
+          padding: 10px 12px;
+          border: 1px solid var(--border-soft);
+          border-radius: 10px;
+          background: #FFFFFF;
+          color: var(--text-main);
+          font: inherit;
+        }
+        .report-period-control select:focus {
+          outline: 2px solid rgba(15, 118, 110, .2);
+          border-color: var(--emerald);
+        }
         .hero-art .sun, .login-sun {
           background: var(--mint) !important;
         }
@@ -530,6 +569,134 @@ const record = {
         @media (max-width: 760px) {
           .sidebar { background: var(--emerald-forest) !important; }
         }
+
+        /* Cetak/PDF: tata letak ringkas, terutama saat ekspor dari ponsel.
+           Seluruh data tetap dicetak; yang disembunyikan hanya navigasi dan kontrol layar. */
+        @page {
+          size: A4 landscape;
+          margin: 8mm;
+        }
+        @media print {
+          html, body, #root, .app-shell {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #FFFFFF !important;
+          }
+          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .sidebar, .topbar, .connection-status, .mobile-menu-backdrop,
+          .recap-actions, .public-controls, .report-toolbar .primary-btn,
+          .search, .toast, .login-screen {
+            display: none !important;
+          }
+          .main {
+            display: block !important;
+            width: 100% !important;
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #FFFFFF !important;
+          }
+          .content, .content.narrow, .recap-page, .public-summary, .report-page {
+            display: block !important;
+            width: 100% !important;
+            max-width: none !important;
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #FFFFFF !important;
+            box-shadow: none !important;
+          }
+          .recap-banner, .hero-card, .report-heading {
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 0 7px !important;
+            padding: 10px 14px !important;
+            border-radius: 5px !important;
+            box-shadow: none !important;
+            break-inside: avoid !important;
+          }
+          .recap-banner h2, .hero-card h2, .report-heading h1 {
+            margin: 2px 0 !important;
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+          .recap-banner p, .hero-card p, .report-heading p {
+            margin: 2px 0 0 !important;
+            font-size: 9px !important;
+          }
+          .eyebrow { font-size: 8px !important; letter-spacing: .08em !important; }
+          .recap-grid, .public-kpis, .report-stats {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 7px !important;
+            margin: 7px 0 !important;
+          }
+          .big-card, .public-kpi, .public-breakdown, .privacy-note, .report-paper,
+          .table-card {
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 0 7px !important;
+            padding: 8px 10px !important;
+            border-radius: 5px !important;
+            box-shadow: none !important;
+            break-inside: avoid;
+          }
+          .big-card strong, .public-kpi strong, .report-stats b {
+            margin: 2px 0 !important;
+            font-size: 14px !important;
+            line-height: 1.2 !important;
+          }
+          .big-card small, .public-kpi small, .public-kpi span {
+            font-size: 8px !important;
+          }
+          .bar { height: 4px !important; margin: 4px 0 !important; }
+          .section-head {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: end !important;
+            gap: 8px !important;
+            margin: 7px 0 4px !important;
+            padding: 0 !important;
+          }
+          .section-head h2, .report-paper h3, .public-breakdown h2 {
+            margin: 1px 0 3px !important;
+            font-size: 12px !important;
+            line-height: 1.2 !important;
+          }
+          .table-card, .table-card table, .recap-page table, .report-paper table {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow: visible !important;
+            border-collapse: collapse !important;
+            table-layout: auto !important;
+          }
+          table { font-size: 8px !important; }
+          th, td, .table-card th, .table-card td {
+            padding: 4px 5px !important;
+            line-height: 1.2 !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            vertical-align: top !important;
+          }
+          thead { display: table-header-group !important; }
+          tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+          .table-card thead tr { background: #EAF4EE !important; }
+          .status-paid, .block-tag { padding: 2px 4px !important; font-size: 7px !important; }
+          .report-paper { padding: 10px !important; }
+          .report-intro, .report-footer p { margin: 6px 0 !important; font-size: 9px !important; }
+          .report-footer { margin-top: 10px !important; }
+          .public-breakdown-row { padding: 5px 0 !important; }
+          .public-footer { margin-top: 6px !important; padding-top: 5px !important; font-size: 8px !important; }
+          * { animation: none !important; transition: none !important; }
+        }
       `}</style>
       {mobileMenuOpen && (
   <button
@@ -620,7 +787,7 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
 </label><label>Blok<input value={block} onChange={(e) => { const nextBlock = e.target.value.toUpperCase(); const firstSub = residents.find((r) => r.block.trim().toUpperCase() === nextBlock)?.subBlock || ""; setBlock(nextBlock); setPaymentSubBlock(firstSub); syncResident(nextBlock, firstSub); }} placeholder="Contoh: A" required /></label><label>Sub blok<select value={paymentSubBlock} onChange={(e) => { setPaymentSubBlock(e.target.value); syncResident(block, e.target.value); }} disabled={!normalizedBlock}><option value="">{normalizedBlock ? "Pilih sub blok" : "Isi blok dahulu"}</option>{subBlocksForBlock.map((sub) => <option key={sub} value={sub}>{sub}</option>)}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label><label>Iuran kebersihan<div className="input-money"><span>Rp</span><input type="number" min="0" value={clean} onChange={(e) => setClean(e.target.value)} /></div></label><label>Iuran kas RT<div className="input-money"><span>Rp</span><input type="number" min="0" value={kas} onChange={(e) => setKas(e.target.value)} /></div></label><label>Iuran lainnya <em>opsional</em><div className="input-money"><span>Rp</span><input type="number" min="0" value={other} onChange={(e) => setOther(e.target.value)} /></div></label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}</div></form><div className="tip"><span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
 }
 function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{entries.map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
-function ResidentReport({ entries, cashOut, runningBalance }) { const incoming=entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing=cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content report-page"><div className="report-toolbar"><div><span className="eyebrow">Dokumen warga</span><h2>Laporan Pertanggungjawaban</h2><p className="subcopy">Ringkasan kas RT 26 / RW 04.</p></div><button className="primary-btn" onClick={()=>window.print()}><FileText size={17}/> Cetak / Simpan PDF</button></div><div className="report-paper"><div className="report-heading"><div><div className="report-kicker">RT 26 / RW 04</div><h1>Laporan Pertanggungjawaban Kas</h1><p>Periode berjalan</p></div></div><p className="report-intro">Ringkasan pemasukan dan pengeluaran kas warga untuk diketahui bersama.</p><div className="report-stats"><div><span>Total pemasukan</span><b>{money(incoming)}</b></div><div><span>Total pengeluaran</span><b>{money(outgoing)}</b></div><div><span>Saldo akhir</span><b>{money(runningBalance)}</b></div></div><h3>Rincian pemasukan</h3><table><tbody>{entries.map(e=><tr key={e.id}><td>{e.resident}</td><td>{e.date}</td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}</tbody></table><h3>Rincian pengeluaran</h3><table><tbody>{cashOut.map(e=><tr key={e.id}><td>{e.title}</td><td>{e.date}</td><td>{money(e.amount)}</td></tr>)}</tbody></table><div className="report-footer"><p>Demikian laporan ini dibuat untuk dapat diketahui bersama.</p><div><span>Bendahara RT</span><strong>Bendahara RT</strong></div></div></div></section>; }
+function ResidentReport({ entries, cashOut, runningBalance }) { const [reportPeriod, setReportPeriod] = useState(getPeriodeSekarang()); const reportEntries = entries.filter(e => cocokPeriode(e, reportPeriod)); const reportExpenses = cashOut.filter(e => cocokPeriode(e, reportPeriod)); const incoming = reportEntries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = reportExpenses.reduce((a,e)=>a+e.amount,0); return <section className="content report-page"><div className="report-toolbar"><div><span className="eyebrow">Dokumen warga</span><h2>Laporan Pertanggungjawaban</h2><p className="subcopy">Ringkasan kas RT 26 / RW 04.</p></div><button className="primary-btn" onClick={()=>window.print()}><FileText size={17}/> Cetak / Simpan PDF</button></div><label className="report-period-control">Pilih bulan laporan<select value={reportPeriod} onChange={e=>setReportPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map(periode=><option key={periode} value={periode}>{periode}</option>)}</select></label><div className="report-paper"><div className="report-heading"><div><div className="report-kicker">RT 26 / RW 04</div><h1>Laporan Pertanggungjawaban Kas</h1><p>{reportPeriod === "Semua periode" ? "Semua periode" : `Periode ${reportPeriod}`}</p></div></div><p className="report-intro">Ringkasan pemasukan dan pengeluaran kas warga untuk diketahui bersama.</p><div className="report-stats"><div><span>Total pemasukan</span><b>{money(incoming)}</b></div><div><span>Total pengeluaran</span><b>{money(outgoing)}</b></div><div><span>Saldo kas saat ini</span><b>{money(runningBalance)}</b></div></div><h3>Rincian pemasukan</h3><table><tbody>{reportEntries.length ? reportEntries.map(e=><tr key={e.id}><td>{e.resident}</td><td>{e.date}</td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>) : <tr><td colSpan="3">Tidak ada pemasukan pada periode ini.</td></tr>}</tbody></table><h3>Rincian pengeluaran</h3><table><tbody>{reportExpenses.length ? reportExpenses.map(e=><tr key={e.id}><td>{e.title}</td><td>{e.date}</td><td>{money(e.amount)}</td></tr>) : <tr><td colSpan="3">Tidak ada pengeluaran pada periode ini.</td></tr>}</tbody></table><div className="report-footer"><p>Demikian laporan ini dibuat untuk dapat diketahui bersama.</p><div><span>Bendahara RT</span><strong>Bendahara RT</strong></div></div></div></section>; }
 function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
   const [period, setPeriod] = useState(getPeriodeSekarang());
   const periodEntries = entries.filter((e) => cocokPeriode(e, period));
