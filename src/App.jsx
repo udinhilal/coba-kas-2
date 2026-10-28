@@ -583,133 +583,398 @@ const record = {
           .sidebar { background: var(--emerald-forest) !important; }
         }
 
-        /* Cetak/PDF: tata letak ringkas, terutama saat ekspor dari ponsel.
-           Seluruh data tetap dicetak; yang disembunyikan hanya navigasi dan kontrol layar. */
-        @page {
-          size: A4 landscape;
-          margin: 8mm;
-        }
-        @media print {
-          html, body, #root, .app-shell {
-            width: 100% !important;
-            height: auto !important;
-            min-height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-            background: #FFFFFF !important;
-          }
-          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          .sidebar, .topbar, .connection-status, .mobile-menu-backdrop,
-          .recap-actions, .public-controls, .report-toolbar .primary-btn,
-          .search, .toast, .login-screen {
-            display: none !important;
-          }
-          .main {
-            display: block !important;
-            width: 100% !important;
-            min-height: 0 !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-            background: #FFFFFF !important;
-          }
-          .content, .content.narrow, .recap-page, .public-summary, .report-page {
-            display: block !important;
-            width: 100% !important;
-            max-width: none !important;
-            min-height: 0 !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-            background: #FFFFFF !important;
-            box-shadow: none !important;
-          }
-          .recap-banner, .hero-card, .report-heading {
-            min-height: 0 !important;
-            height: auto !important;
-            margin: 0 0 7px !important;
-            padding: 10px 14px !important;
-            border-radius: 5px !important;
-            box-shadow: none !important;
-            break-inside: avoid !important;
-          }
-          .recap-banner h2, .hero-card h2, .report-heading h1 {
-            margin: 2px 0 !important;
-            font-size: 18px !important;
-            line-height: 1.2 !important;
-          }
-          .recap-banner p, .hero-card p, .report-heading p {
-            margin: 2px 0 0 !important;
-            font-size: 9px !important;
-          }
-          .eyebrow { font-size: 8px !important; letter-spacing: .08em !important; }
-          .recap-grid, .public-kpis, .report-stats {
-            display: grid !important;
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-            gap: 7px !important;
-            margin: 7px 0 !important;
-          }
-          .big-card, .public-kpi, .public-breakdown, .privacy-note, .report-paper,
-          .table-card {
-            min-height: 0 !important;
-            height: auto !important;
-            margin: 0 0 7px !important;
-            padding: 8px 10px !important;
-            border-radius: 5px !important;
-            box-shadow: none !important;
-            break-inside: avoid;
-          }
-          .big-card strong, .public-kpi strong, .report-stats b {
-            margin: 2px 0 !important;
-            font-size: 14px !important;
-            line-height: 1.2 !important;
-          }
-          .big-card small, .public-kpi small, .public-kpi span {
-            font-size: 8px !important;
-          }
-          .bar { height: 4px !important; margin: 4px 0 !important; }
-          .section-head {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: end !important;
-            gap: 8px !important;
-            margin: 7px 0 4px !important;
-            padding: 0 !important;
-          }
-          .section-head h2, .report-paper h3, .public-breakdown h2 {
-            margin: 1px 0 3px !important;
-            font-size: 12px !important;
-            line-height: 1.2 !important;
-          }
-          .table-card, .table-card table, .recap-page table, .report-paper table {
-            width: 100% !important;
-            max-width: 100% !important;
-            overflow: visible !important;
-            border-collapse: collapse !important;
-            table-layout: auto !important;
-          }
-          table { font-size: 8px !important; }
-          th, td, .table-card th, .table-card td {
-            padding: 4px 5px !important;
-            line-height: 1.2 !important;
-            white-space: normal !important;
-            overflow-wrap: anywhere !important;
-            vertical-align: top !important;
-          }
-          thead { display: table-header-group !important; }
-          tr { break-inside: avoid !important; page-break-inside: avoid !important; }
-          .table-card thead tr { background: #EAF4EE !important; }
-          .status-paid, .block-tag { padding: 2px 4px !important; font-size: 7px !important; }
-          .report-paper { padding: 10px !important; }
-          .report-intro, .report-footer p { margin: 6px 0 !important; font-size: 9px !important; }
-          .report-footer { margin-top: 10px !important; }
-          .public-breakdown-row { padding: 5px 0 !important; }
-          .public-footer { margin-top: 6px !important; padding-top: 5px !important; font-size: 8px !important; }
-          * { animation: none !important; transition: none !important; }
-        }
+        
+/* Cetak/PDF: A4 Portrait, ringkas, elegan */
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+@media print {
+  :root {
+    color-scheme: light !important;
+  }
+
+  html,
+  body,
+  #root,
+  .app-shell {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #FFFFFF !important;
+  }
+
+  body {
+    color: #20352E !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 9pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Sembunyikan elemen navigasi dan kontrol */
+  .sidebar,
+  .topbar,
+  .connection-status,
+  .mobile-menu-backdrop,
+  .recap-actions,
+  .public-controls,
+  .recap-page .primary-btn,
+  .search,
+  .toast,
+  .login-screen,
+  .add-resident,
+  .resident-actions,
+  .resident-toolbar select,
+  .resident-toolbar .print-btn,
+  .report-period-control,
+  button,
+  input,
+  select,
+  textarea {
+    display: none !important;
+  }
+
+  /* Area utama memenuhi halaman cetak */
+  .main,
+  .content,
+  .content.narrow,
+  .recap-page,
+  .public-summary,
+  .report-page,
+  .cashflow-page,
+  .overview-page {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #FFFFFF !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Judul laporan */
+  .report-toolbar {
+    margin: 0 0 8px !important;
+    padding: 0 0 6px !important;
+    border-bottom: 1.5px solid #0F766E !important;
+  }
+
+  .report-toolbar h2,
+  .public-heading h2 {
+    margin: 0 0 3px !important;
+    color: #123B31 !important;
+    font-size: 17pt !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Header dan ringkasan */
+  .recap-banner,
+  .hero-card,
+  .report-heading,
+  .public-heading {
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 0 8px !important;
+    padding: 10px 12px !important;
+    color: #123B31 !important;
+    background: #F0F7F3 !important;
+    border: 1px solid #D7E7DE !important;
+    border-radius: 7px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .recap-banner h2,
+  .hero-card h2,
+  .report-heading h1 {
+    margin: 2px 0 4px !important;
+    color: #123B31 !important;
+    font-size: 17pt !important;
+    line-height: 1.2 !important;
+  }
+
+  .recap-banner p,
+  .hero-card p,
+  .report-heading p,
+  .report-toolbar .subcopy,
+  .public-heading p {
+    margin: 2px 0 0 !important;
+    color: #52665D !important;
+    font-size: 8.5pt !important;
+  }
+
+  .report-heading h1,
+  .report-heading p {
+    color: #123B31 !important;
+  }
+
+  .eyebrow,
+  .report-kicker {
+    color: #0F766E !important;
+    font-size: 7pt !important;
+    font-weight: 700 !important;
+    letter-spacing: .08em !important;
+  }
+
+  /* Kartu ringkasan dibuat lebih hemat ruang */
+  .recap-grid,
+  .public-kpis,
+  .report-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    margin: 7px 0 10px !important;
+  }
+
+  .big-card,
+  .public-kpi,
+  .public-breakdown,
+  .privacy-note,
+  .report-paper,
+  .table-card,
+  .stat-card,
+  .form-card,
+  .history-card,
+  .resident-card,
+  .expense-form,
+  .balance-settings {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 0 7px !important;
+    padding: 8px 9px !important;
+    color: #20352E !important;
+    background: #FFFFFF !important;
+    border: 1px solid #DCE7E1 !important;
+    border-radius: 6px !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .big-card strong,
+  .public-kpi strong,
+  .report-stats b {
+    display: block !important;
+    margin: 2px 0 !important;
+    color: #123B31 !important;
+    font-size: 13pt !important;
+    line-height: 1.2 !important;
+  }
+
+  .big-card small,
+  .public-kpi small,
+  .public-kpi span {
+    color: #52665D !important;
+    font-size: 7.5pt !important;
+  }
+
+  .bar {
+    height: 4px !important;
+    margin: 4px 0 !important;
+  }
+
+  /* Judul setiap bagian */
+  .section-head {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: end !important;
+    gap: 6px !important;
+    margin: 9px 0 5px !important;
+    padding: 0 0 4px !important;
+    border-bottom: 1px solid #DCE7E1 !important;
+  }
+
+  .section-head h2,
+  .report-paper h3,
+  .public-breakdown h2 {
+    margin: 1px 0 3px !important;
+    color: #123B31 !important;
+    font-size: 10.5pt !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Tabel laporan */
+  .table-card,
+  .table-card table,
+  .recap-page table,
+  .report-paper table,
+  .public-summary table,
+  table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+  }
+
+  table {
+    font-size: 7pt !important;
+    color: #263B33 !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tbody {
+    display: table-row-group !important;
+  }
+
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  th,
+  td,
+  .table-card th,
+  .table-card td {
+    padding: 4px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    vertical-align: top !important;
+    border-bottom: 1px solid #E2EAE5 !important;
+  }
+
+  th,
+  .table-card th {
+    color: #214D3E !important;
+    background: #EAF4EE !important;
+    font-size: 6.5pt !important;
+    font-weight: 700 !important;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #F8FBF9 !important;
+  }
+
+  /* Label status pembayaran */
+  .status-paid,
+  .block-tag {
+    display: inline-block !important;
+    padding: 2px 4px !important;
+    color: #065F46 !important;
+    background: #E6F4ED !important;
+    border: 1px solid #C8E7D7 !important;
+    border-radius: 4px !important;
+    font-size: 6.5pt !important;
+  }
+
+  /* Laporan dan catatan kaki */
+  .report-paper {
+    padding: 10px !important;
+  }
+
+  .report-intro,
+  .report-footer p {
+    margin: 6px 0 !important;
+    color: #52665D !important;
+    font-size: 8pt !important;
+  }
+
+  .report-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-top: 12px !important;
+    padding-top: 7px !important;
+    border-top: 1px solid #DCE7E1 !important;
+  }
+
+  .report-footer strong {
+    color: #123B31 !important;
+  }
+
+  .public-breakdown-row {
+    padding: 5px 0 !important;
+    border-bottom: 1px solid #E2EAE5 !important;
+  }
+
+  .public-footer {
+    margin-top: 7px !important;
+    padding-top: 5px !important;
+    color: #52665D !important;
+    border-top: 1px solid #DCE7E1 !important;
+    font-size: 7.5pt !important;
+  }
+
+  /* Daftar warga dua kolom */
+  .resident-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .resident-card {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    padding: 7px !important;
+    break-inside: avoid !important;
+  }
+
+  .resident-card small {
+    font-size: 7pt !important;
+  }
+
+  .resident-avatar {
+    flex: 0 0 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+    background: #E6F4ED !important;
+    color: #0F766E !important;
+  }
+
+  .recap-page .table-card {
+    padding: 0 !important;
+  }
+
+  .recap-details-title {
+    font-size: 10.5pt !important;
+  }
+
+  .report-paper h3 {
+    margin-top: 10px !important;
+    padding-bottom: 3px !important;
+    border-bottom: 1px solid #DCE7E1 !important;
+  }
+
+  .empty-table,
+  .empty-residents {
+    color: #64756D !important;
+  }
+
+  .content > *:last-child,
+  .report-paper > *:last-child {
+    margin-bottom: 0 !important;
+  }
+}
       `}</style>
       {mobileMenuOpen && (
   <button
