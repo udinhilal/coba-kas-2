@@ -37,6 +37,15 @@ const getDaftarPeriode = () => {
   return namaBulan.map((bulan) => `${bulan} ${tahunSekarang}`);
 };
 
+const periodeDariTanggal = (tanggal = "") => {
+  const match = String(tanggal).match(/\b(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})\b/);
+  if (!match) return "";
+  const bulanMap = { jan: "Januari", feb: "Februari", mar: "Maret", apr: "April", mei: "Mei", jun: "Juni", jul: "Juli", agu: "Agustus", sep: "September", okt: "Oktober", nov: "November", des: "Desember" };
+  const singkatan = match[2].toLowerCase().slice(0, 3);
+  const bulan = bulanMap[singkatan];
+  return bulan ? `${bulan} ${match[3]}` : "";
+};
+
 const cocokPeriode = (item, periode) => {
   if (periode === "Semua periode") return true;
   if (item.period) return item.period === periode;
@@ -101,6 +110,7 @@ export default function App({ user, onSignOut }) {
   const [balanceHistory, setBalanceHistory] = useState(stored?.balanceHistory ?? []);
   const [expenseTitle, setExpenseTitle] = useState("");
   const [expenseAmount, setExpenseAmount] = useState("");
+  const [expensePeriod, setExpensePeriod] = useState(getPeriodeSekarang());
   const [editingExpense, setEditingExpense] = useState(null);
   const [block, setBlock] = useState("");
   const [paymentSubBlock, setPaymentSubBlock] = useState("");
@@ -213,6 +223,7 @@ const record = {
     ? editingExpense.date
     : getTanggalTransaksi(),
   title: expenseTitle.trim(),
+  period: expensePeriod || getPeriodeSekarang(),
   amount: Number(expenseAmount)
 };
 
@@ -220,6 +231,7 @@ const record = {
     setEditingExpense(null);
     setExpenseTitle("");
     setExpenseAmount("");
+    setExpensePeriod(getPeriodeSekarang());
     setNotice(editingExpense ? "Pengeluaran diperbarui" : "Pengeluaran berhasil dicatat");
     setTimeout(() => setNotice(""), 2200);
   };
@@ -305,6 +317,7 @@ const record = {
     setEditingExpense(expense);
     setExpenseTitle(expense.title);
     setExpenseAmount(String(expense.amount));
+    setExpensePeriod(expense.period || periodeDariTanggal(expense.date) || getPeriodeSekarang());
     setActive("cashflow");
   };
   const deleteExpense = (id) => {
@@ -346,6 +359,358 @@ const record = {
   };
   return (
     <div className="app-shell">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root, body, .app-shell, .app-shell *, .login-screen, .login-screen * {
+          font-family: 'Inter', sans-serif !important;
+        }
+        :root, body, .app-shell { font-size: 14px; }
+
+        /* Tema Emerald Modern: hijau elegan, latar segar, dan kartu bersih */
+        :root {
+          --emerald-forest: #123B31;
+          --emerald: #0F766E;
+          --emerald-hover: #115E59;
+          --mint: #34D399;
+          --page-bg: #F3F8F5;
+          --surface: #FFFFFF;
+          --border-soft: #DCE9E2;
+          --text-main: #20352E;
+          --text-muted: #6B7F76;
+        }
+        body, .app-shell, .main {
+          background: var(--page-bg) !important;
+          color: var(--text-main);
+        }
+        .sidebar {
+          background: var(--emerald-forest) !important;
+          color: #F2FBF6 !important;
+          border-color: #245347 !important;
+        }
+        .brand strong, .brand small, .side-label, .sidebar .nav-item,
+        .sidebar .profile, .sidebar .profile small {
+          color: #E5F4EC !important;
+        }
+        .brand-mark {
+          color: var(--mint) !important;
+        }
+        .sidebar .nav-item {
+          border-color: transparent !important;
+        }
+        .sidebar .nav-item:hover, .sidebar .nav-item.active {
+          background: rgba(52, 211, 153, .15) !important;
+          color: #FFFFFF !important;
+        }
+        .sidebar .nav-item.active {
+          box-shadow: inset 3px 0 0 var(--mint);
+        }
+        .avatar, .resident-avatar {
+          background: #D1FAE5 !important;
+          color: var(--emerald-forest) !important;
+        }
+        .main, .content {
+          color: var(--text-main);
+        }
+        .topbar, .section-head, .form-intro, .report-toolbar {
+          color: var(--text-main);
+        }
+        .eyebrow, .muted, .subcopy, .field-hint, .stat-card small,
+        .history-empty, .login-note {
+          color: var(--text-muted);
+        }
+        .hero-card, .recap-banner, .recap-banner.cashflow-banner,
+        .cashflow-banner, .report-heading {
+          background: linear-gradient(125deg, #123B31 0%, #0F766E 100%) !important;
+          color: #FFFFFF !important;
+          border-color: #0F766E !important;
+        }
+        .hero-card .eyebrow, .hero-card .hero-note,
+        .recap-banner .eyebrow, .recap-banner h2, .recap-banner p,
+        .cashflow-banner .eyebrow, .cashflow-banner h2, .cashflow-banner p {
+          color: #F0FDF4 !important;
+        }
+        .report-heading {
+          padding: 28px 32px !important;
+          border-radius: 12px !important;
+          min-height: 150px;
+          display: flex;
+          align-items: center;
+        }
+        .report-heading .report-kicker,
+        .report-heading h1,
+        .report-heading p {
+          color: #FFFFFF !important;
+        }
+        .report-heading h1 {
+          margin: 8px 0 !important;
+          line-height: 1.2 !important;
+        }
+        .report-period-control {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+          margin: 0 0 20px;
+          color: var(--text-muted);
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .report-period-control select {
+          min-width: 190px;
+          padding: 10px 12px;
+          border: 1px solid var(--border-soft);
+          border-radius: 10px;
+          background: #FFFFFF;
+          color: var(--text-main);
+          font: inherit;
+        }
+        .report-period-control select:focus {
+          outline: 2px solid rgba(15, 118, 110, .2);
+          border-color: var(--emerald);
+        }
+        .hero-art .sun, .login-sun {
+          background: var(--mint) !important;
+        }
+        .hero-art .hill, .login-orbit {
+          border-color: rgba(167, 243, 208, .5) !important;
+        }
+        .stat-card, .big-card, .table-card, .form-card, .history-card,
+        .backup-card, .balance-settings, .public-breakdown, .public-kpi,
+        .resident-card, .report-paper, .expense-form, .login-card {
+          background: var(--surface) !important;
+          border-color: var(--border-soft) !important;
+          box-shadow: 0 8px 24px rgba(18, 59, 49, .055) !important;
+        }
+        .stat-icon.green, .stat-icon.gold {
+          background: #D1FAE5 !important;
+          color: var(--emerald) !important;
+        }
+        .stat-icon.red {
+          background: #FCE7E7 !important;
+          color: #B45353 !important;
+        }
+        .primary-btn, .login-btn {
+          background: var(--emerald) !important;
+          color: #FFFFFF !important;
+          border-color: var(--emerald) !important;
+        }
+        .primary-btn:hover, .login-btn:hover {
+          background: var(--emerald-hover) !important;
+          border-color: var(--emerald-hover) !important;
+        }
+        .text-btn, .print-btn, .restore-btn {
+          color: var(--emerald) !important;
+        }
+        .outline-light {
+          color: #FFFFFF !important;
+          border-color: rgba(255,255,255,.65) !important;
+          background: rgba(255,255,255,.08) !important;
+        }
+        .outline-light:hover {
+          background: rgba(255,255,255,.18) !important;
+        }
+        input, select, textarea, .input-money {
+          border-color: #C9DCD2 !important;
+          background-color: #FFFFFF !important;
+          color: var(--text-main) !important;
+        }
+        input:focus, select:focus, textarea:focus {
+          border-color: var(--emerald) !important;
+          outline-color: rgba(15, 118, 110, .18) !important;
+          box-shadow: 0 0 0 3px rgba(15, 118, 110, .10) !important;
+        }
+        .input-money > span {
+          color: var(--emerald) !important;
+          background: #F0FDF4 !important;
+        }
+        .table-card table thead, .table-card thead tr {
+          background: #EAF4EE !important;
+        }
+        .table-card th {
+          color: #31594B !important;
+        }
+        .table-card tbody tr:hover {
+          background: #F5FBF7 !important;
+        }
+        .block-tag, .status-paid, .flow-in {
+          background: #D1FAE5 !important;
+          color: #065F46 !important;
+          border-color: #A7F3D0 !important;
+        }
+        .flow-out, .icon-btn.delete {
+          background: #FCE7E7 !important;
+          color: #B45353 !important;
+        }
+        .icon-btn.edit {
+          background: #E6F4ED !important;
+          color: var(--emerald) !important;
+        }
+        .bar, .bar i {
+          background: #D1FAE5 !important;
+        }
+        .bar i {
+          background: var(--emerald) !important;
+        }
+        .notebook-icon, .tip > span, .history-dot {
+          background: #D1FAE5 !important;
+          color: var(--emerald) !important;
+        }
+        .privacy-note {
+          background: #ECFDF5 !important;
+          border-color: #A7F3D0 !important;
+          color: #065F46 !important;
+        }
+        .connection-status span, .nav-dot {
+          background: var(--mint) !important;
+        }
+        .mobile-menu-backdrop {
+          background: rgba(8, 32, 25, .48) !important;
+        }
+        .toast {
+          background: #123B31 !important;
+          color: #FFFFFF !important;
+        }
+        .login-screen {
+          background: var(--page-bg) !important;
+        }
+        .login-art {
+          background: linear-gradient(145deg, #123B31 0%, #0F766E 100%) !important;
+        }
+        .login-copy {
+          color: var(--text-muted);
+        }
+        @media (max-width: 760px) {
+          .sidebar { background: var(--emerald-forest) !important; }
+        }
+
+        /* Cetak/PDF: tata letak ringkas, terutama saat ekspor dari ponsel.
+           Seluruh data tetap dicetak; yang disembunyikan hanya navigasi dan kontrol layar. */
+        @page {
+          size: A4 landscape;
+          margin: 8mm;
+        }
+        @media print {
+          html, body, #root, .app-shell {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #FFFFFF !important;
+          }
+          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .sidebar, .topbar, .connection-status, .mobile-menu-backdrop,
+          .recap-actions, .public-controls, .report-toolbar .primary-btn,
+          .search, .toast, .login-screen {
+            display: none !important;
+          }
+          .main {
+            display: block !important;
+            width: 100% !important;
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #FFFFFF !important;
+          }
+          .content, .content.narrow, .recap-page, .public-summary, .report-page {
+            display: block !important;
+            width: 100% !important;
+            max-width: none !important;
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #FFFFFF !important;
+            box-shadow: none !important;
+          }
+          .recap-banner, .hero-card, .report-heading {
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 0 7px !important;
+            padding: 10px 14px !important;
+            border-radius: 5px !important;
+            box-shadow: none !important;
+            break-inside: avoid !important;
+          }
+          .recap-banner h2, .hero-card h2, .report-heading h1 {
+            margin: 2px 0 !important;
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+          .recap-banner p, .hero-card p, .report-heading p {
+            margin: 2px 0 0 !important;
+            font-size: 9px !important;
+          }
+          .eyebrow { font-size: 8px !important; letter-spacing: .08em !important; }
+          .recap-grid, .public-kpis, .report-stats {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 7px !important;
+            margin: 7px 0 !important;
+          }
+          .big-card, .public-kpi, .public-breakdown, .privacy-note, .report-paper,
+          .table-card {
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 0 7px !important;
+            padding: 8px 10px !important;
+            border-radius: 5px !important;
+            box-shadow: none !important;
+            break-inside: avoid;
+          }
+          .big-card strong, .public-kpi strong, .report-stats b {
+            margin: 2px 0 !important;
+            font-size: 14px !important;
+            line-height: 1.2 !important;
+          }
+          .big-card small, .public-kpi small, .public-kpi span {
+            font-size: 8px !important;
+          }
+          .bar { height: 4px !important; margin: 4px 0 !important; }
+          .section-head {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: end !important;
+            gap: 8px !important;
+            margin: 7px 0 4px !important;
+            padding: 0 !important;
+          }
+          .section-head h2, .report-paper h3, .public-breakdown h2 {
+            margin: 1px 0 3px !important;
+            font-size: 12px !important;
+            line-height: 1.2 !important;
+          }
+          .table-card, .table-card table, .recap-page table, .report-paper table {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow: visible !important;
+            border-collapse: collapse !important;
+            table-layout: auto !important;
+          }
+          table { font-size: 8px !important; }
+          th, td, .table-card th, .table-card td {
+            padding: 4px 5px !important;
+            line-height: 1.2 !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            vertical-align: top !important;
+          }
+          thead { display: table-header-group !important; }
+          tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+          .table-card thead tr { background: #EAF4EE !important; }
+          .status-paid, .block-tag { padding: 2px 4px !important; font-size: 7px !important; }
+          .report-paper { padding: 10px !important; }
+          .report-intro, .report-footer p { margin: 6px 0 !important; font-size: 9px !important; }
+          .report-footer { margin-top: 10px !important; }
+          .public-breakdown-row { padding: 5px 0 !important; }
+          .public-footer { margin-top: 6px !important; padding-top: 5px !important; font-size: 8px !important; }
+          * { animation: none !important; transition: none !important; }
+        }
+      `}</style>
       {mobileMenuOpen && (
   <button
     type="button"
@@ -375,11 +740,11 @@ const record = {
   {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
 </button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
-        {active === "overview" && !settingsOpen && <Overview entries={entries} residents={residents} total={total} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} startEditEntry={startEditEntry} deleteEntry={deleteEntry} />}
+        {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} startEditEntry={startEditEntry} deleteEntry={deleteEntry} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
-        {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
+        {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
         {active === "recap" && !settingsOpen && <Recap entries={entries} total={total} residents={residents} recapSearch={recapSearch} setRecapSearch={setRecapSearch} />}
-        {active === "report" && !settingsOpen && <ResidentReport entries={entries} cashOut={cashOut} runningBalance={runningBalance} residents={residents} />}
+        {active === "report" && !settingsOpen && <ResidentReport entries={entries} cashOut={cashOut} runningBalance={runningBalance} openingBalance={openingBalance} manualAdjustment={manualAdjustment} residents={residents} />}
         {active === "public" && !settingsOpen && <PublicSummary entries={entries} cashOut={cashOut} openingBalance={openingBalance} manualAdjustment={manualAdjustment} />}
         {settingsOpen && <SettingsPanel backupData={backupData} restoreData={restoreData} resetData={resetData} openingBalance={openingBalance} setOpeningBalance={setOpeningBalance} manualAdjustment={manualAdjustment} setManualAdjustment={setManualAdjustment} balanceHistory={balanceHistory} setBalanceHistory={setBalanceHistory} setNotice={setNotice} />}
         {active === "residents" && !settingsOpen && <Residents {...{ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }} />}
@@ -402,10 +767,10 @@ function SettingsPanel({ backupData, restoreData, resetData, openingBalance, set
   </section>;
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
-function Overview({ entries, total, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, startEditEntry, deleteEntry, residents = [] }) { const periodEntries = entries.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0);
+function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, startEditEntry, deleteEntry, residents = [] }) { const periodEntries = entries.filter((e) => cocokPeriode(e, summaryPeriod)); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
   return <section className="content">
-    <div className="hero-card"><div><span className="eyebrow light">Saldo kas berjalan</span><div className="hero-number">{money(runningBalance)}</div><span className="hero-note"><ArrowUpRight size={15} /> Saldo diperbarui otomatis</span></div><div className="hero-art"><div className="sun" /><div className="hill h1" /><div className="hill h2" /><WalletCards size={42} /></div></div>
-    <div className="stat-grid"><Stat title={`Pemasukan ${summaryPeriod === "Semua periode" ? "" : "periode"}`} value={money(periodTotal)} icon={ArrowDownLeft} tone="green" meta={`Dari ${periodEntries.length} pembayaran`} /><Stat title="Pengeluaran bulan ini" value={money(outgoingTotal)} icon={ArrowUpRight} tone="red" meta={`${outgoingTotal ? "Transaksi tercatat" : "Belum ada transaksi"}`} /><Stat title="Warga sudah bayar" value={`${periodEntries.length} / ${residents.length}`} icon={Users} tone="gold" meta={residents.length ? `${Math.round((periodEntries.length / residents.length) * 100)}% tingkat pembayaran` : "Belum ada data warga"} /></div>
+    <div className="hero-card"><div><span className="eyebrow light">Saldo kas berjalan{summaryPeriod === "Semua periode" ? " · keseluruhan" : ` · ${summaryPeriod}`}</span><div className="hero-number">{money(displayedBalance)}</div><span className="hero-note"><ArrowUpRight size={15} /> {summaryPeriod === "Semua periode" ? "Saldo total seluruh periode" : `Perhitungan untuk ${summaryPeriod}`}</span></div><div className="hero-art"><div className="sun" /><div className="hill h1" /><div className="hill h2" /><WalletCards size={42} /></div></div>
+    <div className="stat-grid"><Stat title={`Pemasukan ${summaryPeriod === "Semua periode" ? "keseluruhan" : "periode"}`} value={money(periodTotal)} icon={ArrowDownLeft} tone="green" meta={`Dari ${periodEntries.length} pembayaran`} /><Stat title={summaryPeriod === "Semua periode" ? "Pengeluaran keseluruhan" : `Pengeluaran ${summaryPeriod}`} value={money(periodOutgoing)} icon={ArrowUpRight} tone="red" meta={`${periodOutgoing ? "Transaksi tercatat" : "Belum ada transaksi"}`} /><Stat title="Warga sudah bayar" value={`${periodEntries.length} / ${residents.length}`} icon={Users} tone="gold" meta={residents.length ? `${Math.round((periodEntries.length / residents.length) * 100)}% tingkat pembayaran` : "Belum ada data warga"} /></div>
     <div className="section-head"><div><span className="eyebrow">Aktivitas terbaru</span><h2>Catatan pembayaran</h2></div><select className="period-filter" value={summaryPeriod} onChange={e => setSummaryPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map((periode) => <option key={periode} value={periode}>{periode}</option>)}</select><button className="text-btn" onClick={() => setActive("input")}>+ Input pembayaran</button></div>
     <div className="table-card"><table><thead><tr><th>Tanggal</th><th>Nama warga</th><th>Blok</th><th>Iuran kebersihan</th><th>Iuran kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Aksi</th></tr></thead><tbody>{periodEntries.length === 0 ? <tr><td colSpan="8" className="empty-table">Belum ada data pembayaran untuk periode ini.</td></tr> : periodEntries.map((e) => <tr key={e.id}><td className="muted">{e.date}</td><td><b>{e.resident || residents.find((r) => r.block === e.block && r.subBlock === e.subBlock)?.name || "Nama belum diisi"}</b></td><td><span className="block-tag">{e.subBlock || "-"}</span></td><td>{money(e.clean)}</td><td>{money(e.kas)}</td><td>{money(e.other || 0)}</td><td><b>{money(e.clean + e.kas + (e.other || 0))}</b></td><td><div className="entry-actions"><button className="icon-btn edit" title="Edit pembayaran" onClick={() => startEditEntry(e)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus pembayaran" onClick={() => deleteEntry(e.id)}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
   </section>;
@@ -434,8 +799,8 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
   </select>
 </label><label>Blok<input value={block} onChange={(e) => { const nextBlock = e.target.value.toUpperCase(); const firstSub = residents.find((r) => r.block.trim().toUpperCase() === nextBlock)?.subBlock || ""; setBlock(nextBlock); setPaymentSubBlock(firstSub); syncResident(nextBlock, firstSub); }} placeholder="Contoh: A" required /></label><label>Sub blok<select value={paymentSubBlock} onChange={(e) => { setPaymentSubBlock(e.target.value); syncResident(block, e.target.value); }} disabled={!normalizedBlock}><option value="">{normalizedBlock ? "Pilih sub blok" : "Isi blok dahulu"}</option>{subBlocksForBlock.map((sub) => <option key={sub} value={sub}>{sub}</option>)}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label><label>Iuran kebersihan<div className="input-money"><span>Rp</span><input type="number" min="0" value={clean} onChange={(e) => setClean(e.target.value)} /></div></label><label>Iuran kas RT<div className="input-money"><span>Rp</span><input type="number" min="0" value={kas} onChange={(e) => setKas(e.target.value)} /></div></label><label>Iuran lainnya <em>opsional</em><div className="input-money"><span>Rp</span><input type="number" min="0" value={other} onChange={(e) => setOther(e.target.value)} /></div></label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}</div></form><div className="tip"><span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
 }
-function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{entries.map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
-function ResidentReport({ entries, cashOut, runningBalance }) { const incoming=entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing=cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content report-page"><div className="report-toolbar"><div><span className="eyebrow">Dokumen warga</span><h2>Laporan Pertanggungjawaban</h2><p className="subcopy">Ringkasan kas RT 26 / RW 04.</p></div><button className="primary-btn" onClick={()=>window.print()}><FileText size={17}/> Cetak / Simpan PDF</button></div><div className="report-paper"><div className="report-heading"><div><div className="report-kicker">RT 26 / RW 04</div><h1>Laporan Pertanggungjawaban Kas</h1><p>Periode berjalan</p></div></div><p className="report-intro">Ringkasan pemasukan dan pengeluaran kas warga untuk diketahui bersama.</p><div className="report-stats"><div><span>Total pemasukan</span><b>{money(incoming)}</b></div><div><span>Total pengeluaran</span><b>{money(outgoing)}</b></div><div><span>Saldo akhir</span><b>{money(runningBalance)}</b></div></div><h3>Rincian pemasukan</h3><table><tbody>{entries.map(e=><tr key={e.id}><td>{e.resident}</td><td>{e.date}</td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}</tbody></table><h3>Rincian pengeluaran</h3><table><tbody>{cashOut.map(e=><tr key={e.id}><td>{e.title}</td><td>{e.date}</td><td>{money(e.amount)}</td></tr>)}</tbody></table><div className="report-footer"><p>Demikian laporan ini dibuat untuk dapat diketahui bersama.</p><div><span>Bendahara RT</span><strong>Bendahara RT</strong></div></div></div></section>; }
+function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, expensePeriod, setExpensePeriod, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><label>Periode pengeluaran<select value={expensePeriod} onChange={e=>setExpensePeriod(e.target.value)} required>{getDaftarPeriode().map(periode=><option key={periode} value={periode}>{periode}</option>)}</select></label><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{entries.map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
+function ResidentReport({ entries, cashOut, runningBalance, openingBalance = 0, manualAdjustment = 0 }) { const [reportPeriod, setReportPeriod] = useState(getPeriodeSekarang()); const reportEntries = entries.filter(e => cocokPeriode(e, reportPeriod)); const reportExpenses = cashOut.filter(e => cocokPeriode(e, reportPeriod)); const incoming = reportEntries.reduce((a,e)=>a+Number(e.clean||0)+Number(e.kas||0)+Number(e.other||0),0); const outgoing = reportExpenses.reduce((a,e)=>a+Number(e.amount||0),0); const reportBalance = reportPeriod === "Semua periode" ? runningBalance : Number(openingBalance||0) + incoming - outgoing + Number(manualAdjustment||0); return <section className="content report-page"><div className="report-toolbar"><div><span className="eyebrow">Dokumen warga</span><h2>Laporan Pertanggungjawaban</h2><p className="subcopy">Ringkasan kas RT 26 / RW 04.</p></div><button className="primary-btn" onClick={()=>window.print()}><FileText size={17}/> Cetak / Simpan PDF</button></div><label className="report-period-control">Pilih bulan laporan<select value={reportPeriod} onChange={e=>setReportPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map(periode=><option key={periode} value={periode}>{periode}</option>)}</select></label><div className="report-paper"><div className="report-heading"><div><div className="report-kicker">RT 26 / RW 04</div><h1>Laporan Pertanggungjawaban Kas</h1><p>{reportPeriod === "Semua periode" ? "Semua periode" : `Periode ${reportPeriod}`}</p></div></div><p className="report-intro">Ringkasan pemasukan dan pengeluaran kas warga untuk diketahui bersama.</p><div className="report-stats"><div><span>Total pemasukan</span><b>{money(incoming)}</b></div><div><span>Total pengeluaran</span><b>{money(outgoing)}</b></div><div><span>Saldo kas saat ini</span><b>{money(reportBalance)}</b></div></div><h3>Rincian pemasukan</h3><table><tbody>{reportEntries.length ? reportEntries.map(e=><tr key={e.id}><td>{e.resident}</td><td>{e.date}</td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>) : <tr><td colSpan="3">Tidak ada pemasukan pada periode ini.</td></tr>}</tbody></table><h3>Rincian pengeluaran</h3><table><tbody>{reportExpenses.length ? reportExpenses.map(e=><tr key={e.id}><td>{e.title}</td><td>{e.date}</td><td>{money(e.amount)}</td></tr>) : <tr><td colSpan="3">Tidak ada pengeluaran pada periode ini.</td></tr>}</tbody></table><div className="report-footer"><p>Demikian laporan ini dibuat untuk dapat diketahui bersama.</p><div><span>Bendahara RT</span><strong>Bendahara RT</strong></div></div></div></section>; }
 function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
   const [period, setPeriod] = useState(getPeriodeSekarang());
   const periodEntries = entries.filter((e) => cocokPeriode(e, period));
