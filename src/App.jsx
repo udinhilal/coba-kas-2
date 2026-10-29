@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, FileText, Home, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import "./styles.css";
-import logoRTNemlikur from "./logo-rt-nemlikur.png";
 
 const formatTanggalIndonesia = (date = new Date()) =>
   new Intl.DateTimeFormat("id-ID", {
@@ -1019,27 +1018,7 @@ const record = {
   );
 }
 
-
-function Logo({ large = false }) {
-  return (
-    <span
-      className={`brand-mark ${large ? "large" : ""}`}
-      aria-label="Logo RT Nemlikur Jambearjo Malang"
-    >
-      <img
-        src={logoRTNemlikur}
-        alt="Logo RT Nemlikur Jambearjo Malang"
-        style={{
-          display: "block",
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-        }}
-      />
-    </span>
-  );
-}
-
+function Logo({ large = false }) { return <span className={`brand-mark ${large ? "large" : ""}`} aria-label="Logo Kas Warga"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 10v28M12 24l20-14M12 24l21 14" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M29 10h7v7M30 38h6v-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M8 42h32" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity=".65"/></svg></span>; }
 function LoginScreen({ onLogin }) { return <main className="login-screen"><div className="login-art"><div className="login-orbit orbit-one" /><div className="login-orbit orbit-two" /><div className="login-sun" /><div className="login-logo-lockup"><Logo large /></div></div><section className="login-card"><div className="brand login-brand"><Logo /><div><strong>kas warga</strong><small>RT 26 / RW 04</small></div></div><span className="eyebrow">Ruang bendahara</span><h1>Kelola kas warga,<br/><em>tanpa ribet.</em></h1><p className="login-copy">Masuk untuk mencatat iuran, memantau arus kas, dan membagikan laporan yang transparan.</p><button className="login-btn" type="button" onClick={onLogin}>Masuk ke aplikasi <span>→</span></button><small className="login-note">Akses lokal untuk pengelola kas RT</small></section></main>; }
 
 function SettingsPanel({ backupData, restoreData, resetData, openingBalance, setOpeningBalance, manualAdjustment, setManualAdjustment, balanceHistory, setBalanceHistory, setNotice }) {
