@@ -1223,6 +1223,12 @@ tbody tr:hover { background: #F8FAFC !important; }
           .hero-card { padding: 12px 15px !important; min-height: 0 !important; border-radius: 13px !important; }
           .hero-card .hero-number { font-size: clamp(23px, 6vw, 29px) !important; line-height: 1.2 !important; margin: 5px 0 !important; }
           .hero-card .hero-note { font-size: 11px !important; }
+          /* Rincian iuran pada kartu Saldo Kas Berjalan */
+          .hero-income-details { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; padding-top: 11px; border-top: 1px solid rgba(255,255,255,.22); font-family: inherit; font-size: 12px; font-weight: 400; line-height: 1.5; color: #DBEAFE; }
+          .hero-income-details > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+          .hero-income-details span,
+          .hero-income-details b { font-family: inherit; font-size: inherit; font-weight: inherit; color: inherit; }
+          .hero-income-details b { text-align: right; white-space: nowrap; }
           .hero-art { display:none !important; }
           .stat-grid { gap:9px !important; }
           .stat-card { padding:12px !important; }
@@ -1242,6 +1248,9 @@ tbody tr:hover { background: #F8FAFC !important; }
         }
         @media print {
           .home-shortcuts, .mobile-floating-nav { display:none !important; }
+        }
+        @media screen and (max-width:800px) {
+          .hero-income-details { gap: 6px; margin-top: 11px; padding-top: 9px; font-size: 11px; }
         }
       `}</style>
       {mobileMenuOpen && (
@@ -1337,21 +1346,21 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
     </span>
 
     <div className="hero-income-details">
-      <div>
-        <span>Iuran kebersihan</span>
-        <b>{money(cleanTotal)}</b>
-      </div>
-      <div>
-        <span>Iuran kas RT</span>
-        <b>{money(kasTotal)}</b>
-      </div>
-      <div>
-        <span>Iuran lainnya</span>
-        <b>{money(otherTotal)}</b>
-      </div>
-    </div>
+  <div>
+    <span>Total iuran kebersihan</span>
+    <b>{money(cleanTotal)}</b>
   </div>
 
+  <div>
+    <span>Total iuran kas RT</span>
+    <b>{money(kasTotal)}</b>
+  </div>
+
+  <div>
+    <span>Total iuran lainnya</span>
+    <b>{money(otherTotal)}</b>
+  </div>
+</div>
   <div className="hero-art">
     <div className="sun" />
     <div className="hill h1" />
