@@ -1086,7 +1086,6 @@ tbody tr:hover { background: #F8FAFC !important; }
           color: #FFFFFF !important;
           border-color: #245789 !important;
         }
-        .recap-banner .eyebrow.light,
         .recap-banner h2,
         .recap-banner p,
         .cashflow-banner .eyebrow,
@@ -1097,7 +1096,8 @@ tbody tr:hover { background: #F8FAFC !important; }
         .report-heading p {
           color: #FFFFFF !important;
         }
-        .report-heading p,
+        /* Label LAPORAN PERIODE disamakan dengan teks ringkasan */
+        .recap-banner .eyebrow.light,
         .recap-banner p,
         .cashflow-banner p { color: #DBEAFE !important; }
         .report-heading { border-bottom-color: #93C5FD !important; }
@@ -1127,6 +1127,7 @@ tbody tr:hover { background: #F8FAFC !important; }
             border: 1px solid #BFDBFE !important;
           }
           .recap-banner p,
+          .recap-banner .eyebrow.light,
           .hero-card p,
           .report-heading p,
           .report-toolbar .subcopy,
