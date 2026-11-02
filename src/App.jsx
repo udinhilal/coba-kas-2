@@ -1383,7 +1383,7 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
         <button type="button" className="home-shortcut home-shortcut-logout" onClick={() => { if (window.confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) onSignOut?.(); }}><span className="home-shortcut-icon"><LogOut size={21}/></span><span><b>Keluar</b><small>Akhiri sesi akun</small></span></button>
       </div>
     </section>
-  </section>;
+  </div>;
 }
 function Stat({ title, value, icon: Icon, tone, meta }) { return <div className="stat-card"><div className={`stat-icon ${tone}`}><Icon size={18} /></div><span className="eyebrow">{title}</span><strong>{value}</strong><small>{meta}</small></div>; }
 function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }) {
