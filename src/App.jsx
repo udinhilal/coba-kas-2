@@ -1074,6 +1074,85 @@ tbody tr:hover { background: #F8FAFC !important; }
   .login-card { margin: 14px !important; }
 }
 
+
+        /* =========================================================
+           FIX TEMA NAVY BLUE — banner arus kas, laporan, dan cetak PDF
+           ========================================================= */
+        .recap-banner,
+        .recap-banner.cashflow-banner,
+        .cashflow-banner,
+        .report-heading {
+          background: linear-gradient(125deg, #102A43 0%, #173B65 58%, #2563A6 100%) !important;
+          color: #FFFFFF !important;
+          border-color: #245789 !important;
+        }
+        .recap-banner .eyebrow.light,
+        .recap-banner h2,
+        .recap-banner p,
+        .cashflow-banner .eyebrow,
+        .cashflow-banner h2,
+        .cashflow-banner p,
+        .report-heading .report-kicker,
+        .report-heading h1,
+        .report-heading p {
+          color: #FFFFFF !important;
+        }
+        .report-heading p,
+        .recap-banner p,
+        .cashflow-banner p { color: #DBEAFE !important; }
+        .report-heading { border-bottom-color: #93C5FD !important; }
+
+        @media print {
+          .report-toolbar { border-bottom-color: #173B65 !important; }
+          .report-toolbar h2,
+          .public-heading h2,
+          .recap-banner h2,
+          .hero-card h2,
+          .report-heading h1,
+          .section-head h2,
+          .report-paper h3,
+          .public-breakdown h2,
+          .big-card strong,
+          .public-kpi strong,
+          .report-stats b,
+          .report-footer strong {
+            color: #102A43 !important;
+          }
+          .recap-banner,
+          .hero-card,
+          .report-heading,
+          .public-heading {
+            color: #102A43 !important;
+            background: #EFF6FF !important;
+            border: 1px solid #BFDBFE !important;
+          }
+          .recap-banner p,
+          .hero-card p,
+          .report-heading p,
+          .report-toolbar .subcopy,
+          .public-heading p { color: #475569 !important; }
+          .eyebrow,
+          .report-kicker { color: #245789 !important; }
+          .report-heading { border-bottom: 2px solid #173B65 !important; }
+          .report-heading .report-kicker,
+          .report-heading h1,
+          .report-heading p { color: #102A43 !important; }
+          .report-stats div { background: #EFF6FF !important; }
+          .section-head { border-bottom-color: #DCE5EF !important; }
+          .report-paper h3 { border-bottom-color: #DCE5EF !important; }
+          th, .table-card th {
+            color: #173B65 !important;
+            background: #EFF6FF !important;
+          }
+          tbody tr:nth-child(even) { background: #F8FAFC !important; }
+          .status-paid, .block-tag {
+            color: #166534 !important;
+            background: #DCFCE7 !important;
+            border-color: #BBF7D0 !important;
+          }
+          .report-footer { border-top-color: #DCE5EF !important; }
+        }
+
       `}</style>
       {mobileMenuOpen && (
   <button
