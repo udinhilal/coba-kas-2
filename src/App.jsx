@@ -1346,21 +1346,23 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
     </span>
 
     <div className="hero-income-details">
-  <div>
-    <span>Total iuran kebersihan</span>
-    <b>{money(cleanTotal)}</b>
+      <div>
+        <span>Total iuran kebersihan</span>
+        <b>{money(cleanTotal)}</b>
+      </div>
+
+      <div>
+        <span>Total iuran kas RT</span>
+        <b>{money(kasTotal)}</b>
+      </div>
+
+      <div>
+        <span>Total iuran lainnya</span>
+        <b>{money(otherTotal)}</b>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <span>Total iuran kas RT</span>
-    <b>{money(kasTotal)}</b>
-  </div>
-
-  <div>
-    <span>Total iuran lainnya</span>
-    <b>{money(otherTotal)}</b>
-  </div>
-</div>
   <div className="hero-art">
     <div className="sun" />
     <div className="hill h1" />
