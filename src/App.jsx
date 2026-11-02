@@ -1229,6 +1229,11 @@ tbody tr:hover { background: #F8FAFC !important; }
           .stat-card strong { font-size:17px !important; }
           .mobile-floating-nav button { flex:1 1 0; }
         }
+          .recap-income-details { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 7px 0 10px; }
+          .recap-income-details span { color: #64748B; font-size: 10px; line-height: 1.5; }
+        @media screen and (max-width:800px) {
+          .recap-income-details { gap: 3px 9px; }
+          .recap-income-details span { font-size: 9px; }}
         @media screen and (max-width:380px) {
           .home-shortcut { gap:7px; padding:9px 8px; }
           .home-shortcut-icon { width:32px; height:32px; flex-basis:32px; }
@@ -1311,37 +1316,64 @@ function SettingsPanel({ backupData, restoreData, resetData, openingBalance, set
   </section>;
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
-function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, setSettingsOpen, startEditEntry, deleteEntry, residents = [], onSignOut }) { const periodEntries = entries.filter((e) => cocokPeriode(e, summaryPeriod)); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
+function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, setSettingsOpen, startEditEntry, deleteEntry, residents = [], onSignOut }) { const periodEntries = entries.filter((e) => cocokPeriode(e, summaryPeriod)); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = periodEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = periodEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = periodEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
   return <section className="content">
-    <div className="hero-card"><div><span className="eyebrow light">Saldo kas berjalan{summaryPeriod === "Semua periode" ? " · keseluruhan" : ` · ${summaryPeriod}`}</span><div className="hero-number">{money(displayedBalance)}</div><span className="hero-note"><ArrowUpRight size={15} /> {summaryPeriod === "Semua periode" ? "Saldo total seluruh periode" : `Perhitungan untuk ${summaryPeriod}`}</span></div><div className="hero-art"><div className="sun" /><div className="hill h1" /><div className="hill h2" /><WalletCards size={42} /></div></div>
+    <div className="hero-card">
+  <div>
+    <span className="eyebrow light">
+      Saldo kas berjalan
+      {summaryPeriod === "Semua periode"
+        ? " · keseluruhan"
+        : ` · ${summaryPeriod}`}
+    </span>
+
+    <div className="hero-number">{money(displayedBalance)}</div>
+
+    <span className="hero-note">
+      <ArrowUpRight size={15} />
+      {summaryPeriod === "Semua periode"
+        ? "Saldo total seluruh periode"
+        : `Perhitungan untuk ${summaryPeriod}`}
+    </span>
+
+    <div className="hero-income-details">
+      <div>
+        <span>Iuran kebersihan</span>
+        <b>{money(cleanTotal)}</b>
+      </div>
+      <div>
+        <span>Iuran kas RT</span>
+        <b>{money(kasTotal)}</b>
+      </div>
+      <div>
+        <span>Iuran lainnya</span>
+        <b>{money(otherTotal)}</b>
+      </div>
+    </div>
+  </div>
+
+  <div className="hero-art">
+    <div className="sun" />
+    <div className="hill h1" />
+    <div className="hill h2" />
+    <WalletCards size={42} />
+  </div>
+</div><div className="sun" /><div className="hill h1" /><div className="hill h2" /><WalletCards size={42} /></div></div>
     <div className="stat-grid"><Stat title={`Pemasukan ${summaryPeriod === "Semua periode" ? "keseluruhan" : "periode"}`} value={money(periodTotal)} icon={ArrowDownLeft} tone="green" meta={`Dari ${periodEntries.length} pembayaran`} /><Stat title={summaryPeriod === "Semua periode" ? "Pengeluaran keseluruhan" : `Pengeluaran ${summaryPeriod}`} value={money(periodOutgoing)} icon={ArrowUpRight} tone="red" meta={`${periodOutgoing ? "Transaksi tercatat" : "Belum ada transaksi"}`} /><Stat title="Warga sudah bayar" value={`${periodEntries.length} / ${residents.length}`} icon={Users} tone="gold" meta={residents.length ? `${Math.round((periodEntries.length / residents.length) * 100)}% tingkat pembayaran` : "Belum ada data warga"} /></div>
+    <div className="section-head"><div><span className="eyebrow">Aktivitas terbaru</span><h2>Catatan pembayaran</h2></div><select className="period-filter" value={summaryPeriod} onChange={e => setSummaryPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map((periode) => <option key={periode} value={periode}>{periode}</option>)}</select><button className="text-btn" onClick={() => setActive("input")}>+ Input pembayaran</button></div>
+    <div className="table-card"><table><thead><tr><th>Tanggal</th><th>Nama warga</th><th>Blok</th><th>Iuran kebersihan</th><th>Iuran kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Aksi</th></tr></thead><tbody>{periodEntries.length === 0 ? <tr><td colSpan="8" className="empty-table">Belum ada data pembayaran untuk periode ini.</td></tr> : periodEntries.map((e) => <tr key={e.id}><td className="muted">{e.date}</td><td><b>{e.resident || residents.find((r) => r.block === e.block && r.subBlock === e.subBlock)?.name || "Nama belum diisi"}</b></td><td><span className="block-tag">{e.subBlock || "-"}</span></td><td>{money(e.clean)}</td><td>{money(e.kas)}</td><td>{money(e.other || 0)}</td><td><b>{money(e.clean + e.kas + (e.other || 0))}</b></td><td><div className="entry-actions"><button className="icon-btn edit" title="Edit pembayaran" onClick={() => startEditEntry(e)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus pembayaran" onClick={() => deleteEntry(e.id)}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
     <section className="home-shortcuts" aria-label="Menu lainnya">
-      <div className="home-shortcuts-heading"><div><span className="eyebrow">Akses cepat</span><h2>Menu lainnya</h2></div></div>
+      <div className="home-shortcuts-heading"><div><span className="eyebrow">Akses cepat</span><h2>Akses cepat</h2></div></div>
       <div className="home-shortcuts-grid">
         <button type="button" className="home-shortcut" onClick={() => setActive("recap")}><span className="home-shortcut-icon"><CalendarDays size={21}/></span><span><b>Rekap Bulanan</b><small>Ringkasan iuran</small></span></button>
         <button type="button" className="home-shortcut" onClick={() => setActive("public")}><span className="home-shortcut-icon"><Globe2 size={21}/></span><span><b>Ringkasan Publik</b><small>Informasi kas warga</small></span></button>
-        <button type="button" className="home-shortcut" onClick={() => setActive("residents")}><span className="home-shortcut-icon"><Users size={21}/></span><span><b>Data Warga</b><small>Kelola warga RT</small></span></button>
         <button
   type="button"
-  className="home-shortcut"
-  onClick={() => {
-    setActive("settings");
-    setSettingsOpen(true);
-  }}
->
-  <span className="home-shortcut-icon">
-    <Settings2 size={21} />
-  </span>
-  <span>
-    <b>Pengaturan</b>
-    <small>Data dan cadangan</small>
-  </span>
-</button>
+  className="home-shortcut"onClick={() => { setActive("settings"); setSettingsOpen(true); }}
+><span className="home-shortcut-icon"><Settings2 size={21} /></span><span><b>Pengaturan</b><small>Data dan cadangan</small></span></button>
         <button type="button" className="home-shortcut home-shortcut-logout" onClick={() => { if (window.confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) onSignOut?.(); }}><span className="home-shortcut-icon"><LogOut size={21}/></span><span><b>Keluar</b><small>Akhiri sesi akun</small></span></button>
       </div>
     </section>
-    <div className="section-head"><div><span className="eyebrow">Aktivitas terbaru</span><h2>Catatan pembayaran</h2></div><select className="period-filter" value={summaryPeriod} onChange={e => setSummaryPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map((periode) => <option key={periode} value={periode}>{periode}</option>)}</select><button className="text-btn" onClick={() => setActive("input")}>+ Input pembayaran</button></div>
-    <div className="table-card"><table><thead><tr><th>Tanggal</th><th>Nama warga</th><th>Blok</th><th>Iuran kebersihan</th><th>Iuran kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Aksi</th></tr></thead><tbody>{periodEntries.length === 0 ? <tr><td colSpan="8" className="empty-table">Belum ada data pembayaran untuk periode ini.</td></tr> : periodEntries.map((e) => <tr key={e.id}><td className="muted">{e.date}</td><td><b>{e.resident || residents.find((r) => r.block === e.block && r.subBlock === e.subBlock)?.name || "Nama belum diisi"}</b></td><td><span className="block-tag">{e.subBlock || "-"}</span></td><td>{money(e.clean)}</td><td>{money(e.kas)}</td><td>{money(e.other || 0)}</td><td><b>{money(e.clean + e.kas + (e.other || 0))}</b></td><td><div className="entry-actions"><button className="icon-btn edit" title="Edit pembayaran" onClick={() => startEditEntry(e)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus pembayaran" onClick={() => deleteEntry(e.id)}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
   </section>;
 }
 function Stat({ title, value, icon: Icon, tone, meta }) { return <div className="stat-card"><div className={`stat-icon ${tone}`}><Icon size={18} /></div><span className="eyebrow">{title}</span><strong>{value}</strong><small>{meta}</small></div>; }
