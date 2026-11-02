@@ -1,6 +1,6 @@
 // Pinned subject: simple RT finance app for a neighborhood treasurer. Plan: warm paper ledger meets modern utility, with terracotta as the one owned accent, a fast entry flow, and monthly recaps that make cash movement obvious.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, FileText, Home, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, FileText, Globe2, Home, LogOut, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import "./styles.css";
 
@@ -1185,6 +1185,58 @@ tbody tr:hover { background: #F8FAFC !important; }
           .connection-status { bottom: 91px !important; right: 14px !important; max-width: calc(100% - 28px); }
         }
         @media print { .mobile-floating-nav { display: none !important; } .app-shell { padding-bottom: 0 !important; } }
+
+        /* Pintasan halaman tambahan di beranda */
+        .home-shortcuts { margin: 22px 0 26px; }
+        .home-shortcuts-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .home-shortcuts-heading h2 { margin:4px 0 0; font-size:18px; color:#102A43; }
+        .home-shortcuts-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+        .home-shortcut {
+          display:flex; align-items:center; gap:11px; min-width:0; text-align:left;
+          padding:13px 12px; border:1px solid #DCE5EF; border-radius:15px;
+          background:#FFFFFF; color:#102A43; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease;
+        }
+        .home-shortcut:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(16,42,67,.08); }
+        .home-shortcut-icon {
+          width:40px; height:40px; flex:0 0 40px; display:grid; place-items:center;
+          border-radius:12px; background:#EAF2FC; color:#173B65;
+        }
+        .home-shortcut b { display:block; font-size:12px; line-height:1.3; }
+        .home-shortcut small { display:block; margin-top:3px; color:#64748B; font-size:10px; line-height:1.3; }
+        .home-shortcut-logout .home-shortcut-icon { background:#FEF2F2; color:#B91C1C; }
+        .home-shortcut-logout b { color:#991B1B; }
+
+        @media screen and (max-width:800px) {
+          /* Pada mobile, navigasi samping tidak digunakan lagi */
+          .sidebar, .mobile-menu-backdrop, .mobile-menu-toggle { display:none !important; }
+          .app-shell { padding-bottom:100px !important; }
+          .main { margin-left:0 !important; width:100% !important; }
+          .topbar { padding-left:18px !important; padding-right:18px !important; }
+          .home-shortcuts { margin:17px 0 22px; }
+          .home-shortcuts-heading { margin-bottom:9px; }
+          .home-shortcuts-heading h2 { font-size:16px; }
+          .home-shortcuts-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+          .home-shortcut { min-height:66px; padding:10px; gap:9px; border-radius:13px; }
+          .home-shortcut-icon { width:36px; height:36px; flex-basis:36px; border-radius:11px; }
+          .home-shortcut b { font-size:11px; }
+          .home-shortcut small { font-size:9px; }
+          .hero-card { padding:20px !important; min-height:0 !important; }
+          .hero-card .hero-number { font-size:clamp(27px,8vw,38px) !important; }
+          .hero-art { display:none !important; }
+          .stat-grid { gap:9px !important; }
+          .stat-card { padding:12px !important; }
+          .stat-card strong { font-size:17px !important; }
+          .mobile-floating-nav button { flex:1 1 0; }
+        }
+        @media screen and (max-width:380px) {
+          .home-shortcut { gap:7px; padding:9px 8px; }
+          .home-shortcut-icon { width:32px; height:32px; flex-basis:32px; }
+          .home-shortcut b { font-size:10px; }
+          .home-shortcut small { font-size:9px; }
+        }
+        @media print {
+          .home-shortcuts, .mobile-floating-nav { display:none !important; }
+        }
       `}</style>
       {mobileMenuOpen && (
   <button
@@ -1217,8 +1269,8 @@ tbody tr:hover { background: #F8FAFC !important; }
         <button type="button" className={active === "report" ? "active" : ""} onClick={() => { setActive("report"); setSettingsOpen(false); setMobileMenuOpen(false); }}>
           <FileText size={20} /><span>Laporan</span>
         </button>
-        <button type="button" className={mobileMenuOpen ? "active" : ""} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          <Menu size={20} /><span>Menu</span>
+        <button type="button" className={active === "residents" ? "active" : ""} onClick={() => { setActive("residents"); setSettingsOpen(false); setMobileMenuOpen(false); }}>
+          <Users size={20} /><span>Warga</span>
         </button>
       </nav>
       <main className="main">
@@ -1232,7 +1284,7 @@ tbody tr:hover { background: #F8FAFC !important; }
   {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
 </button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
-        {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} startEditEntry={startEditEntry} deleteEntry={deleteEntry} />}
+        {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} startEditEntry={startEditEntry} deleteEntry={deleteEntry} onSignOut={onSignOut} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
         {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
         {active === "recap" && !settingsOpen && <Recap entries={entries} total={total} residents={residents} recapSearch={recapSearch} setRecapSearch={setRecapSearch} />}
@@ -1258,10 +1310,20 @@ function SettingsPanel({ backupData, restoreData, resetData, openingBalance, set
   </section>;
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
-function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, startEditEntry, deleteEntry, residents = [] }) { const periodEntries = entries.filter((e) => cocokPeriode(e, summaryPeriod)); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
+function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, startEditEntry, deleteEntry, residents = [], onSignOut }) { const periodEntries = entries.filter((e) => cocokPeriode(e, summaryPeriod)); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
   return <section className="content">
     <div className="hero-card"><div><span className="eyebrow light">Saldo kas berjalan{summaryPeriod === "Semua periode" ? " · keseluruhan" : ` · ${summaryPeriod}`}</span><div className="hero-number">{money(displayedBalance)}</div><span className="hero-note"><ArrowUpRight size={15} /> {summaryPeriod === "Semua periode" ? "Saldo total seluruh periode" : `Perhitungan untuk ${summaryPeriod}`}</span></div><div className="hero-art"><div className="sun" /><div className="hill h1" /><div className="hill h2" /><WalletCards size={42} /></div></div>
     <div className="stat-grid"><Stat title={`Pemasukan ${summaryPeriod === "Semua periode" ? "keseluruhan" : "periode"}`} value={money(periodTotal)} icon={ArrowDownLeft} tone="green" meta={`Dari ${periodEntries.length} pembayaran`} /><Stat title={summaryPeriod === "Semua periode" ? "Pengeluaran keseluruhan" : `Pengeluaran ${summaryPeriod}`} value={money(periodOutgoing)} icon={ArrowUpRight} tone="red" meta={`${periodOutgoing ? "Transaksi tercatat" : "Belum ada transaksi"}`} /><Stat title="Warga sudah bayar" value={`${periodEntries.length} / ${residents.length}`} icon={Users} tone="gold" meta={residents.length ? `${Math.round((periodEntries.length / residents.length) * 100)}% tingkat pembayaran` : "Belum ada data warga"} /></div>
+    <section className="home-shortcuts" aria-label="Menu lainnya">
+      <div className="home-shortcuts-heading"><div><span className="eyebrow">Akses cepat</span><h2>Menu lainnya</h2></div></div>
+      <div className="home-shortcuts-grid">
+        <button type="button" className="home-shortcut" onClick={() => setActive("recap")}><span className="home-shortcut-icon"><CalendarDays size={21}/></span><span><b>Rekap Bulanan</b><small>Ringkasan iuran</small></span></button>
+        <button type="button" className="home-shortcut" onClick={() => setActive("public")}><span className="home-shortcut-icon"><Globe2 size={21}/></span><span><b>Ringkasan Publik</b><small>Informasi kas warga</small></span></button>
+        <button type="button" className="home-shortcut" onClick={() => setActive("residents")}><span className="home-shortcut-icon"><Users size={21}/></span><span><b>Data Warga</b><small>Kelola warga RT</small></span></button>
+        <button type="button" className="home-shortcut" onClick={() => setActive("settings")}><span className="home-shortcut-icon"><Settings2 size={21}/></span><span><b>Pengaturan</b><small>Data dan cadangan</small></span></button>
+        <button type="button" className="home-shortcut home-shortcut-logout" onClick={() => { if (window.confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) onSignOut?.(); }}><span className="home-shortcut-icon"><LogOut size={21}/></span><span><b>Keluar</b><small>Akhiri sesi akun</small></span></button>
+      </div>
+    </section>
     <div className="section-head"><div><span className="eyebrow">Aktivitas terbaru</span><h2>Catatan pembayaran</h2></div><select className="period-filter" value={summaryPeriod} onChange={e => setSummaryPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map((periode) => <option key={periode} value={periode}>{periode}</option>)}</select><button className="text-btn" onClick={() => setActive("input")}>+ Input pembayaran</button></div>
     <div className="table-card"><table><thead><tr><th>Tanggal</th><th>Nama warga</th><th>Blok</th><th>Iuran kebersihan</th><th>Iuran kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Aksi</th></tr></thead><tbody>{periodEntries.length === 0 ? <tr><td colSpan="8" className="empty-table">Belum ada data pembayaran untuk periode ini.</td></tr> : periodEntries.map((e) => <tr key={e.id}><td className="muted">{e.date}</td><td><b>{e.resident || residents.find((r) => r.block === e.block && r.subBlock === e.subBlock)?.name || "Nama belum diisi"}</b></td><td><span className="block-tag">{e.subBlock || "-"}</span></td><td>{money(e.clean)}</td><td>{money(e.kas)}</td><td>{money(e.other || 0)}</td><td><b>{money(e.clean + e.kas + (e.other || 0))}</b></td><td><div className="entry-actions"><button className="icon-btn edit" title="Edit pembayaran" onClick={() => startEditEntry(e)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus pembayaran" onClick={() => deleteEntry(e.id)}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
   </section>;
