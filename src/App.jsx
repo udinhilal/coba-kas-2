@@ -1154,6 +1154,37 @@ tbody tr:hover { background: #F8FAFC !important; }
           .report-footer { border-top-color: #DCE5EF !important; }
         }
 
+
+        /* Navigasi mobile melayang */
+        .mobile-floating-nav { display: none; }
+        @media screen and (max-width: 800px) {
+          .app-shell { padding-bottom: 104px !important; }
+          .mobile-floating-nav {
+            display: flex !important; position: fixed !important;
+            left: 12px !important; right: 12px !important;
+            bottom: max(12px, env(safe-area-inset-bottom)) !important;
+            z-index: 1200 !important; min-height: 66px;
+            align-items: center; justify-content: space-around; gap: 3px;
+            padding: 7px 6px; border: 1px solid rgba(220,229,239,.95);
+            border-radius: 20px; background: rgba(255,255,255,.96);
+            box-shadow: 0 10px 32px rgba(16,42,67,.18);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+          }
+          .mobile-floating-nav button {
+            appearance: none; border: 0; background: transparent; color: #64748B;
+            display: flex; flex: 1 1 0; min-width: 0; min-height: 50px;
+            flex-direction: column; align-items: center; justify-content: center;
+            gap: 4px; padding: 4px 2px; border-radius: 13px;
+            font: 600 10px/1.1 'Inter', sans-serif; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+          }
+          .mobile-floating-nav button svg { flex: 0 0 auto; }
+          .mobile-floating-nav button.active { color: #173B65; background: #EAF2FC; }
+          .mobile-floating-nav button.active svg { stroke-width: 2.5; }
+          .main { padding-bottom: 24px !important; }
+          .connection-status { bottom: 91px !important; right: 14px !important; max-width: calc(100% - 28px); }
+        }
+        @media print { .mobile-floating-nav { display: none !important; } .app-shell { padding-bottom: 0 !important; } }
       `}</style>
       {mobileMenuOpen && (
   <button
@@ -1173,6 +1204,23 @@ tbody tr:hover { background: #F8FAFC !important; }
         </nav>
         <div className="side-bottom"><button className={`nav-item ${settingsOpen ? "active" : ""}`} onClick={() => {setSettingsOpen(!settingsOpen);if (!settingsOpen) setActive("settings");setMobileMenuOpen(false);}}><Settings2 size={18} />Pengaturan</button><div className="profile"><span className="avatar">{(user?.user_metadata?.full_name || user?.email || "W").slice(0,2).toUpperCase()}</span><div><b>{user?.user_metadata?.full_name || "Pengelola"}</b><small>{user?.email || "Akun terverifikasi"}</small></div><button type="button" className="signout-btn" onClick={() => { setMobileMenuOpen(false); onSignOut?.(); }}>Keluar</button></div></div>
       </aside>
+      <nav className="mobile-floating-nav" aria-label="Navigasi utama mobile">
+        <button type="button" className={active === "overview" ? "active" : ""} onClick={() => { setActive("overview"); setSettingsOpen(false); setMobileMenuOpen(false); }}>
+          <Home size={20} /><span>Beranda</span>
+        </button>
+        <button type="button" className={active === "input" ? "active" : ""} onClick={() => { setActive("input"); setSettingsOpen(false); setMobileMenuOpen(false); setPaymentPeriod(getPeriodeSekarang()); setBlock(""); setPaymentSubBlock(""); setResident(""); setClean(""); setKas(""); setOther(""); setEditingEntry(null); }}>
+          <ReceiptText size={20} /><span>Bayar</span>
+        </button>
+        <button type="button" className={active === "cashflow" ? "active" : ""} onClick={() => { setActive("cashflow"); setSettingsOpen(false); setMobileMenuOpen(false); }}>
+          <WalletCards size={20} /><span>Arus kas</span>
+        </button>
+        <button type="button" className={active === "report" ? "active" : ""} onClick={() => { setActive("report"); setSettingsOpen(false); setMobileMenuOpen(false); }}>
+          <FileText size={20} /><span>Laporan</span>
+        </button>
+        <button type="button" className={mobileMenuOpen ? "active" : ""} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <Menu size={20} /><span>Menu</span>
+        </button>
+      </nav>
       <main className="main">
         <div className="connection-status"><span /> {isOnline ? "Online" : "Mode offline"} · {isOnline ? `Sinkron terakhir: ${lastSync}` : "Data tersimpan di perangkat"}</div>
         <header className="topbar"><button
