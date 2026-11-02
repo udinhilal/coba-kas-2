@@ -1220,8 +1220,9 @@ tbody tr:hover { background: #F8FAFC !important; }
           .home-shortcut-icon { width:36px; height:36px; flex-basis:36px; border-radius:11px; }
           .home-shortcut b { font-size:11px; }
           .home-shortcut small { font-size:9px; }
-          .hero-card { padding:20px !important; min-height:0 !important; }
-          .hero-card .hero-number { font-size:clamp(27px,8vw,38px) !important; }
+          .hero-card { padding: 12px 15px !important; min-height: 0 !important; border-radius: 13px !important; }
+          .hero-card .hero-number { font-size: clamp(23px, 6vw, 29px) !important; line-height: 1.2 !important; margin: 5px 0 !important; }
+          .hero-card .hero-note { font-size: 11px !important; }
           .hero-art { display:none !important; }
           .stat-grid { gap:9px !important; }
           .stat-card { padding:12px !important; }
@@ -1284,7 +1285,7 @@ tbody tr:hover { background: #F8FAFC !important; }
   {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
 </button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
-        {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} startEditEntry={startEditEntry} deleteEntry={deleteEntry} onSignOut={onSignOut} />}
+        {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} setSettingsOpen={setSettingsOpen} startEditEntry={startEditEntry} deleteEntry={deleteEntry} onSignOut={onSignOut} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
         {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
         {active === "recap" && !settingsOpen && <Recap entries={entries} total={total} residents={residents} recapSearch={recapSearch} setRecapSearch={setRecapSearch} />}
@@ -1310,7 +1311,7 @@ function SettingsPanel({ backupData, restoreData, resetData, openingBalance, set
   </section>;
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
-function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, startEditEntry, deleteEntry, residents = [], onSignOut }) { const periodEntries = entries.filter((e) => cocokPeriode(e, summaryPeriod)); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
+function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, setSettingsOpen, startEditEntry, deleteEntry, residents = [], onSignOut }) { const periodEntries = entries.filter((e) => cocokPeriode(e, summaryPeriod)); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
   return <section className="content">
     <div className="hero-card"><div><span className="eyebrow light">Saldo kas berjalan{summaryPeriod === "Semua periode" ? " · keseluruhan" : ` · ${summaryPeriod}`}</span><div className="hero-number">{money(displayedBalance)}</div><span className="hero-note"><ArrowUpRight size={15} /> {summaryPeriod === "Semua periode" ? "Saldo total seluruh periode" : `Perhitungan untuk ${summaryPeriod}`}</span></div><div className="hero-art"><div className="sun" /><div className="hill h1" /><div className="hill h2" /><WalletCards size={42} /></div></div>
     <div className="stat-grid"><Stat title={`Pemasukan ${summaryPeriod === "Semua periode" ? "keseluruhan" : "periode"}`} value={money(periodTotal)} icon={ArrowDownLeft} tone="green" meta={`Dari ${periodEntries.length} pembayaran`} /><Stat title={summaryPeriod === "Semua periode" ? "Pengeluaran keseluruhan" : `Pengeluaran ${summaryPeriod}`} value={money(periodOutgoing)} icon={ArrowUpRight} tone="red" meta={`${periodOutgoing ? "Transaksi tercatat" : "Belum ada transaksi"}`} /><Stat title="Warga sudah bayar" value={`${periodEntries.length} / ${residents.length}`} icon={Users} tone="gold" meta={residents.length ? `${Math.round((periodEntries.length / residents.length) * 100)}% tingkat pembayaran` : "Belum ada data warga"} /></div>
@@ -1320,7 +1321,22 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
         <button type="button" className="home-shortcut" onClick={() => setActive("recap")}><span className="home-shortcut-icon"><CalendarDays size={21}/></span><span><b>Rekap Bulanan</b><small>Ringkasan iuran</small></span></button>
         <button type="button" className="home-shortcut" onClick={() => setActive("public")}><span className="home-shortcut-icon"><Globe2 size={21}/></span><span><b>Ringkasan Publik</b><small>Informasi kas warga</small></span></button>
         <button type="button" className="home-shortcut" onClick={() => setActive("residents")}><span className="home-shortcut-icon"><Users size={21}/></span><span><b>Data Warga</b><small>Kelola warga RT</small></span></button>
-        <button type="button" className="home-shortcut" onClick={() => setActive("settings")}><span className="home-shortcut-icon"><Settings2 size={21}/></span><span><b>Pengaturan</b><small>Data dan cadangan</small></span></button>
+        <button
+  type="button"
+  className="home-shortcut"
+  onClick={() => {
+    setActive("settings");
+    setSettingsOpen(true);
+  }}
+>
+  <span className="home-shortcut-icon">
+    <Settings2 size={21} />
+  </span>
+  <span>
+    <b>Pengaturan</b>
+    <small>Data dan cadangan</small>
+  </span>
+</button>
         <button type="button" className="home-shortcut home-shortcut-logout" onClick={() => { if (window.confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) onSignOut?.(); }}><span className="home-shortcut-icon"><LogOut size={21}/></span><span><b>Keluar</b><small>Akhiri sesi akun</small></span></button>
       </div>
     </section>
