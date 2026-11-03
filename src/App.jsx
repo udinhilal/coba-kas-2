@@ -1385,6 +1385,90 @@ tbody tr:hover { background: #F8FAFC !important; }
     gap: 5px;
   }
 }
+/* =====================================
+   PERAPIAN PILIH PERIODE RINGKASAN PUBLIK
+   ===================================== */
+
+.public-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.public-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.public-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 195px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.public-controls select {
+  width: 100%;
+  min-width: 195px;
+  min-height: 48px;
+  padding: 0 14px;
+  font-size: 15px;
+  font-weight: 500;
+  border: 1px solid #DCE5EF;
+  border-radius: 10px;
+  background: #FFFFFF;
+  color: #102A43;
+  cursor: pointer;
+}
+
+.public-controls .primary-btn {
+  min-height: 48px;
+  padding: 0 18px;
+  white-space: nowrap;
+}
+
+/* Tampilan HP */
+@media screen and (max-width: 760px) {
+  .public-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  .public-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .public-controls label {
+    width: 100%;
+    min-width: 0;
+    font-size: 13px;
+  }
+
+  .public-controls select {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  .public-controls .primary-btn {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+}
 `}</style>
       {mobileMenuOpen && (
   <button
@@ -1430,7 +1514,30 @@ tbody tr:hover { background: #F8FAFC !important; }
   aria-label="Buka atau tutup menu"
 >
   {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-</button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div><button className="month-pill"><CalendarDays size={16} /> Oktober 2026 <ChevronDown size={15} /></button></header>
+</button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div></button>
+<div>
+  <span className="eyebrow">
+    {formatTanggalIndonesia()}
+  </span>
+  <h1>
+    {active === "overview"
+      ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}`
+      : active === "input"
+      ? "Input pembayaran"
+      : active === "cashflow"
+      ? "Arus keuangan"
+      : active === "recap"
+      ? "Rekap bulanan"
+      : active === "report"
+      ? "Laporan warga"
+      : active === "public"
+      ? "Ringkasan publik"
+      : active === "settings"
+      ? "Pengaturan"
+      : "Data warga"}
+  </h1>
+</div>
+</header></header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
         {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} setSettingsOpen={setSettingsOpen} startEditEntry={startEditEntry} deleteEntry={deleteEntry} onSignOut={onSignOut} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
