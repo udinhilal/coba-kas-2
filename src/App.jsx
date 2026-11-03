@@ -210,6 +210,11 @@ export default function App({ user, onSignOut }) {
   const [residentFilter, setResidentFilter] = useState("Semua blok");
   const [residentSubFilter, setResidentSubFilter] = useState("Semua sub blok");
   const [notice, setNotice] = useState("");
+  // Modal konfirmasi khusus aplikasi
+  const [confirmDialog, setConfirmDialog] = useState(null);
+  const requestConfirmation = (message, action) => {setConfirmDialog({ message, action });};
+  const handleConfirmAction = () => {
+  const action = confirmDialog?.action;setConfirmDialog(null);if (action) action();};
   const [summaryPeriod, setSummaryPeriod] = useState(getPeriodeSekarang());
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -400,12 +405,18 @@ const record = {
     setActive("cashflow");
   };
   const deleteExpense = (id) => {
-    const target = cashOut.find((item) => item.id === id);
-    if (!target || !window.confirm(`Hapus pengeluaran ${target.title}?`)) return;
-    setCashOut(cashOut.filter((item) => item.id !== id));
-    setNotice("Pengeluaran dihapus");
-    setTimeout(() => setNotice(""), 2200);
-  };
+  const target = cashOut.find((item) => item.id === id);
+  if (!target) return;
+
+  requestConfirmation(
+    `Apakah Anda yakin ingin menghapus pencatatan keluar "${target.title}"?`,
+    () => {
+      setCashOut(cashOut.filter((item) => item.id !== id));
+      setNotice("Pengeluaran dihapus");
+      setTimeout(() => setNotice(""), 2200);
+    }
+  );
+};
   const startEditEntry = (entry) => {
     setEditingEntry(entry);
     setResident(entry.resident);
@@ -417,12 +428,18 @@ const record = {
     setActive("input");
   };
   const deleteEntry = (id) => {
-    const target = entries.find((item) => item.id === id);
-    if (!target || !window.confirm(`Hapus pembayaran ${target.resident}?`)) return;
-    setEntries(entries.filter((item) => item.id !== id));
-    setNotice("Pembayaran dihapus");
-    setTimeout(() => setNotice(""), 2200);
-  };
+  const target = entries.find((item) => item.id === id);
+  if (!target) return;
+
+  requestConfirmation(
+    `Apakah Anda yakin ingin menghapus pembayaran ${target.resident}?`,
+    () => {
+      setEntries(entries.filter((item) => item.id !== id));
+      setNotice("Pembayaran dihapus");
+      setTimeout(() => setNotice(""), 2200);
+    }
+  );
+};
   const startEditResident = (r) => {
     setEditingResident(r.id);
     setResidentName(r.name);
@@ -430,12 +447,18 @@ const record = {
     setResidentSubBlock(r.subBlock || `${r.block}1`);
   };
   const deleteResident = (id) => {
-    const target = residents.find((r) => r.id === id);
-    if (!target || !window.confirm(`Hapus data ${target.name}?`)) return;
-    setResidents(residents.filter((r) => r.id !== id));
-    setNotice("Data warga dihapus");
-    setTimeout(() => setNotice(""), 2200);
-  };
+  const target = residents.find((r) => r.id === id);
+  if (!target) return;
+
+  requestConfirmation(
+    `Apakah Anda yakin ingin menghapus data warga ${target.name}?`,
+    () => {
+      setResidents(residents.filter((r) => r.id !== id));
+      setNotice("Data warga dihapus");
+      setTimeout(() => setNotice(""), 2200);
+    }
+  );
+};
   return (
     <div className="app-shell">
       <style>{`
@@ -1486,7 +1509,19 @@ tbody tr:hover { background: #F8FAFC !important; }
             <button className={`nav-item ${active === id ? "active" : ""}`} key={id} onClick={() => { setActive(id); setSettingsOpen(false); setMobileMenuOpen(false); if (id === "input") { setPaymentPeriod(getPeriodeSekarang()); setBlock(""); setPaymentSubBlock(""); setResident(""); setClean(""); setKas(""); setOther(""); setEditingEntry(null); } }}><Icon size={18} />{label}{id === "input" && <span className="nav-dot" />}</button>
           ))}
         </nav>
-        <div className="side-bottom"><button className={`nav-item ${settingsOpen ? "active" : ""}`} onClick={() => {setSettingsOpen(!settingsOpen);if (!settingsOpen) setActive("settings");setMobileMenuOpen(false);}}><Settings2 size={18} />Pengaturan</button><div className="profile"><span className="avatar">{(user?.user_metadata?.full_name || user?.email || "W").slice(0,2).toUpperCase()}</span><div><b>{user?.user_metadata?.full_name || "Pengelola"}</b><small>{user?.email || "Akun terverifikasi"}</small></div><button type="button" className="signout-btn" onClick={() => { setMobileMenuOpen(false); onSignOut?.(); }}>Keluar</button></div></div>
+        <div className="side-bottom"><button className={`nav-item ${settingsOpen ? "active" : ""}`} onClick={() => {setSettingsOpen(!settingsOpen);if (!settingsOpen) setActive("settings");setMobileMenuOpen(false);}}><Settings2 size={18} />Pengaturan</button><div className="profile"><span className="avatar">{(user?.user_metadata?.full_name || user?.email || "W").slice(0,2).toUpperCase()}</span><div><b>{user?.user_metadata?.full_name || "Pengelola"}</b><small>{user?.email || "Akun terverifikasi"}</small></div><button
+  type="button"
+  className="signout-btn"
+  onClick={() => {
+    setMobileMenuOpen(false);
+    requestConfirmation(
+      "Apakah Anda yakin ingin keluar dari aplikasi?",
+      () => onSignOut?.()
+    );
+  }}
+>
+  Keluar
+</button></div></div>
       </aside>
       <nav className="mobile-floating-nav" aria-label="Navigasi utama mobile">
         <button type="button" className={active === "overview" ? "active" : ""} onClick={() => { setActive("overview"); setSettingsOpen(false); setMobileMenuOpen(false); }}>
@@ -1544,7 +1579,7 @@ tbody tr:hover { background: #F8FAFC !important; }
 
 </header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
-        {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} setSettingsOpen={setSettingsOpen} startEditEntry={startEditEntry} deleteEntry={deleteEntry} onSignOut={onSignOut} />}
+        {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} setSettingsOpen={setSettingsOpen} startEditEntry={startEditEntry} deleteEntry={deleteEntry} onSignOut={onSignOut} requestConfirmation={requestConfirmation} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
         {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
         {active === "recap" && !settingsOpen && <Recap entries={entries} total={total} residents={residents} recapSearch={recapSearch} setRecapSearch={setRecapSearch} />}
@@ -1553,6 +1588,115 @@ tbody tr:hover { background: #F8FAFC !important; }
         {settingsOpen && <SettingsPanel backupData={backupData} restoreData={restoreData} resetData={resetData} openingBalance={openingBalance} setOpeningBalance={setOpeningBalance} manualAdjustment={manualAdjustment} setManualAdjustment={setManualAdjustment} balanceHistory={balanceHistory} setBalanceHistory={setBalanceHistory} setNotice={setNotice} />}
         {active === "residents" && !settingsOpen && <Residents {...{ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }} />}
       </main>
+      {confirmDialog && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      zIndex: 99999,
+      background: "rgba(15, 23, 42, 0.55)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "20px"
+    }}
+    onClick={() => setConfirmDialog(null)}
+  >
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-message"
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        width: "100%",
+        maxWidth: "390px",
+        background: "#FFFFFF",
+        borderRadius: "16px",
+        padding: "24px",
+        boxShadow: "0 20px 60px rgba(0,0,0,.22)",
+        border: "1px solid #DCE5EF"
+      }}
+    >
+      <div style={{
+        width: "44px",
+        height: "44px",
+        borderRadius: "12px",
+        background: "#DBEAFE",
+        color: "#173B65",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "23px",
+        marginBottom: "16px"
+      }}>
+        !
+      </div>
+
+      <h3
+        id="confirm-title"
+        style={{
+          margin: "0 0 10px",
+          color: "#102A43",
+          fontSize: "18px",
+          fontWeight: 700
+        }}
+      >
+        Konfirmasi tindakan
+      </h3>
+
+      <p
+        id="confirm-message"
+        style={{
+          margin: "0 0 24px",
+          color: "#64748B",
+          fontSize: "14px",
+          lineHeight: 1.6
+        }}
+      >
+        {confirmDialog.message}
+      </p>
+
+      <div style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        gap: "10px"
+      }}>
+        <button
+          type="button"
+          onClick={() => setConfirmDialog(null)}
+          style={{
+            padding: "11px 18px",
+            borderRadius: "9px",
+            border: "1px solid #DCE5EF",
+            background: "#FFFFFF",
+            color: "#475569",
+            fontWeight: 600,
+            cursor: "pointer"
+          }}
+        >
+          Batal
+        </button>
+
+        <button
+          type="button"
+          onClick={handleConfirmAction}
+          style={{
+            padding: "11px 18px",
+            borderRadius: "9px",
+            border: "none",
+            background: "#173B65",
+            color: "#FFFFFF",
+            fontWeight: 600,
+            cursor: "pointer"
+          }}
+        >
+          Ya, lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
@@ -1570,7 +1714,7 @@ function SettingsPanel({ backupData, restoreData, resetData, openingBalance, set
   </section>;
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
-function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, setSettingsOpen, startEditEntry, deleteEntry, residents = [], onSignOut }) { const periodEntries = sortPaymentEntries(entries.filter((e) => cocokPeriode(e, summaryPeriod))); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = periodEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = periodEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = periodEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
+function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, setSettingsOpen, startEditEntry, deleteEntry, residents = [], onSignOut, requestConfirmation }) { const periodEntries = sortPaymentEntries(entries.filter((e) => cocokPeriode(e, summaryPeriod))); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = periodEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = periodEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = periodEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
   return <section className="content">
     <div className="hero-card">
   <div>
@@ -1627,7 +1771,24 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
   type="button"
   className="home-shortcut"onClick={() => { setActive("settings"); setSettingsOpen(true); }}
 ><span className="home-shortcut-icon"><Settings2 size={21} /></span><span><b>Pengaturan</b><small>Data dan cadangan</small></span></button>
-        <button type="button" className="home-shortcut home-shortcut-logout" onClick={() => { if (window.confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) onSignOut?.(); }}><span className="home-shortcut-icon"><LogOut size={21}/></span><span><b>Keluar</b><small>Akhiri sesi akun</small></span></button>
+        <button
+  type="button"
+  className="home-shortcut home-shortcut-logout"
+  onClick={() => {
+    requestConfirmation(
+      "Apakah Anda yakin ingin keluar dari aplikasi?",
+      () => onSignOut?.()
+    );
+  }}
+>
+  <span className="home-shortcut-icon">
+    <LogOut size={21} />
+  </span>
+  <span>
+    <b>Keluar</b>
+    <small>Akhiri sesi akun</small>
+  </span>
+</button>
       </div>
     </section>
   </section>;
