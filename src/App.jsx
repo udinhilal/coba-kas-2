@@ -1331,7 +1331,61 @@ tbody tr:hover { background: #F8FAFC !important; }
         @media screen and (max-width:800px) {
           .hero-income-details { gap: 6px; margin-top: 11px; padding-top: 9px; font-size: 11px; }
         }
-      `}</style>
+      /* Rincian iuran ringkas pada kartu rekap */
+.recap-income-details {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.recap-income-details > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recap-income-details span {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.recap-income-details b {
+  color: #173b65;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Ukuran kartu rekap di HP */
+@media screen and (max-width: 760px) {
+  .recap-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .recap-grid .big-card {
+    padding: 14px !important;
+  }
+
+  .recap-grid .big-card strong {
+    font-size: 23px !important;
+    margin: 7px 0 10px !important;
+  }
+
+  .recap-income-details {
+    margin-top: 12px;
+    padding-top: 10px;
+    gap: 5px;
+  }
+}
+`}</style>
       {mobileMenuOpen && (
   <button
     type="button"
