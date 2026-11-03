@@ -436,3 +436,111 @@ tbody tr:hover { background: #F8FAFC !important; }
   tbody tr:nth-child(even) { background: #F8FAFC !important; }
   .report-footer { border-top-color: #DCE5EF !important; }
 }
+/* ==========================================
+   DROPDOWN — TEMA NAVY BLUE + WHITE
+   Periode, Blok, Sub Blok, dan Filter
+   ========================================== */
+
+/* Tampilan kotak pilihan */
+select,
+.form-grid select,
+.period-filter,
+.resident-filter,
+.recap-period-select,
+.public-controls select,
+.report-period-control select {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 100%;
+  min-height: 44px;
+
+  padding: 0 40px 0 14px;
+
+  font-family: 'Inter', 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #102A43;
+  background-color: #FFFFFF;
+
+  border: 1px solid #C9D8E8;
+  border-radius: 10px;
+
+  cursor: pointer;
+  outline: none;
+
+  box-shadow: 0 1px 3px rgba(16, 42, 67, 0.04);
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23173B65' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+}
+
+/* Ketika dropdown dipilih */
+select:focus,
+.form-grid select:focus,
+.period-filter:focus,
+.resident-filter:focus,
+.recap-period-select:focus,
+.public-controls select:focus {
+  border-color: #173B65;
+  box-shadow: 0 0 0 3px rgba(23, 59, 101, 0.12);
+  background-color: #FFFFFF;
+}
+
+/* Warna daftar pilihan */
+select option {
+  background-color: #FFFFFF;
+  color: #102A43;
+  font-family: 'Inter', 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px;
+}
+
+/* Pilihan yang sedang aktif */
+select option:checked {
+  background-color: #DBEAFE;
+  color: #173B65;
+  font-weight: 700;
+}
+
+/* Dropdown tidak aktif */
+select:disabled {
+  background-color: #F1F5F9;
+  color: #94A3B8;
+  border-color: #E2E8F0;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* Efek ketika diarahkan mouse */
+@media (hover: hover) {
+  select:hover:not(:disabled) {
+    border-color: #8DAAC9;
+  }
+}
+
+/* Tampilan HP */
+@media screen and (max-width: 760px) {
+  select,
+  .form-grid select,
+  .period-filter,
+  .resident-filter,
+  .recap-period-select,
+  .public-controls select,
+  .report-period-control select {
+    min-height: 46px;
+    font-size: 14px;
+    border-radius: 10px;
+    padding-left: 13px;
+    padding-right: 38px;
+  }
+
+  select option {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
