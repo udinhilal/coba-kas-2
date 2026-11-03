@@ -1422,7 +1422,7 @@ tbody tr:hover { background: #F8FAFC !important; }
         </button>
       </nav>
       <main className="main">
-        <div className="connection-status"><span /> {isOnline ? "Online" : "Mode offline"} · {isOnline ? `Sinkron terakhir: ${lastSync}` : "Data tersimpan di perangkat"}</div>
+        <div className="connection-status" style={{ display: "none" }}></div>
         <header className="topbar"><button
   type="button"
   className="mobile-menu-toggle"
