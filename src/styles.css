@@ -544,3 +544,57 @@ select:disabled {
     padding: 12px;
   }
 }
+
+/* Perbaikan teks periode Rekap Bulanan pada layar mobile */
+.recap-banner {
+  min-width: 0;
+}
+
+.recap-actions {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.recap-period-label {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+}
+
+.recap-period-select {
+  display: block;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+@media screen and (max-width: 760px) {
+  .recap-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    gap: 10px;
+  }
+
+  .recap-period-label {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .recap-period-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 14px !important;
+    padding-right: 40px !important;
+  }
+
+  .recap-actions .outline-light {
+    width: 100%;
+    justify-content: center;
+  }
+}
