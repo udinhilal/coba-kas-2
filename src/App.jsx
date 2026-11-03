@@ -1507,37 +1507,42 @@ tbody tr:hover { background: #F8FAFC !important; }
       </nav>
       <main className="main">
         <div className="connection-status" style={{ display: "none" }}></div>
-        <header className="topbar"><button
-  type="button"
-  className="mobile-menu-toggle"
-  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-  aria-label="Buka atau tutup menu"
->
-  {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-</button><div><span className="eyebrow">{formatTanggalIndonesia()}</span><h1>{active === "overview" ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}` : active === "input" ? "Input pembayaran" : active === "cashflow" ? "Arus keuangan" : active === "recap" ? "Rekap bulanan" : active === "report" ? "Laporan warga" : active === "public" ? "Ringkasan publik" : active === "settings" ? "Pengaturan" : "Data warga"}</h1></div></button>
-<div>
-  <span className="eyebrow">
-    {formatTanggalIndonesia()}
-  </span>
-  <h1>
-    {active === "overview"
-      ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}`
-      : active === "input"
-      ? "Input pembayaran"
-      : active === "cashflow"
-      ? "Arus keuangan"
-      : active === "recap"
-      ? "Rekap bulanan"
-      : active === "report"
-      ? "Laporan warga"
-      : active === "public"
-      ? "Ringkasan publik"
-      : active === "settings"
-      ? "Pengaturan"
-      : "Data warga"}
-  </h1>
-</div>
-</header></header>
+        <header className="topbar">
+
+  <button
+    type="button"
+    className="mobile-menu-toggle"
+    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+    aria-label="Buka atau tutup menu"
+  >
+    {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+  </button>
+
+  <div>
+    <span className="eyebrow">
+      {formatTanggalIndonesia()}
+    </span>
+
+    <h1>
+      {active === "overview"
+        ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}`
+        : active === "input"
+        ? "Input pembayaran"
+        : active === "cashflow"
+        ? "Arus keuangan"
+        : active === "recap"
+        ? "Rekap bulanan"
+        : active === "report"
+        ? "Laporan warga"
+        : active === "public"
+        ? "Ringkasan publik"
+        : active === "settings"
+        ? "Pengaturan"
+        : "Data warga"}
+    </h1>
+  </div>
+
+</header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
         {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} setSettingsOpen={setSettingsOpen} startEditEntry={startEditEntry} deleteEntry={deleteEntry} onSignOut={onSignOut} />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
