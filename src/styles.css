@@ -598,3 +598,22 @@ select:disabled {
     justify-content: center;
   }
 }
+
+/* ==========================================
+   PERBAIKAN JUDUL CETAK RINGKASAN PUBLIK
+   ========================================== */
+
+@media print {
+
+  /* Khusus bagian rangkuman kategori publik */
+  .public-breakdown .section-head:after {
+    content: 'Rangkuman Kategori Iuran' !important;
+    display: block !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #102A43 !important;
+    margin: 0 0 8px 0 !important;
+  }
+
+}
