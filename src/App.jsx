@@ -1517,11 +1517,7 @@ tbody tr:hover { background: #F8FAFC !important; }
             <button className={`nav-item ${active === id ? "active" : ""}`} key={id} onClick={() => { setActive(id); setSettingsOpen(false); setMobileMenuOpen(false); if (id === "input") { setPaymentPeriod(getPeriodeSekarang()); setBlock(""); setPaymentSubBlock(""); setResident(""); setClean(""); setKas(""); setOther(""); setEditingEntry(null); } }}><Icon size={18} />{label}{id === "input" && <span className="nav-dot" />}</button>
           ))}
         </nav>
-        <div className="side-bottom"><button className={`nav-item ${settingsOpen ? "active" : ""}`} onClick={() => {setSettingsOpen(!settingsOpen);if (!settingsOpen) setActive("settings");setMobileMenuOpen(false);}}><Settings2 size={18} />Pengaturan</button><div className="profile"><span className="avatar">{(user?.user_metadata?.full_name || user?.email || "W").slice(0,2).toUpperCase()}</span><div><b>
-  {user?.user_metadata?.username ||
-    user?.user_metadata?.full_name ||
-    "Pengelola"}
-</b><small>{user?.email || "Akun terverifikasi"}</small></div><button
+        <div className="side-bottom"><button className={`nav-item ${settingsOpen ? "active" : ""}`} onClick={() => {setSettingsOpen(!settingsOpen);if (!settingsOpen) setActive("settings");setMobileMenuOpen(false);}}><Settings2 size={18} />Pengaturan</button><div className="profile"><span className="avatar">{(user?.user_metadata?.full_name || user?.email || "W").slice(0,2).toUpperCase()}</span><div><b>{namaPengguna}</b><small>{user?.email || "Akun terverifikasi"}</small></div><button
   type="button"
   className="signout-btn"
   onClick={() => {
@@ -1572,7 +1568,7 @@ tbody tr:hover { background: #F8FAFC !important; }
 
     <h1>
       {active === "overview"
-        ? `Selamat datang, ${user?.user_metadata?.username || user?.user_metadata?.full_name || "Pengelola"}`
+        ? `Selamat datang, ${namaPengguna}`
         : active === "input"
         ? "Input pembayaran"
         : active === "cashflow"
