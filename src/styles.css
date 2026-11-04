@@ -617,3 +617,34 @@ select:disabled {
   }
 
 }
+
+/* Rincian pemasukan berdasarkan blok dan periode */
+
+.report-paper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-paper table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid #E2EAF5;
+  font-size: 10pt;
+  color: #20352E;
+}
+
+.report-paper table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+@media print {
+  .report-paper table td {
+    padding: 7px 6px !important;
+    font-size: 9pt !important;
+  }
+
+  .report-paper table tr {
+    break-inside: avoid;
+  }
+}
