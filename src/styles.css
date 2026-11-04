@@ -648,3 +648,100 @@ select:disabled {
     break-inside: avoid;
   }
 }
+
+/* ==========================================
+   OPTIMASI CETAK PDF LAPORAN WARGA
+   Tampilan lebih ringkas dan minimalis
+   ========================================== */
+
+@media print {
+
+  /* Area halaman laporan */
+  .report-paper {
+    padding: 10px !important;
+    margin: 0 !important;
+    border-radius: 8px !important;
+  }
+
+  /* Header laporan */
+  .report-heading {
+    margin-bottom: 8px !important;
+    padding: 12px 16px !important;
+    min-height: auto !important;
+  }
+
+  .report-heading h1 {
+    font-size: 19px !important;
+    line-height: 1.2 !important;
+    margin: 3px 0 !important;
+  }
+
+  .report-heading p {
+    font-size: 11px !important;
+    margin: 3px 0 0 !important;
+  }
+
+  .report-kicker {
+    font-size: 9px !important;
+    margin-bottom: 3px !important;
+  }
+
+  /* Deskripsi laporan */
+  .report-intro {
+    font-size: 10px !important;
+    margin: 6px 0 10px !important;
+  }
+
+  /* Kotak ringkasan keuangan */
+  .report-stats {
+    gap: 6px !important;
+    margin: 8px 0 12px !important;
+  }
+
+  .report-stats > div {
+    padding: 9px 12px !important;
+    min-height: auto !important;
+    border-radius: 7px !important;
+  }
+
+  .report-stats span {
+    font-size: 8px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .report-stats b {
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Judul rincian */
+  .report-paper h3 {
+    font-size: 12px !important;
+    margin: 10px 0 4px !important;
+    padding-bottom: 3px !important;
+  }
+
+  /* Baris rincian */
+  .report-paper table td {
+    padding: 6px 7px !important;
+    font-size: 9px !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Footer */
+  .report-footer {
+    margin-top: 10px !important;
+    padding-top: 8px !important;
+    font-size: 9px !important;
+  }
+
+  /* Hilangkan ruang berlebih */
+  .report-paper * {
+    box-shadow: none !important;
+  }
+
+  /* Hindari pemotongan baris */
+  .report-paper tr {
+    break-inside: avoid !important;
+  }
+}
