@@ -7,6 +7,7 @@ export default function AuthGate({ children }) {
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState("signin");
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -103,9 +104,12 @@ export default function AuthGate({ children }) {
           email: email.trim(),
           password,
           options: {
-            data: { full_name: fullName.trim() },
-            emailRedirectTo: window.location.origin,
-          },
+  data: {
+    full_name: fullName.trim(),
+    username: username.trim().toLowerCase(),
+  },
+  emailRedirectTo: window.location.origin,
+},
         });
 
         if (error) throw error;
@@ -222,17 +226,39 @@ export default function AuthGate({ children }) {
         <form className="auth-form" onSubmit={submit}>
 
           {mode === "signup" && (
-            <label>
-              Nama lengkap
-              <input
-                autoComplete="name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </label>
-          )}
+  <>
+    <label>
+      Nama lengkap
+      <input
+        autoComplete="name"
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+        required
+      />
+    </label>
 
+    <label>
+      Username
+      <input
+        type="text"
+        autoComplete="username"
+        placeholder="Contoh: hilaludin"
+        value={username}
+        onChange={(e) =>
+          setUsername(
+            e.target.value.toLowerCase().replace(/\s/g, "")
+          )
+        }
+        minLength={3}
+        maxLength={30}
+        pattern="[a-z0-9._-]+"
+        title="Gunakan huruf kecil, angka, titik, garis bawah, atau tanda hubung."
+        required
+      />
+      <small>Username digunakan untuk identitas akun dan nama tampilan.</small>
+    </label>
+  </>
+)}
           {mode !== "update" && (
             <label>
               Email
