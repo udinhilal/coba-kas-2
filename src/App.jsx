@@ -1836,7 +1836,253 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
 ))}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label><label>Iuran kebersihan<div className="input-money"><span>Rp</span><input type="number" min="0" value={clean} onChange={(e) => setClean(e.target.value)} /></div></label><label>Iuran kas RT<div className="input-money"><span>Rp</span><input type="number" min="0" value={kas} onChange={(e) => setKas(e.target.value)} /></div></label><label>Iuran lainnya <em>opsional</em><div className="input-money"><span>Rp</span><input type="number" min="0" value={other} onChange={(e) => setOther(e.target.value)} /></div></label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}</div></form><div className="tip"><span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
 }
 function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, expensePeriod, setExpensePeriod, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><label>Periode pengeluaran<select value={expensePeriod} onChange={e=>setExpensePeriod(e.target.value)} required>{getDaftarPeriode().map(periode=><option key={periode} value={periode}>{periode}</option>)}</select></label><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{sortPaymentEntries(entries).map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
-function ResidentReport({ entries, cashOut, runningBalance, openingBalance = 0, manualAdjustment = 0 }) { const [reportPeriod, setReportPeriod] = useState(getPeriodeSekarang()); const reportEntries = sortPaymentEntries(entries.filter(e => cocokPeriode(e, reportPeriod))); const reportExpenses = cashOut.filter(e => cocokPeriode(e, reportPeriod)); const incoming = reportEntries.reduce((a,e)=>a+Number(e.clean||0)+Number(e.kas||0)+Number(e.other||0),0); const outgoing = reportExpenses.reduce((a,e)=>a+Number(e.amount||0),0); const reportBalance = reportPeriod === "Semua periode" ? runningBalance : Number(openingBalance||0) + incoming - outgoing + Number(manualAdjustment||0); return <section className="content report-page"><div className="report-toolbar"><div><span className="eyebrow">Dokumen warga</span><h2>Laporan Pertanggungjawaban</h2><p className="subcopy">Ringkasan kas RT 26 / RW 04.</p></div><button className="primary-btn" onClick={()=>window.print()}><FileText size={17}/> Cetak / Simpan PDF</button></div><label className="report-period-control">Pilih bulan laporan<select value={reportPeriod} onChange={e=>setReportPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map(periode=><option key={periode} value={periode}>{periode}</option>)}</select></label><div className="report-paper"><div className="report-heading"><div><div className="report-kicker">RT 26 / RW 04</div><h1>Laporan Pertanggungjawaban Kas</h1><p>{reportPeriod === "Semua periode" ? "Semua periode" : `Periode ${reportPeriod}`}</p></div></div><p className="report-intro">Ringkasan pemasukan dan pengeluaran kas warga untuk diketahui bersama.</p><div className="report-stats"><div><span>Total pemasukan</span><b>{money(incoming)}</b></div><div><span>Total pengeluaran</span><b>{money(outgoing)}</b></div><div><span>Saldo kas saat ini</span><b>{money(reportBalance)}</b></div></div><h3>Rincian pemasukan</h3><table><tbody>{reportEntries.length ? reportEntries.map(e=><tr key={e.id}><td>{e.resident}</td><td>{e.date}</td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>) : <tr><td colSpan="3">Tidak ada pemasukan pada periode ini.</td></tr>}</tbody></table><h3>Rincian pengeluaran</h3><table><tbody>{reportExpenses.length ? reportExpenses.map(e=><tr key={e.id}><td>{e.title}</td><td>{e.date}</td><td>{money(e.amount)}</td></tr>) : <tr><td colSpan="3">Tidak ada pengeluaran pada periode ini.</td></tr>}</tbody></table><div className="report-footer"><p>Demikian laporan ini dibuat untuk dapat diketahui bersama.</p><div><span>Bendahara RT</span><strong>Bendahara RT</strong></div></div></div></section>; }
+
+function ResidentReport({
+  entries,
+  cashOut,
+  runningBalance,
+  openingBalance = 0,
+  manualAdjustment = 0
+}) {
+  const [reportPeriod, setReportPeriod] = useState(getPeriodeSekarang());
+
+  // Data pemasukan sesuai periode yang dipilih
+  const reportEntries = sortPaymentEntries(
+    entries.filter(e => cocokPeriode(e, reportPeriod))
+  );
+
+  const reportExpenses = cashOut.filter(
+    e => cocokPeriode(e, reportPeriod)
+  );
+
+  // Total pemasukan keseluruhan
+  const incoming = reportEntries.reduce(
+    (sum, e) =>
+      sum +
+      Number(e.clean || 0) +
+      Number(e.kas || 0) +
+      Number(e.other || 0),
+    0
+  );
+
+  // Total pengeluaran
+  const outgoing = reportExpenses.reduce(
+    (sum, e) => sum + Number(e.amount || 0),
+    0
+  );
+
+  // Saldo laporan
+  const reportBalance =
+    reportPeriod === "Semua periode"
+      ? runningBalance
+      : Number(openingBalance || 0) +
+        incoming -
+        outgoing +
+        Number(manualAdjustment || 0);
+
+  // =====================================
+  // REKAP PEMASUKAN BERDASARKAN BLOK
+  // DAN PERIODE IURAN
+  // =====================================
+
+  const groupedIncome = Object.values(
+    reportEntries.reduce((groups, e) => {
+
+      const block = String(e.block || "Tanpa blok")
+        .trim()
+        .toUpperCase();
+
+      // Gunakan periode iuran, bukan tanggal pembayaran
+      const period =
+        e.period || periodeDariTanggal(e.date) || "Periode tidak diketahui";
+
+      const key = `${block}|${period}`;
+
+      if (!groups[key]) {
+        groups[key] = {
+          block,
+          period,
+          total: 0
+        };
+      }
+
+      // Jumlahkan seluruh kategori iuran warga
+      groups[key].total +=
+        Number(e.clean || 0) +
+        Number(e.kas || 0) +
+        Number(e.other || 0);
+
+      return groups;
+
+    }, {})
+  );
+
+  // Urutkan berdasarkan periode, kemudian blok
+  groupedIncome.sort((a, b) => {
+    const [monthA, yearA] = a.period.split(" ");
+    const [monthB, yearB] = b.period.split(" ");
+
+    const indexA = namaBulan.indexOf(monthA);
+    const indexB = namaBulan.indexOf(monthB);
+
+    const orderA =
+      Number(yearA) * 12 + (indexA >= 0 ? indexA : 0);
+
+    const orderB =
+      Number(yearB) * 12 + (indexB >= 0 ? indexB : 0);
+
+    return (
+      orderA - orderB ||
+      compareNatural(a.block, b.block)
+    );
+  });
+
+  return (
+    <section className="content report-page">
+
+      <div className="report-toolbar">
+        <div>
+          <span className="eyebrow">Dokumen warga</span>
+          <h2>Laporan Pertanggungjawaban</h2>
+          <p className="subcopy">
+            Ringkasan kas RT 26 / RW 04.
+          </p>
+        </div>
+
+        <button
+          className="primary-btn"
+          onClick={() => window.print()}
+        >
+          <FileText size={17} />
+          Cetak / Simpan PDF
+        </button>
+      </div>
+
+      <label className="report-period-control">
+        Pilih bulan laporan
+
+        <select
+          value={reportPeriod}
+          onChange={e => setReportPeriod(e.target.value)}
+        >
+          <option>Semua periode</option>
+
+          {getDaftarPeriode().map(periode => (
+            <option key={periode} value={periode}>
+              {periode}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="report-paper">
+
+        <div className="report-heading">
+          <div>
+            <div className="report-kicker">
+              RT 26 / RW 04
+            </div>
+
+            <h1>Laporan Pertanggungjawaban Kas</h1>
+
+            <p>
+              {reportPeriod === "Semua periode"
+                ? "Semua periode"
+                : `Periode ${reportPeriod}`}
+            </p>
+          </div>
+        </div>
+
+        <p className="report-intro">
+          Ringkasan pemasukan dan pengeluaran kas warga
+          untuk diketahui bersama.
+        </p>
+
+        {/* RINGKASAN KEUANGAN */}
+        <div className="report-stats">
+          <div>
+            <span>Total pemasukan</span>
+            <b>{money(incoming)}</b>
+          </div>
+
+          <div>
+            <span>Total pengeluaran</span>
+            <b>{money(outgoing)}</b>
+          </div>
+
+          <div>
+            <span>Saldo kas saat ini</span>
+            <b>{money(reportBalance)}</b>
+          </div>
+        </div>
+
+        {/* RINCIAN PEMASUKAN PER BLOK */}
+        <h3>Rincian pemasukan</h3>
+
+        <table>
+          <tbody>
+            {groupedIncome.length > 0 ? (
+              groupedIncome.map((item, index) => (
+                <tr key={`${item.block}-${item.period}-${index}`}>
+                  <td>
+                    Pemasukan iuran dari blok {item.block}
+                    {" "}periode {item.period}
+                  </td>
+
+                  <td>
+                    <strong>{money(item.total)}</strong>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="2">
+                  Tidak ada pemasukan pada periode ini.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
+        {/* RINCIAN PENGELUARAN TETAP */}
+        <h3>Rincian pengeluaran</h3>
+
+        <table>
+          <tbody>
+            {reportExpenses.length > 0 ? (
+              reportExpenses.map(e => (
+                <tr key={e.id}>
+                  <td>{e.title}</td>
+                  <td>{e.date}</td>
+                  <td>{money(e.amount)}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3">
+                  Tidak ada pengeluaran pada periode ini.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
+        <div className="report-footer">
+          <p>
+            Demikian laporan ini dibuat untuk dapat
+            diketahui bersama.
+          </p>
+
+          <div>
+            <span>Bendahara RT</span>
+            <strong>Bendahara RT</strong>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}
 function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
   const [period, setPeriod] = useState(getPeriodeSekarang());
   const periodEntries = entries.filter((e) => cocokPeriode(e, period));
