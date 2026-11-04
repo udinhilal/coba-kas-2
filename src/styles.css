@@ -746,35 +746,41 @@ select:disabled {
   }
 }
 
+
 /* ==========================================
-   CETAK PDF - KOTAK RINGKASAN 1 BARIS
+   FIX FINAL - 3 KOTAK RINGKASAN PDF SEJAJAR
    ========================================== */
 
 @media print {
 
-  .report-stats {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  .report-paper .report-stats {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
     gap: 7px !important;
     width: 100% !important;
-    margin: 8px 0 12px !important;
   }
 
-  .report-stats > div {
-    width: 100% !important;
+  .report-paper .report-stats > div {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0% !important;
+    width: 0 !important;
     min-width: 0 !important;
-    min-height: 0 !important;
-    padding: 9px 10px !important;
+    max-width: none !important;
     box-sizing: border-box !important;
+    padding: 9px 8px !important;
+    margin: 0 !important;
   }
 
-  .report-stats span {
+  .report-paper .report-stats span {
     font-size: 7px !important;
     white-space: nowrap !important;
   }
 
-  .report-stats b {
-    font-size: 13px !important;
+  .report-paper .report-stats b {
+    font-size: 12px !important;
     white-space: nowrap !important;
   }
 
