@@ -175,6 +175,14 @@ const exportExcel = (entries, period = "Semua periode") => {
   );
 };
 export default function App({ user, onSignOut }) {
+
+  // Mengambil nama pengguna dari akun yang sedang login
+  const namaPengguna =
+    user?.user_metadata?.username?.trim() ||
+    user?.user_metadata?.full_name?.trim() ||
+    user?.user_metadata?.name?.trim() ||
+    user?.email?.split("@")[0] ||
+    "Pengelola";
   const [active, setActive] = useState("overview");
   const signOutStarted = useRef(false);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
@@ -1560,7 +1568,7 @@ tbody tr:hover { background: #F8FAFC !important; }
 
     <h1>
       {active === "overview"
-        ? `Selamat datang, ${user?.user_metadata?.full_name || "Pengelola"}`
+        ? `Selamat datang, ${namaPengguna}`
         : active === "input"
         ? "Input pembayaran"
         : active === "cashflow"
