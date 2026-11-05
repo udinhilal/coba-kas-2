@@ -959,3 +959,83 @@ select:disabled {
     font-size: 12px;
   }
 }
+
+/* ==========================================
+   PENYEMPURNAAN POPUP PEMBAYARAN
+   DESKTOP + HP
+   ========================================== */
+
+.payment-preview-backdrop {
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.payment-preview-modal {
+  width: min(100%, 480px);
+  max-height: calc(100vh - 28px);
+  max-height: calc(100dvh - 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.payment-preview-info > div,
+.payment-preview-details > div {
+  min-width: 0;
+}
+
+.payment-preview-info strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.payment-preview-details > div span {
+  min-width: 0;
+}
+
+.payment-preview-details > div strong {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Penyesuaian HP */
+@media screen and (max-width: 480px) {
+  .payment-preview-backdrop {
+    padding: 12px;
+  }
+
+  .payment-preview-modal {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 18px 16px;
+  }
+
+  .payment-preview-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  }
+
+  .payment-preview-actions button {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 8px;
+    white-space: normal;
+  }
+}
+
+/* HP dengan layar sangat kecil */
+@media screen and (max-width: 360px) {
+  .payment-preview-info > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .payment-preview-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-preview-actions button {
+    width: 100%;
+  }
+}
