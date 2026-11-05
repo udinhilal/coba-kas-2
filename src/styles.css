@@ -1039,3 +1039,32 @@ select:disabled {
     width: 100%;
   }
 }
+/* ==========================================
+   PERBAIKAN TOMBOL SIMPAN PEMBAYARAN
+   Teks dan ikon tepat di tengah tombol
+   ========================================== */
+
+.payment-preview-actions button.primary-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 7px !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  min-width: 0 !important;
+}
+
+@media screen and (max-width: 480px) {
+
+  .payment-preview-actions {
+    align-items: stretch !important;
+  }
+
+  .payment-preview-actions button.primary-btn {
+    width: 100% !important;
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+
+}
