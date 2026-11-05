@@ -328,7 +328,7 @@ const record = {
     setTimeout(() => setNotice(""), 2200);
   };
   const addEntry = (e) => {
-  e.preventDefault();
+  e?.preventDefault?.();
 
   const record = {
     id: editingEntry ? editingEntry.id : Date.now(),
@@ -1803,6 +1803,11 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
 }
 function Stat({ title, value, icon: Icon, tone, meta }) { return <div className="stat-card"><div className={`stat-icon ${tone}`}><Icon size={18} /></div><span className="eyebrow">{title}</span><strong>{value}</strong><small>{meta}</small></div>; }
 function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const totalPreview =
+  Number(clean || 0) +
+  Number(kas || 0) +
+  Number(other || 0);
   const normalizedBlock = block.trim().toUpperCase();
   const subBlocksForBlock = [...new Set(residents.filter((r) => r.block.trim().toUpperCase() === normalizedBlock).map((r) => r.subBlock).filter(Boolean))].sort();
   const matchingResident = residents.find((r) => r.block.trim().toUpperCase() === normalizedBlock && r.subBlock === paymentSubBlock);
@@ -1810,7 +1815,13 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
     const match = residents.find((r) => r.block.trim().toUpperCase() === nextBlock.trim().toUpperCase() && r.subBlock === nextSubBlock);
     setResident(match?.name || "");
   };
-  return <section className="content narrow"><div className="form-intro"><div className="notebook-icon"><BookOpen size={25} /></div><div><h2>Catat iuran warga</h2><p>Isi sekali, total dihitung otomatis. Praktis buat bendahara.</p></div></div><form className="form-card" onSubmit={addEntry}><div className="form-grid"><label>
+  return <section className="content narrow"><div className="form-intro"><div className="notebook-icon"><BookOpen size={25} /></div><div><h2>Catat iuran warga</h2><p>Isi sekali, total dihitung otomatis. Praktis buat bendahara.</p></div></div><form
+  className="form-card"
+  onSubmit={(e) => {
+    e.preventDefault();
+    setPreviewOpen(true);
+  }}
+><div className="form-grid"><label>
   Periode pembayaran
   <select
     value={paymentPeriod}
@@ -1833,7 +1844,108 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
       )?.name || "Nama belum diisi"
     }
   </option>
-))}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label><label>Iuran kebersihan<div className="input-money"><span>Rp</span><input type="number" min="0" value={clean} onChange={(e) => setClean(e.target.value)} /></div></label><label>Iuran kas RT<div className="input-money"><span>Rp</span><input type="number" min="0" value={kas} onChange={(e) => setKas(e.target.value)} /></div></label><label>Iuran lainnya <em>opsional</em><div className="input-money"><span>Rp</span><input type="number" min="0" value={other} onChange={(e) => setOther(e.target.value)} /></div></label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}</div></form><div className="tip"><span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
+))}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label><label>Iuran kebersihan<div className="input-money"><span>Rp</span><input type="number" min="0" value={clean} onChange={(e) => setClean(e.target.value)} /></div></label><label>Iuran kas RT<div className="input-money"><span>Rp</span><input type="number" min="0" value={kas} onChange={(e) => setKas(e.target.value)} /></div></label><label>Iuran lainnya <em>opsional</em><div className="input-money"><span>Rp</span><input type="number" min="0" value={other} onChange={(e) => setOther(e.target.value)} /></div></label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}
+</div>
+</form>
+
+{/* POPUP KONFIRMASI PEMBAYARAN */}
+{previewOpen && (
+  <div className="payment-preview-backdrop">
+    <div
+      className="payment-preview-modal"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="payment-preview-header">
+        <div>
+          <span className="eyebrow">KONFIRMASI TRANSAKSI</span>
+          <h2>Periksa Pembayaran</h2>
+        </div>
+        <button
+          type="button"
+          onClick={() => setPreviewOpen(false)}
+          className="payment-preview-close"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="payment-preview-info">
+        <div>
+          <span>Nama warga</span>
+          <strong>{matchingResident?.name || resident || "-"}</strong>
+        </div>
+        <div>
+          <span>Blok / Sub blok</span>
+          <strong>{block} / {paymentSubBlock || "-"}</strong>
+        </div>
+        <div>
+          <span>Periode pembayaran</span>
+          <strong>{paymentPeriod}</strong>
+        </div>
+        <div>
+          <span>Tanggal pembayaran</span>
+          <strong>
+            {editingEntry?.date || getTanggalTransaksi()}
+          </strong>
+        </div>
+      </div>
+
+      <div className="payment-preview-details">
+        <h3>Rincian Pembayaran</h3>
+
+        <div>
+          <span>Iuran kebersihan</span>
+          <strong>{money(Number(clean || 0))}</strong>
+        </div>
+
+        <div>
+          <span>Iuran kas RT</span>
+          <strong>{money(Number(kas || 0))}</strong>
+        </div>
+
+        <div>
+          <span>Iuran lainnya</span>
+          <strong>{money(Number(other || 0))}</strong>
+        </div>
+      </div>
+
+      <div className="payment-preview-total">
+        <span>Total Pembayaran</span>
+        <strong>{money(totalPreview)}</strong>
+      </div>
+
+      <p className="payment-preview-note">
+        Pastikan nama warga dan nominal pembayaran
+        sudah benar sebelum menyimpan.
+      </p>
+
+      <div className="payment-preview-actions">
+        <button
+          type="button"
+          className="cancel-btn"
+          onClick={() => setPreviewOpen(false)}
+        >
+          Batal
+        </button>
+
+        <button
+          type="button"
+          className="primary-btn"
+          onClick={() => {
+            addEntry();
+            setPreviewOpen(false);
+          }}
+        >
+          ✓ {editingEntry ? "Simpan Perubahan" : "Simpan Pembayaran"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+<div className="tip">
+<span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
 }
 function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, expensePeriod, setExpensePeriod, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><label>Periode pengeluaran<select value={expensePeriod} onChange={e=>setExpensePeriod(e.target.value)} required>{getDaftarPeriode().map(periode=><option key={periode} value={periode}>{periode}</option>)}</select></label><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{sortPaymentEntries(entries).map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
 
