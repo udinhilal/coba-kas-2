@@ -74,6 +74,15 @@ const seedEntries = [
 const STORAGE_KEY = "kas-warga-rt-data-v1";
 const readStored = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch { return null; } };
 const money = (n) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
+// Format angka input dengan pemisah ribuan.
+// Nilai yang disimpan tetap berupa angka tanpa titik.
+const formatNominalInput = (value) => {
+  const digits = String(value ?? "").replace(/\D/g, "");
+
+  return digits
+    ? new Intl.NumberFormat("id-ID").format(Number(digits))
+    : "";
+};
 // Mengurutkan blok dan subblok secara alami:
 // E.01, E.02, E.03_1, E.03_2, E.03_10, E.04
 const compareNatural = (a, b) =>
@@ -1844,7 +1853,58 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
       )?.name || "Nama belum diisi"
     }
   </option>
-))}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label><label>Iuran kebersihan<div className="input-money"><span>Rp</span><input type="number" min="0" value={clean} onChange={(e) => setClean(e.target.value)} /></div></label><label>Iuran kas RT<div className="input-money"><span>Rp</span><input type="number" min="0" value={kas} onChange={(e) => setKas(e.target.value)} /></div></label><label>Iuran lainnya <em>opsional</em><div className="input-money"><span>Rp</span><input type="number" min="0" value={other} onChange={(e) => setOther(e.target.value)} /></div></label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}
+))}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label>{
+
+/* INPUT IURAN KEBERSIHAN */}
+<label>
+  Iuran kebersihan
+  <div className="input-money">
+    <span>Rp</span>
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9.]*"
+      value={formatNominalInput(clean)}
+      onChange={(e) =>
+        setClean(e.target.value.replace(/\D/g, ""))
+      }
+    />
+  </div>
+</label>
+
+{/* INPUT IURAN KAS RT */}
+<label>
+  Iuran kas RT
+  <div className="input-money">
+    <span>Rp</span>
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9.]*"
+      value={formatNominalInput(kas)}
+      onChange={(e) =>
+        setKas(e.target.value.replace(/\D/g, ""))
+      }
+    />
+  </div>
+</label>
+
+{/* INPUT IURAN LAINNYA */}
+<label>
+  Iuran lainnya <em>opsional</em>
+  <div className="input-money">
+    <span>Rp</span>
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9.]*"
+      value={formatNominalInput(other)}
+      onChange={(e) =>
+        setOther(e.target.value.replace(/\D/g, ""))
+      }
+    />
+  </div>
+</label></div><div className="total-row"><div><span>Total pembayaran</span><strong>{money(Number(clean || 0) + Number(kas || 0) + Number(other || 0))}</strong></div><button className="primary-btn" type="submit"><Plus size={18} /> {editingEntry ? "Simpan perubahan" : "Simpan pembayaran"}</button>{editingEntry && <button className="cancel-btn" type="button" onClick={() => setEditingEntry(null)}><X size={16} /> Batal</button>}
 </div>
 </form>
 
