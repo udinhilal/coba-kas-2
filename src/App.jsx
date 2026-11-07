@@ -1892,6 +1892,52 @@ tbody tr:hover { background: #F8FAFC !important; }
     overflow-x: auto !important;
   }
 }
+
+/* Final mobile sizing: status badge must fit entirely inside its table cell */
+.recap-payment-table .status-paid,
+.recap-payment-table .status-unpaid,
+.recap-payment-modal .status-paid,
+.recap-payment-modal .status-unpaid {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 3px 6px !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+  font-weight: 600 !important;
+  white-space: normal !important;
+  text-align: center !important;
+  overflow-wrap: anywhere !important;
+}
+
+.recap-payment-table .status-unpaid,
+.recap-payment-modal .status-unpaid {
+  background: #FEE2E2 !important;
+  color: #B91C1C !important;
+}
+
+@media screen and (max-width: 760px) {
+  .recap-payment-card { width: 100% !important; max-width: 100% !important; overflow: hidden !important; }
+  .recap-payment-table { width: 100% !important; max-width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
+  .recap-payment-table th:nth-child(9),
+  .recap-payment-table td:nth-child(9) { width: 17% !important; padding-left: 2px !important; padding-right: 2px !important; text-align: center !important; }
+  .recap-payment-table th:nth-child(1), .recap-payment-table td:nth-child(1) { width: 16% !important; }
+  .recap-payment-table th:nth-child(2), .recap-payment-table td:nth-child(2) { width: 29% !important; }
+  .recap-payment-table th:nth-child(4), .recap-payment-table td:nth-child(4) { width: 15% !important; }
+  .recap-payment-table th:nth-child(8), .recap-payment-table td:nth-child(8) { width: 23% !important; }
+  .recap-payment-table .status-paid,
+  .recap-payment-table .status-unpaid { font-size: 8px !important; padding: 2px 3px !important; letter-spacing: -.2px !important; }
+  .recap-detail-head, .recap-detail-toolbar { width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; }
+  .recap-detail-toolbar { grid-template-columns: minmax(0, 1fr) 112px !important; }
+  .recap-detail-toolbar .recap-status-filter { width: 112px !important; max-width: 112px !important; min-width: 0 !important; height: 34px !important; min-height: 34px !important; padding: 0 5px !important; font-size: 10px !important; }
+  .recap-payment-modal .payment-detail-lines > div { gap: 12px; }
+  .recap-payment-modal .payment-detail-lines b { text-align: right; }
+}
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -2670,20 +2716,22 @@ const monthEntries = sortPaymentEntries(
 // Memeriksa apakah warga sudah membayar pada periode terpilih
 const isResidentPaid = (resident) =>
   monthEntries.some((payment) => {
-    if (payment.residentId && resident.id) {
-      return String(payment.residentId) === String(resident.id);
-    }
+    const sameId =
+      payment.residentId != null && resident.id != null &&
+      String(payment.residentId) === String(resident.id);
 
-    const sameName =
-      (payment.resident || "").trim().toLocaleLowerCase("id-ID") ===
-      (resident.name || "").trim().toLocaleLowerCase("id-ID");
+    const paymentName = (payment.resident || "").trim().toLocaleLowerCase("id-ID");
+    const residentName = (resident.name || "").trim().toLocaleLowerCase("id-ID");
+    const sameName = Boolean(paymentName && residentName && paymentName === residentName);
 
-    const sameAddress =
-      Boolean(payment.block || payment.subBlock) &&
-      String(payment.block || "") === String(resident.block || "") &&
-      String(payment.subBlock || "") === String(resident.subBlock || "");
+    const paymentBlock = String(payment.block || "").trim().toLocaleLowerCase("id-ID");
+    const residentBlock = String(resident.block || "").trim().toLocaleLowerCase("id-ID");
+    const paymentSubBlock = String(payment.subBlock || "").trim().toLocaleLowerCase("id-ID");
+    const residentSubBlock = String(resident.subBlock || "").trim().toLocaleLowerCase("id-ID");
+    const sameAddress = Boolean(paymentBlock && residentBlock && paymentBlock === residentBlock &&
+      paymentSubBlock && residentSubBlock && paymentSubBlock === residentSubBlock);
 
-    return sameName || sameAddress;
+    return sameId || sameName || sameAddress;
   });
 
 // Membuat daftar warga yang belum membayar
@@ -2697,10 +2745,11 @@ const unpaidRows = residents
     subBlock: resident.subBlock,
     date: "-",
     period: recapPeriod,
-    clean: 0,
-    kas: 0,
-    other: 0,
+    clean: null,
+    kas: null,
+    other: null,
     status: "Belum Lunas",
+    isUnpaidPlaceholder: true,
   }));
 
 // Menggabungkan data lunas dan belum lunas
@@ -2724,7 +2773,7 @@ const filteredEntries = searchedRows.filter((entry) =>
   recapStatusFilter === "semua" ||
   (recapStatusFilter === "lunas" && entry.status === "Lunas") ||
   (recapStatusFilter === "belum" && entry.status === "Belum Lunas")
-); const periodTotal = monthEntries.reduce((sum, e) => sum + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = monthEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = monthEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = monthEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const paidCount = new Set(monthEntries.map(e => e.residentId || e.resident || `${e.block}-${e.subBlock}`)).size; const paidPercent = residents.length ? Math.round((paidCount / residents.length) * 100) : 0; return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><label className="recap-period-label">Pilih bulan<select className="recap-period-select" value={recapPeriod} onChange={e => setRecapPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map(periode => <option key={periode} value={periode}>{periode}</option>)}</select></label><button className="outline-light" onClick={() => exportExcel(monthEntries, recapPeriod)}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button></div></div><div className="recap-grid">
+); const periodTotal = monthEntries.reduce((sum, e) => sum + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = monthEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = monthEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = monthEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const paidCount = new Set(monthEntries.map(e => e.residentId || e.resident || `${e.block}-${e.subBlock}`)).size; const paidPercent = residents.length ? Math.round((paidCount / residents.length) * 100) : 0; return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><label className="recap-period-label">Pilih bulan<select className="recap-period-select" value={recapPeriod} onChange={e => setRecapPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map(periode => <option key={periode} value={periode}>{periode}</option>)}</select></label><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status")}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button></div></div><div className="recap-grid">
   {/* Kartu total terkumpul */}
   <div className="big-card recap-total-card">
     <span className="eyebrow">Total terkumpul</span>
@@ -2858,6 +2907,49 @@ const filteredEntries = searchedRows.filter((entry) =>
     </td>
   </tr>
 )}</tbody></table></div>
-{selectedRecapPayment && (() => { const payment = selectedRecapPayment; const paymentTotal = Number(payment.clean || 0) + Number(payment.kas || 0) + Number(payment.other || 0); const resident = payment.resident || residents.find(r => r.block === payment.block && r.subBlock === payment.subBlock)?.name || "Nama belum diisi"; return <div className="payment-detail-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setSelectedRecapPayment(null); }}><section className="payment-detail-modal recap-payment-modal" role="dialog" aria-modal="true" aria-labelledby="recap-payment-title"><button type="button" className="payment-detail-close" aria-label="Tutup" onClick={() => setSelectedRecapPayment(null)}><X size={19}/></button><span className="eyebrow">Rekap bulanan · Per warga</span><h2 id="recap-payment-title">Rincian iuran</h2><div className="payment-detail-person"><b>{resident}</b><span>Blok {payment.subBlock || payment.block || "-"}</span></div><div className="payment-detail-lines"><div><span>Tanggal pembayaran</span><b>{payment.date || "-"}</b></div><div><span>Periode iuran</span><b>{payment.period || recapPeriod}</b></div><div><span>Iuran kebersihan</span><b>{money(payment.clean || 0)}</b></div><div><span>Iuran kas RT</span><b>{money(payment.kas || 0)}</b></div><div><span>Iuran lainnya</span><b>{money(payment.other || 0)}</b></div><div><span>Status pembayaran</span><b><span className="status-paid">Lunas</span></b></div></div><div className="payment-detail-total"><span>Total pembayaran</span><strong>{money(paymentTotal)}</strong></div><div className="payment-detail-actions recap-payment-actions"><button type="button" className="cancel-btn" onClick={() => setSelectedRecapPayment(null)}>Tutup</button></div></section></div>; })()}
+{selectedRecapPayment && (() => {
+  const payment = selectedRecapPayment;
+  const isUnpaid = payment.status === "Belum Lunas" || payment.isUnpaidPlaceholder === true;
+  const paymentTotal = Number(payment.clean || 0) + Number(payment.kas || 0) + Number(payment.other || 0);
+  const resident = payment.resident || residents.find(r =>
+    (payment.residentId != null && String(r.id) === String(payment.residentId)) ||
+    (r.block === payment.block && r.subBlock === payment.subBlock)
+  )?.name || "Nama belum diisi";
+  return <div className="payment-detail-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setSelectedRecapPayment(null); }}>
+    <section className="payment-detail-modal recap-payment-modal" role="dialog" aria-modal="true" aria-labelledby="recap-payment-title">
+      <button type="button" className="payment-detail-close" aria-label="Tutup" onClick={() => setSelectedRecapPayment(null)}><X size={19}/></button>
+      <span className="eyebrow">Rekap bulanan · Per warga</span>
+      <h2 id="recap-payment-title">Rincian iuran</h2>
+      <div className="payment-detail-person">
+        <b>{resident}</b>
+        <span>Blok {payment.subBlock || payment.block || "-"}</span>
+      </div>
+      <div className="payment-detail-lines">
+        <div><span>Periode iuran</span><b>{payment.period || recapPeriod}</b></div>
+        {isUnpaid ? (
+          <div><span>Tanggal pembayaran</span><b>Belum ada pembayaran</b></div>
+        ) : (
+          <>
+            <div><span>Tanggal pembayaran</span><b>{payment.date || "-"}</b></div>
+            <div><span>Iuran kebersihan</span><b>{money(payment.clean || 0)}</b></div>
+            <div><span>Iuran kas RT</span><b>{money(payment.kas || 0)}</b></div>
+            <div><span>Iuran lainnya</span><b>{money(payment.other || 0)}</b></div>
+          </>
+        )}
+        <div>
+          <span>Status pembayaran</span>
+          <b><span className={isUnpaid ? "status-unpaid" : "status-paid"}>{isUnpaid ? "Belum Lunas" : "Lunas"}</span></b>
+        </div>
+      </div>
+      <div className="payment-detail-total">
+        <span>{isUnpaid ? "Status tagihan" : "Total pembayaran"}</span>
+        <strong>{isUnpaid ? "Belum dibayar" : money(paymentTotal)}</strong>
+      </div>
+      <div className="payment-detail-actions recap-payment-actions">
+        <button type="button" className="cancel-btn" onClick={() => setSelectedRecapPayment(null)}>Tutup</button>
+      </div>
+    </section>
+  </div>;
+})()}
 </section>; }
 function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><select className="resident-filter" value={residentFilter} onChange={e => { setResidentFilter(e.target.value); setResidentSubFilter("Semua sub blok"); }}><option>Semua blok</option>{blocks.map(b => <option key={b}>{b}</option>)}</select><select className="resident-filter" value={residentSubFilter} onChange={e => setResidentSubFilter(e.target.value)}><option>Semua sub blok</option>{subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb => <option key={sb}>{sb}</option>)}</select><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
