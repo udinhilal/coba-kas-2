@@ -1509,7 +1509,78 @@ tbody tr:hover { background: #F8FAFC !important; }
     justify-content: center;
   }
 }
-`}</style>
+
+
+        /* CSS catatan pembayaran dan popup detail */
+/* Beranda mobile: catatan pembayaran ringkas tanpa scroll horizontal */
+@media screen and (max-width: 760px) {
+  .recent-payment-card { overflow: visible !important; }
+  .recent-payment-table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
+  .recent-payment-table th:nth-child(4),
+  .recent-payment-table td:nth-child(4),
+  .recent-payment-table th:nth-child(5),
+  .recent-payment-table td:nth-child(5),
+  .recent-payment-table th:nth-child(6),
+  .recent-payment-table td:nth-child(6),
+  .recent-payment-table th:nth-child(8),
+  .recent-payment-table td:nth-child(8) { display: none !important; }
+  .recent-payment-table th:nth-child(1),
+  .recent-payment-table td:nth-child(1) { width: 22%; }
+  .recent-payment-table th:nth-child(2),
+  .recent-payment-table td:nth-child(2) { width: 34%; }
+  .recent-payment-table th:nth-child(3),
+  .recent-payment-table td:nth-child(3) { width: 18%; }
+  .recent-payment-table th:nth-child(7),
+  .recent-payment-table td:nth-child(7) { width: 26%; }
+  .recent-payment-table td { padding: 11px 7px !important; font-size: 11px !important; white-space: normal !important; overflow-wrap: anywhere !important; }
+  .recent-payment-table th { padding: 9px 7px !important; font-size: 10px !important; }
+  .recent-payment-row { cursor: pointer; }
+  .recent-payment-row:active { background: #EFF6FF !important; }
+  .recent-payment-table td:nth-child(2) b { display: block; line-height: 1.35; }
+}
+.payment-detail-backdrop {
+  position: fixed; inset: 0; z-index: 9999; display: flex;
+  align-items: center; justify-content: center; padding: 18px;
+  background: rgba(15, 32, 52, .55); backdrop-filter: blur(3px);
+}
+.payment-detail-modal {
+  position: relative; width: min(100%, 430px); max-height: 90vh; overflow-y: auto;
+  padding: 24px; border: 1px solid #DCE5EF; border-radius: 18px;
+  background: #FFFFFF; color: #1F2937; box-shadow: 0 22px 65px rgba(16,42,67,.22);
+}
+.payment-detail-modal h2 { margin: 5px 0 18px; color: #102A43; font-size: 21px; }
+.payment-detail-close {
+  position: absolute; top: 14px; right: 14px; display: grid; place-items: center;
+  width: 34px; height: 34px; border: 1px solid #DCE5EF; border-radius: 9px;
+  background: #F8FAFC; color: #475569; cursor: pointer;
+}
+.payment-detail-person {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 13px; margin-bottom: 13px; border-radius: 11px; background: #EFF6FF;
+}
+.payment-detail-person b { color: #102A43; }
+.payment-detail-person span { color: #173B65; font-size: 12px; font-weight: 700; }
+.payment-detail-lines { display: grid; gap: 0; }
+.payment-detail-lines div {
+  display: flex; justify-content: space-between; gap: 12px; padding: 10px 2px;
+  border-bottom: 1px solid #E8EEF5; font-size: 13px;
+}
+.payment-detail-lines span { color: #64748B; }
+.payment-detail-lines b { text-align: right; color: #1F2937; }
+.payment-detail-total {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  margin-top: 14px; padding: 14px; border-radius: 11px; background: #F1F5F9;
+}
+.payment-detail-total strong { color: #102A43; font-size: 18px; }
+.payment-detail-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.payment-detail-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+@media screen and (max-width: 480px) {
+  .payment-detail-modal { padding: 20px 16px; border-radius: 15px; }
+  .payment-detail-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  .payment-detail-actions button { padding: 10px 7px; font-size: 12px; }
+}
+
+      `}</style>
       {mobileMenuOpen && (
   <button
     type="button"
@@ -2319,61 +2390,3 @@ function Recap({ entries, total, residents = [], recapSearch, setRecapSearch }) 
   </div>
 </div><div className="section-head"><div><span className="eyebrow">Per warga</span><h2 className="recap-details-title">Rincian iuran · {recapPeriod}</h2></div><div className="search"><Search size={16} /><input placeholder="Cari nama warga..." value={recapSearch} onChange={e => setRecapSearch(e.target.value)} /></div></div><div className="table-card"><table><thead><tr><th>Nama warga</th><th>Periode</th><th>Blok</th><th>Kebersihan</th><th>Kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Status</th></tr></thead><tbody>{filteredEntries.length ? filteredEntries.map(e => <tr key={e.id}><td><b>{e.resident || residents.find(r => r.block === e.block && r.subBlock === e.subBlock)?.name || "Nama belum diisi"}</b></td><td>{e.period || recapPeriod}</td><td><span className="block-tag">{e.subBlock || "-"}</span></td><td>{money(e.clean)}</td><td>{money(e.kas)}</td><td>{money(e.other || 0)}</td><td><b>{money(e.clean + e.kas + (e.other || 0))}</b></td><td><span className="status-paid">Lunas</span></td></tr>) : <tr><td colSpan="8" className="empty-table">{monthEntries.length ? "Nama warga tidak ditemukan." : "Belum ada pembayaran pada periode ini."}</td></tr>}</tbody></table></div></section>; }
 function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><select className="resident-filter" value={residentFilter} onChange={e => { setResidentFilter(e.target.value); setResidentSubFilter("Semua sub blok"); }}><option>Semua blok</option>{blocks.map(b => <option key={b}>{b}</option>)}</select><select className="resident-filter" value={residentSubFilter} onChange={e => setResidentSubFilter(e.target.value)}><option>Semua sub blok</option>{subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb => <option key={sb}>{sb}</option>)}</select><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
-
-
-/* Beranda mobile: catatan pembayaran ringkas tanpa scroll horizontal */
-@media screen and (max-width: 760px) {
-  .recent-payment-card { overflow: visible !important; }
-  .recent-payment-table { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
-  .recent-payment-table th:nth-child(n+4),
-  .recent-payment-table td:nth-child(n+4) { display: none !important; }
-  .recent-payment-table th:nth-child(1) { width: 25%; }
-  .recent-payment-table th:nth-child(2) { width: 43%; }
-  .recent-payment-table th:nth-child(3) { width: 32%; }
-  .recent-payment-table td { padding: 11px 7px !important; font-size: 11px !important; white-space: normal !important; overflow-wrap: anywhere !important; }
-  .recent-payment-table th { padding: 9px 7px !important; font-size: 10px !important; }
-  .recent-payment-row { cursor: pointer; }
-  .recent-payment-row:active { background: #EFF6FF !important; }
-  .recent-payment-table td:nth-child(2) b { display: block; line-height: 1.35; }
-}
-.payment-detail-backdrop {
-  position: fixed; inset: 0; z-index: 9999; display: flex;
-  align-items: center; justify-content: center; padding: 18px;
-  background: rgba(15, 32, 52, .55); backdrop-filter: blur(3px);
-}
-.payment-detail-modal {
-  position: relative; width: min(100%, 430px); max-height: 90vh; overflow-y: auto;
-  padding: 24px; border: 1px solid #DCE5EF; border-radius: 18px;
-  background: #FFFFFF; color: #1F2937; box-shadow: 0 22px 65px rgba(16,42,67,.22);
-}
-.payment-detail-modal h2 { margin: 5px 0 18px; color: #102A43; font-size: 21px; }
-.payment-detail-close {
-  position: absolute; top: 14px; right: 14px; display: grid; place-items: center;
-  width: 34px; height: 34px; border: 1px solid #DCE5EF; border-radius: 9px;
-  background: #F8FAFC; color: #475569; cursor: pointer;
-}
-.payment-detail-person {
-  display: flex; justify-content: space-between; align-items: center; gap: 10px;
-  padding: 13px; margin-bottom: 13px; border-radius: 11px; background: #EFF6FF;
-}
-.payment-detail-person b { color: #102A43; }
-.payment-detail-person span { color: #173B65; font-size: 12px; font-weight: 700; }
-.payment-detail-lines { display: grid; gap: 0; }
-.payment-detail-lines div {
-  display: flex; justify-content: space-between; gap: 12px; padding: 10px 2px;
-  border-bottom: 1px solid #E8EEF5; font-size: 13px;
-}
-.payment-detail-lines span { color: #64748B; }
-.payment-detail-lines b { text-align: right; color: #1F2937; }
-.payment-detail-total {
-  display: flex; justify-content: space-between; align-items: center; gap: 12px;
-  margin-top: 14px; padding: 14px; border-radius: 11px; background: #F1F5F9;
-}
-.payment-detail-total strong { color: #102A43; font-size: 18px; }
-.payment-detail-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
-.payment-detail-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-@media screen and (max-width: 480px) {
-  .payment-detail-modal { padding: 20px 16px; border-radius: 15px; }
-  .payment-detail-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; }
-  .payment-detail-actions button { padding: 10px 7px; font-size: 12px; }
-}
