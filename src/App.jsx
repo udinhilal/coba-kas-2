@@ -1819,6 +1819,79 @@ tbody tr:hover { background: #F8FAFC !important; }
     box-shadow: none !important;
   }
 }
+/* Perbaikan lebar toolbar Rincian Iuran mobile */
+@media screen and (max-width: 760px) {
+
+  .recap-payment-card,
+  .recap-detail-head,
+  .recap-detail-toolbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .recap-detail-head {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    overflow: hidden;
+  }
+
+  .recap-detail-toolbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 125px) !important;
+    gap: 7px !important;
+    padding: 0 !important;
+    margin: 10px 0 0 !important;
+  }
+
+  /* Kolom pencarian */
+  .recap-resident-search {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .recap-resident-search input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Filter status */
+  .recap-detail-toolbar .recap-status-filter {
+    grid-column: 1 / 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 7px !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Mencegah elemen anak memperlebar kartu */
+  .recap-detail-toolbar > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .recap-detail-toolbar select {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Kartu tabel tidak melewati layar */
+  .recap-payment-card {
+    overflow-x: auto !important;
+  }
+}
   `}</style>
       {mobileMenuOpen && (
   <button
