@@ -1509,6 +1509,157 @@ tbody tr:hover { background: #F8FAFC !important; }
     justify-content: center;
   }
 }
+/* Tabel catatan pembayaran */
+.recent-payment-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Popup detail pembayaran */
+.payment-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+}
+
+.payment-modal {
+  width: 100%;
+  max-width: 430px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 15px 40px rgba(0,0,0,.2);
+}
+
+.payment-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.payment-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #102a43;
+}
+
+.payment-modal-close {
+  border: 0;
+  background: #f1f5f9;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.payment-detail-row,
+.payment-detail-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  font-size: 13px;
+}
+
+.payment-detail-row span {
+  color: #64748b;
+}
+
+.payment-detail-row strong {
+  color: #1e293b;
+  text-align: right;
+}
+
+.payment-detail-total {
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid #dce5ef;
+  font-size: 15px;
+  font-weight: 700;
+  color: #173b65;
+}
+
+.payment-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.payment-modal-actions button {
+  flex: 1;
+  padding: 11px;
+  border: 0;
+  border-radius: 9px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.payment-btn-edit {
+  background: #173b65;
+  color: #fff;
+}
+
+.payment-btn-delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Tampilan mobile: tanggal, nama, blok, dan total */
+@media screen and (max-width: 760px) {
+  .recent-payment-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .recent-payment-table th:nth-child(4),
+  .recent-payment-table td:nth-child(4),
+  .recent-payment-table th:nth-child(5),
+  .recent-payment-table td:nth-child(5),
+  .recent-payment-table th:nth-child(6),
+  .recent-payment-table td:nth-child(6),
+  .recent-payment-table th:nth-child(8),
+  .recent-payment-table td:nth-child(8) {
+    display: none !important;
+  }
+
+  .recent-payment-table th:nth-child(1),
+  .recent-payment-table td:nth-child(1) {
+    width: 22%;
+  }
+
+  .recent-payment-table th:nth-child(2),
+  .recent-payment-table td:nth-child(2) {
+    width: 34%;
+  }
+
+  .recent-payment-table th:nth-child(3),
+  .recent-payment-table td:nth-child(3) {
+    width: 18%;
+  }
+
+  .recent-payment-table th:nth-child(7),
+  .recent-payment-table td:nth-child(7) {
+    width: 26%;
+  }
+
+  .recent-payment-table th,
+  .recent-payment-table td {
+    padding: 9px 5px;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+
+  .payment-modal {
+    padding: 17px;
+  }
+}
 `}</style>
       {mobileMenuOpen && (
   <button
@@ -1731,7 +1882,7 @@ function SettingsPanel({ backupData, restoreData, resetData, openingBalance, set
   </section>;
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
-function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, setSettingsOpen, startEditEntry, deleteEntry, residents = [], onSignOut, requestConfirmation }) { const periodEntries = sortPaymentEntries(entries.filter((e) => cocokPeriode(e, summaryPeriod))); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = periodEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = periodEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = periodEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
+function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, setSettingsOpen, startEditEntry, deleteEntry, residents = [], onSignOut, requestConfirmation }) { const [selectedPayment, setSelectedPayment] = useState(null); const periodEntries = sortPaymentEntries(entries.filter((e) => cocokPeriode(e, summaryPeriod))); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = periodEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = periodEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = periodEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
   return <section className="content">
     <div className="hero-card">
   <div>
@@ -1778,7 +1929,92 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
 </div>
     <div className="stat-grid"><Stat title={`Pemasukan ${summaryPeriod === "Semua periode" ? "keseluruhan" : "periode"}`} value={money(periodTotal)} icon={ArrowDownLeft} tone="green" meta={`Dari ${periodEntries.length} pembayaran`} /><Stat title={summaryPeriod === "Semua periode" ? "Pengeluaran keseluruhan" : `Pengeluaran ${summaryPeriod}`} value={money(periodOutgoing)} icon={ArrowUpRight} tone="red" meta={`${periodOutgoing ? "Transaksi tercatat" : "Belum ada transaksi"}`} /><Stat title="Warga sudah bayar" value={`${periodEntries.length} / ${residents.length}`} icon={Users} tone="gold" meta={residents.length ? `${Math.round((periodEntries.length / residents.length) * 100)}% tingkat pembayaran` : "Belum ada data warga"} /></div>
     <div className="section-head"><div><span className="eyebrow">Aktivitas terbaru</span><h2>Catatan pembayaran</h2></div><select className="period-filter" value={summaryPeriod} onChange={e => setSummaryPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map((periode) => <option key={periode} value={periode}>{periode}</option>)}</select><button className="text-btn" onClick={() => setActive("input")}>+ Input pembayaran</button></div>
-    <div className="table-card"><table><thead><tr><th>Tanggal</th><th>Nama warga</th><th>Blok</th><th>Iuran kebersihan</th><th>Iuran kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Aksi</th></tr></thead><tbody>{periodEntries.length === 0 ? <tr><td colSpan="8" className="empty-table">Belum ada data pembayaran untuk periode ini.</td></tr> : periodEntries.map((e) => <tr key={e.id}><td className="muted">{e.date}</td><td><b>{e.resident || residents.find((r) => r.block === e.block && r.subBlock === e.subBlock)?.name || "Nama belum diisi"}</b></td><td><span className="block-tag">{e.subBlock || "-"}</span></td><td>{money(e.clean)}</td><td>{money(e.kas)}</td><td>{money(e.other || 0)}</td><td><b>{money(e.clean + e.kas + (e.other || 0))}</b></td><td><div className="entry-actions"><button className="icon-btn edit" title="Edit pembayaran" onClick={() => startEditEntry(e)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus pembayaran" onClick={() => deleteEntry(e.id)}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
+    <div className="table-card recent-payment-card">
+  <table className="recent-payment-table">
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Nama warga</th>
+        <th>Blok</th>
+        <th>Iuran kebersihan</th>
+        <th>Iuran kas RT</th>
+        <th>Iuran lainnya</th>
+        <th>Total</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {periodEntries.length === 0 ? (
+        <tr>
+          <td colSpan="8" className="empty-table">
+            Belum ada data pembayaran untuk periode ini.
+          </td>
+        </tr>
+      ) : (
+        periodEntries.map((e) => (
+          <tr
+            key={e.id}
+            onClick={() => setSelectedPayment(e)}
+            style={{ cursor: "pointer" }}
+          >
+            <td className="muted">{e.date}</td>
+
+            <td>
+              <b>
+                {e.resident ||
+                  residents.find(
+                    (r) =>
+                      r.block === e.block &&
+                      r.subBlock === e.subBlock
+                  )?.name ||
+                  "Nama belum diisi"}
+              </b>
+            </td>
+
+            <td>
+              <span className="block-tag">{e.subBlock || "-"}</span>
+            </td>
+
+            <td>{money(e.clean)}</td>
+            <td>{money(e.kas)}</td>
+            <td>{money(e.other || 0)}</td>
+
+            <td>
+              <b>{money(e.clean + e.kas + (e.other || 0))}</b>
+            </td>
+
+            <td>
+              <div className="entry-actions">
+                <button
+                  className="icon-btn edit"
+                  title="Edit pembayaran"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    startEditEntry(e);
+                  }}
+                >
+                  <Pencil size={15} />
+                </button>
+
+                <button
+                  className="icon-btn delete"
+                  title="Hapus pembayaran"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    deleteEntry(e.id);
+                  }}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
     <section className="home-shortcuts" aria-label="Menu lainnya">
       <div className="home-shortcuts-heading"><div><span className="eyebrow">Akses cepat</span><h2>Akses cepat</h2></div></div>
       <div className="home-shortcuts-grid">
@@ -1808,6 +2044,87 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
 </button>
       </div>
     </section>
+  {selectedPayment && (
+  <div className="payment-modal-overlay">
+    <div className="payment-modal">
+
+      <div className="payment-modal-header">
+        <h3>Detail Pembayaran</h3>
+
+        <button
+          className="payment-modal-close"
+          onClick={() => setSelectedPayment(null)}
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="payment-modal-body">
+        <div className="payment-detail-row">
+          <span>Tanggal</span>
+          <strong>{selectedPayment.date}</strong>
+        </div>
+
+        <div className="payment-detail-row">
+          <span>Nama Warga</span>
+          <strong>{selectedPayment.residentName}</strong>
+        </div>
+
+        <div className="payment-detail-row">
+          <span>Blok</span>
+          <strong>{selectedPayment.block}</strong>
+        </div>
+
+        <hr />
+
+        <div className="payment-detail-row">
+          <span>Iuran Kebersihan</span>
+          <strong>{formatRupiah(selectedPayment.cleaningFee)}</strong>
+        </div>
+
+        <div className="payment-detail-row">
+          <span>Iuran Kas RT</span>
+          <strong>{formatRupiah(selectedPayment.rtFee)}</strong>
+        </div>
+
+        <div className="payment-detail-row">
+          <span>Iuran Lainnya</span>
+          <strong>{formatRupiah(selectedPayment.otherFee)}</strong>
+        </div>
+
+        <div className="payment-detail-total">
+          <span>Total Pembayaran</span>
+          <strong>{formatRupiah(selectedPayment.total)}</strong>
+        </div>
+      </div>
+
+      <div className="payment-modal-actions">
+        <button
+          className="payment-btn-edit"
+          onClick={() => {
+            const payment = selectedPayment;
+            setSelectedPayment(null);
+            startEditEntry(payment);
+          }}
+        >
+          Edit
+        </button>
+
+        <button
+          className="payment-btn-delete"
+          onClick={() => {
+            const payment = selectedPayment;
+            setSelectedPayment(null);
+            deleteEntry(payment.id);
+          }}
+        >
+          Hapus
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
   </section>;
 }
 function Stat({ title, value, icon: Icon, tone, meta }) { return <div className="stat-card"><div className={`stat-icon ${tone}`}><Icon size={18} /></div><span className="eyebrow">{title}</span><strong>{value}</strong><small>{meta}</small></div>; }
