@@ -1757,6 +1757,68 @@ tbody tr:hover { background: #F8FAFC !important; }
     box-sizing: border-box;
   }
 }
+/* Samakan ukuran label Lunas dan Belum Lunas */
+.recap-payment-table .status-paid,
+.recap-payment-table .status-unpaid {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 3px 7px !important;
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+  font-weight: 600 !important;
+  border-radius: 20px !important;
+  white-space: nowrap !important;
+  box-sizing: border-box;
+}
+
+/* Warna status tetap berbeda */
+.recap-payment-table .status-unpaid {
+  background: #FEE2E2 !important;
+  color: #B91C1C !important;
+}
+
+/* Perbaikan khusus mobile */
+@media screen and (max-width: 760px) {
+  .recap-payment-table td[data-label="Status"] {
+    text-align: center !important;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+  }
+
+  .recap-payment-table .status-paid,
+  .recap-payment-table .status-unpaid {
+    font-size: 10px !important;
+    padding: 3px 5px !important;
+  }
+
+  /* Filter status lebih ringkas */
+  .recap-detail-toolbar {
+    display: grid !important;
+    grid-template-columns: 1fr 140px !important;
+    gap: 7px !important;
+    align-items: center;
+  }
+
+  .recap-resident-search {
+    grid-column: 1 / -1;
+  }
+
+  .recap-status-filter {
+    width: 140px !important;
+    max-width: 140px !important;
+    min-width: 0 !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+    border-radius: 9px !important;
+    box-shadow: none !important;
+  }
+}
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -2706,16 +2768,14 @@ const filteredEntries = searchedRows.filter((entry) =>
       </td>
 
       <td data-label="Status">
-        <span
-          className={
-            e.status === "Belum Lunas"
-              ? "status-unpaid"
-              : "status-paid"
-          }
-        >
-          {e.status}
-        </span>
-      </td>
+  <span className={
+    e.status === "Belum Lunas"
+      ? "status-unpaid"
+      : "status-paid"
+  }>
+    {e.status || "Lunas"}
+  </span>
+</td>
     </tr>
   ))
 ) : (
