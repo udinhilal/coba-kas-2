@@ -1739,6 +1739,24 @@ tbody tr:hover { background: #F8FAFC !important; }
     font-size: 11px;
   }
 }
+/* Samakan ukuran status Belum Lunas dengan Lunas di mobile */
+@media screen and (max-width: 760px) {
+  .status-unpaid {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    padding: 3px 7px !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    font-weight: 700;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+}
   `}</style>
       {mobileMenuOpen && (
   <button
