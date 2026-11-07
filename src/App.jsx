@@ -1576,8 +1576,30 @@ tbody tr:hover { background: #F8FAFC !important; }
 .payment-detail-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 @media screen and (max-width: 480px) {
   .payment-detail-modal { padding: 20px 16px; border-radius: 15px; }
-  .payment-detail-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; }
-  .payment-detail-actions button { padding: 10px 7px; font-size: 12px; }
+  .payment-detail-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr;
+    gap: 8px;
+  }
+  .payment-detail-actions button {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: 10px 9px;
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .payment-detail-actions .icon-btn.delete {
+    width: 100%;
+    height: auto;
+    min-height: 40px;
+    padding: 10px 9px;
+    border-radius: 9px;
+    gap: 6px;
+    font-size: 12px;
+  }
 }
 
       `}</style>
