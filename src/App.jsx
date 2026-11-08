@@ -2847,7 +2847,15 @@ function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
     <footer className="public-footer"><span>Kas Warga RT 26 / RW 04</span><span>Ringkasan agregat · {period}</span></footer>
   </section>;
 }
-function Recap({ entries, total, residents = [], recapSearch, setRecapSearch, startEditEntry, deleteEntry}) { const [selectedRecapPayment, setSelectedRecapPayment] = useState(null);
+function Recap({
+  entries,
+  total,
+  residents = [],
+  recapSearch,
+  setRecapSearch,
+  startEditEntry,
+  deleteEntry
+}) { const [selectedRecapPayment, setSelectedRecapPayment] = useState(null);
 const [recapPeriod, setRecapPeriod] = useState(getPeriodeSekarang());
 
 // Filter status iuran
