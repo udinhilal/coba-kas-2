@@ -1938,6 +1938,67 @@ tbody tr:hover { background: #F8FAFC !important; }
   .recap-payment-modal .payment-detail-lines > div { gap: 12px; }
   .recap-payment-modal .payment-detail-lines b { text-align: right; }
 }
+/* Tombol aksi popup rekap iuran */
+.recap-payment-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 9px;
+}
+
+.recap-payment-actions button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Khusus tampilan mobile */
+@media screen and (max-width: 480px) {
+
+  .recap-payment-modal {
+    width: 100%;
+    max-width: 390px;
+    padding: 20px 15px;
+    box-sizing: border-box;
+  }
+
+  .recap-payment-actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    width: 100%;
+  }
+
+  .recap-payment-actions button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 39px;
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+    gap: 4px;
+    box-sizing: border-box;
+  }
+
+  .recap-payment-actions button svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .recap-payment-actions .icon-btn.delete {
+    background: #FEE2E2 !important;
+    color: #B91C1C !important;
+    border: 1px solid #FECACA !important;
+  }
+
+}
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -2025,10 +2086,29 @@ tbody tr:hover { background: #F8FAFC !important; }
 
 </header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
-        {active === "overview" && !settingsOpen && <Overview entries={entries} cashOut={cashOut} residents={residents} total={total} openingBalance={openingBalance} manualAdjustment={manualAdjustment} outgoingTotal={cashOut.reduce((a, e) => a + e.amount, 0)} runningBalance={runningBalance} summaryPeriod={summaryPeriod} setSummaryPeriod={setSummaryPeriod} setActive={setActive} setSettingsOpen={setSettingsOpen} startEditEntry={startEditEntry} deleteEntry={deleteEntry} onSignOut={onSignOut} requestConfirmation={requestConfirmation} />}
+        {active === "overview" && !settingsOpen && <Overview
+  entries={entries}
+  cashOut={cashOut}
+  residents={residents}
+  runningBalance={runningBalance}
+  summaryPeriod={summaryPeriod}
+  setSummaryPeriod={setSummaryPeriod}
+  setActive={setActive}
+  setSettingsOpen={setSettingsOpen}
+  onSignOut={onSignOut}
+  requestConfirmation={requestConfirmation}
+/>}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
         {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
-        {active === "recap" && !settingsOpen && <Recap entries={entries} total={total} residents={residents} recapSearch={recapSearch} setRecapSearch={setRecapSearch} />}
+        {active === "recap" && !settingsOpen && <Recap
+  entries={entries}
+  total={total}
+  residents={residents}
+  recapSearch={recapSearch}
+  setRecapSearch={setRecapSearch}
+  startEditEntry={startEditEntry}
+  deleteEntry={deleteEntry}
+/>}
         {active === "report" && !settingsOpen && <ResidentReport entries={entries} cashOut={cashOut} runningBalance={runningBalance} openingBalance={openingBalance} manualAdjustment={manualAdjustment} residents={residents} />}
         {active === "public" && !settingsOpen && <PublicSummary entries={entries} cashOut={cashOut} openingBalance={openingBalance} manualAdjustment={manualAdjustment} />}
         {settingsOpen && <SettingsPanel backupData={backupData} restoreData={restoreData} resetData={resetData} openingBalance={openingBalance} setOpeningBalance={setOpeningBalance} manualAdjustment={manualAdjustment} setManualAdjustment={setManualAdjustment} balanceHistory={balanceHistory} setBalanceHistory={setBalanceHistory} setNotice={setNotice} />}
@@ -2160,19 +2240,56 @@ function SettingsPanel({ backupData, restoreData, resetData, openingBalance, set
   </section>;
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
-function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdjustment = 0, outgoingTotal, runningBalance, summaryPeriod, setSummaryPeriod, setActive, setSettingsOpen, startEditEntry, deleteEntry, residents = [], onSignOut, requestConfirmation }) { const [selectedPayment, setSelectedPayment] = useState(null); const periodEntries = sortPaymentEntries(entries.filter((e) => cocokPeriode(e, summaryPeriod))); const periodExpenses = cashOut.filter((e) => cocokPeriode(e, summaryPeriod)); const periodTotal = periodEntries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = periodEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = periodEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = periodEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const periodOutgoing = periodExpenses.reduce((a, e) => a + Number(e.amount || 0), 0); const displayedBalance = summaryPeriod === "Semua periode" ? runningBalance : openingBalance + periodTotal - periodOutgoing + manualAdjustment;
-  return <section className="content">
+function Overview({
+  entries,
+  cashOut = [],
+  runningBalance,
+  summaryPeriod,
+  setSummaryPeriod,
+  setActive,
+  setSettingsOpen,
+  residents = [],
+  onSignOut,
+  requestConfirmation
+}) {
+  const periodEntries = sortPaymentEntries(
+    entries.filter((e) => cocokPeriode(e, summaryPeriod))
+  );
+
+  const periodExpenses = cashOut.filter(
+    (e) => cocokPeriode(e, summaryPeriod)
+  );
+
+  const periodTotal = periodEntries.reduce(
+    (sum, e) =>
+      sum +
+      Number(e.clean || 0) +
+      Number(e.kas || 0) +
+      Number(e.other || 0),
+    0
+  );
+
+  const periodOutgoing = periodExpenses.reduce(
+    (sum, e) => sum + Number(e.amount || 0),
+    0
+  );
+
+  return (
+    <section className="content">
     <div className="hero-card">
   <div>
     <span className="eyebrow light">
-      Saldo kas berjalan
-      {summaryPeriod === "Semua periode"
-        ? " · keseluruhan"
-        : ` · ${summaryPeriod}`}
-    </span>
+  Saldo kas berjalan · Keseluruhan
+</span>
 
-    <div className="hero-number">{money(displayedBalance)}</div>
+<div className="hero-number">
+  {money(runningBalance)}
+</div>
 
+<span className="hero-note">
+  <WalletCards size={15} />
+  Total seluruh pembayaran masuk dikurangi pengeluaran
+</span>
     <span className="hero-note">
       <ArrowUpRight size={15} />
       {summaryPeriod === "Semua periode"
@@ -2205,8 +2322,34 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
     <WalletCards size={42} />
   </div>
 </div>
+    <div className="section-head home-summary-head">
+  <div>
+    <span className="eyebrow">Ringkasan keuangan</span>
+    <h2>Ringkasan kas</h2>
+  </div>
+
+  <select
+    className="period-filter"
+    value={summaryPeriod}
+    onChange={e => setSummaryPeriod(e.target.value)}
+  >
+    <option>Semua periode</option>
+
+    {getDaftarPeriode().map(periode => (
+      <option key={periode} value={periode}>
+        {periode}
+      </option>
+    ))}
+  </select>
+
+  <button
+    className="text-btn"
+    onClick={() => setActive("input")}
+  >
+    + Input pembayaran
+  </button>
+</div>
     <div className="stat-grid"><Stat title={`Pemasukan ${summaryPeriod === "Semua periode" ? "keseluruhan" : "periode"}`} value={money(periodTotal)} icon={ArrowDownLeft} tone="green" meta={`Dari ${periodEntries.length} pembayaran`} /><Stat title={summaryPeriod === "Semua periode" ? "Pengeluaran keseluruhan" : `Pengeluaran ${summaryPeriod}`} value={money(periodOutgoing)} icon={ArrowUpRight} tone="red" meta={`${periodOutgoing ? "Transaksi tercatat" : "Belum ada transaksi"}`} /><Stat title="Warga sudah bayar" value={`${periodEntries.length} / ${residents.length}`} icon={Users} tone="gold" meta={residents.length ? `${Math.round((periodEntries.length / residents.length) * 100)}% tingkat pembayaran` : "Belum ada data warga"} /></div>
-    <div className="section-head"><div><span className="eyebrow">Aktivitas terbaru</span><h2>Catatan pembayaran</h2></div><select className="period-filter" value={summaryPeriod} onChange={e => setSummaryPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map((periode) => <option key={periode} value={periode}>{periode}</option>)}</select><button className="text-btn" onClick={() => setActive("input")}>+ Input pembayaran</button></div>
     <div className="table-card recent-payment-card"><table className="recent-payment-table"><thead><tr><th>Tanggal</th><th>Nama warga</th><th>Blok</th><th>Iuran kebersihan</th><th>Iuran kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Aksi</th></tr></thead><tbody>{periodEntries.length === 0 ? <tr><td colSpan="8" className="empty-table">Belum ada data pembayaran untuk periode ini.</td></tr> : periodEntries.map((e) => <tr key={e.id} className="recent-payment-row" tabIndex={0} role="button" aria-label={`Detail pembayaran ${e.resident || "warga"}`} onClick={() => setSelectedPayment(e)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedPayment(e); } }}><td className="muted" data-label="Tanggal">{e.date}</td><td data-label="Nama warga"><b>{e.resident || residents.find((r) => r.block === e.block && r.subBlock === e.subBlock)?.name || "Nama belum diisi"}</b></td><td data-label="Blok"><span className="block-tag">{e.subBlock || e.block || "-"}</span></td><td data-label="Iuran kebersihan">{money(e.clean)}</td><td data-label="Iuran kas RT">{money(e.kas)}</td><td data-label="Iuran lainnya">{money(e.other || 0)}</td><td data-label="Total"><b>{money(e.clean + e.kas + (e.other || 0))}</b></td><td data-label="Aksi"><div className="entry-actions"><button className="icon-btn edit" title="Edit pembayaran" onClick={(event) => { event.stopPropagation(); startEditEntry(e); }}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus pembayaran" onClick={(event) => { event.stopPropagation(); deleteEntry(e.id); }}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
     {selectedPayment && (() => { const payment = selectedPayment; const paymentTotal = Number(payment.clean || 0) + Number(payment.kas || 0) + Number(payment.other || 0); return <div className="payment-detail-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedPayment(null); }}><section className="payment-detail-modal" role="dialog" aria-modal="true" aria-labelledby="payment-detail-title"><button type="button" className="payment-detail-close" aria-label="Tutup" onClick={() => setSelectedPayment(null)}><X size={19}/></button><span className="eyebrow">Rincian transaksi</span><h2 id="payment-detail-title">Detail pembayaran</h2><div className="payment-detail-person"><b>{payment.resident || "Nama belum diisi"}</b><span>Blok {payment.subBlock || payment.block || "-"}</span></div><div className="payment-detail-lines"><div><span>Tanggal pembayaran</span><b>{payment.date || "-"}</b></div><div><span>Periode iuran</span><b>{payment.period || periodeDariTanggal(payment.date) || "-"}</b></div><div><span>Iuran kebersihan</span><b>{money(payment.clean || 0)}</b></div><div><span>Iuran kas RT</span><b>{money(payment.kas || 0)}</b></div><div><span>Iuran lainnya</span><b>{money(payment.other || 0)}</b></div></div><div className="payment-detail-total"><span>Total pembayaran</span><strong>{money(paymentTotal)}</strong></div><div className="payment-detail-actions"><button type="button" className="cancel-btn" onClick={() => setSelectedPayment(null)}>Tutup</button><button type="button" className="primary-btn" onClick={() => { setSelectedPayment(null); startEditEntry(payment); }}><Pencil size={16}/> Edit</button><button type="button" className="icon-btn delete" onClick={() => { setSelectedPayment(null); deleteEntry(payment.id); }}><Trash2 size={16}/> Hapus</button></div></section></div>; })()}
     <section className="home-shortcuts" aria-label="Menu lainnya">
@@ -2238,7 +2381,7 @@ function Overview({ entries, cashOut = [], total, openingBalance = 0, manualAdju
 </button>
       </div>
     </section>
-  </section>;
+  </section>);
 }
 function Stat({ title, value, icon: Icon, tone, meta }) { return <div className="stat-card"><div className={`stat-icon ${tone}`}><Icon size={18} /></div><span className="eyebrow">{title}</span><strong>{value}</strong><small>{meta}</small></div>; }
 function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }) {
@@ -2703,7 +2846,7 @@ function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
     <footer className="public-footer"><span>Kas Warga RT 26 / RW 04</span><span>Ringkasan agregat · {period}</span></footer>
   </section>;
 }
-function Recap({ entries, total, residents = [], recapSearch, setRecapSearch }) { const [selectedRecapPayment, setSelectedRecapPayment] = useState(null);
+function Recap({ entries, total, residents = [], recapSearch, setRecapSearch, startEditEntry, deleteEntry}) { const [selectedRecapPayment, setSelectedRecapPayment] = useState(null);
 const [recapPeriod, setRecapPeriod] = useState(getPeriodeSekarang());
 
 // Filter status iuran
@@ -2946,8 +3089,44 @@ const filteredEntries = searchedRows.filter((entry) =>
         <strong>{isUnpaid ? "Belum dibayar" : money(paymentTotal)}</strong>
       </div>
       <div className="payment-detail-actions recap-payment-actions">
-        <button type="button" className="cancel-btn" onClick={() => setSelectedRecapPayment(null)}>Tutup</button>
-      </div>
+
+  <button
+    type="button"
+    className="cancel-btn"
+    onClick={() => setSelectedRecapPayment(null)}
+  >
+    Tutup
+  </button>
+
+  {!isUnpaid && (
+    <>
+      <button
+        type="button"
+        className="primary-btn"
+        onClick={() => {
+          setSelectedRecapPayment(null);
+          startEditEntry(payment);
+        }}
+      >
+        <Pencil size={15} />
+        Edit
+      </button>
+
+      <button
+        type="button"
+        className="icon-btn delete"
+        onClick={() => {
+          setSelectedRecapPayment(null);
+          deleteEntry(payment.id);
+        }}
+      >
+        <Trash2 size={15} />
+        Hapus
+      </button>
+    </>
+  )}
+
+</div>
     </section>
   </div>;
 })()}
