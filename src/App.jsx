@@ -252,51 +252,60 @@ export default function App({ user, onSignOut }) {
     window.addEventListener("online", online); window.addEventListener("offline", offline);
     return () => { window.removeEventListener("online", online); window.removeEventListener("offline", offline); };
   }, []);
-  // Keluar otomatis: setelah 15 menit tanpa aktivitas, serta upaya saat tab/jendela ditutup.
-  // Catatan: browser dapat menghentikan permintaan jaringan saat ditutup; timeout tidak bergantung pada pagehide.
+  // Keluar otomatis hanya setelah 15 menit tanpa aktivitas.
+  // Jangan menjalankan logout pada pagehide/beforeunload karena event tersebut
+  // juga terpanggil saat refresh, pindah halaman, atau WebView memuat ulang app.
+  // Sesi login Supabase harus tetap tersimpan agar pengguna tidak terjebak
+  // kembali ke halaman login setiap aplikasi dibuka ulang.
   useEffect(() => {
     if (typeof onSignOut !== "function") return undefined;
 
     let idleTimer;
+    let isEffectActive = true;
     const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 
-    const jalankanLogout = (alasan = "otomatis") => {
-      if (signOutStarted.current) return;
+    // Reset penanda ketika effect aktif kembali (misalnya StrictMode).
+    signOutStarted.current = false;
+
+    const jalankanLogout = async () => {
+      if (!isEffectActive || signOutStarted.current) return;
+
       signOutStarted.current = true;
-      window.removeEventListener("pagehide", handlePageHide);
+      window.clearTimeout(idleTimer);
+
       try {
-        const hasil = onSignOut();
-        if (hasil && typeof hasil.catch === "function") {
-          hasil.catch((error) => {
-            console.error(`Gagal menjalankan logout ${alasan}:`, error);
-            signOutStarted.current = false;
-          });
-        }
+        await onSignOut();
       } catch (error) {
-        console.error(`Gagal menjalankan logout ${alasan}:`, error);
+        console.error("Gagal menjalankan logout otomatis:", error);
+        // Izinkan percobaan berikutnya jika proses logout gagal.
         signOutStarted.current = false;
+        aturUlangTimer();
       }
     };
 
-    const handlePageHide = () => jalankanLogout("saat halaman ditutup");
     const aturUlangTimer = () => {
       window.clearTimeout(idleTimer);
-      if (!signOutStarted.current) {
-        idleTimer = window.setTimeout(() => jalankanLogout("karena tidak aktif selama 15 menit"), IDLE_TIMEOUT_MS);
+      if (isEffectActive && !signOutStarted.current) {
+        idleTimer = window.setTimeout(jalankanLogout, IDLE_TIMEOUT_MS);
       }
     };
 
     const aktivitas = ["pointerdown", "keydown", "mousemove", "touchstart", "scroll"];
-    aktivitas.forEach((eventName) => window.addEventListener(eventName, aturUlangTimer, { passive: true }));
-    window.addEventListener("pagehide", handlePageHide);
+    aktivitas.forEach((eventName) =>
+      window.addEventListener(eventName, aturUlangTimer, { passive: true })
+    );
+
     aturUlangTimer();
 
     return () => {
+      isEffectActive = false;
       window.clearTimeout(idleTimer);
-      aktivitas.forEach((eventName) => window.removeEventListener(eventName, aturUlangTimer));
-      window.removeEventListener("pagehide", handlePageHide);
+      aktivitas.forEach((eventName) =>
+        window.removeEventListener(eventName, aturUlangTimer)
+      );
     };
   }, [onSignOut]);
+
   useEffect(() => {
     setEntries((current) => current.map((item) => item.resident ? item : { ...item, resident: residents.find((r) => r.block === item.block && r.subBlock === item.subBlock)?.name || "Nama belum diisi" }));
   }, []);
