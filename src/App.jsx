@@ -2666,6 +2666,79 @@ tbody tr:hover { background: #F8FAFC !important; }
     .cashflow-transaction-amount { font-size:11px; max-width:45%; }
   }
 
+/* FIX MOBILE: filter bulan Rekap Bulanan tidak boleh bertumpuk/overflow */
+.recap-page .recap-banner,
+.recap-page .recap-actions,
+.recap-page .recap-actions .recap-period-label,
+.recap-page .recap-actions .recap-period-select {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+.recap-page .recap-actions .recap-period-label {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  width: 100% !important;
+  flex: 1 1 100% !important;
+  margin: 0 !important;
+}
+.recap-page .recap-actions .recap-period-select {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  flex: 1 1 auto !important;
+  overflow: visible !important;
+}
+.recap-page .recap-actions .recap-period-select .themed-dropdown-trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 44px !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+.recap-page .recap-actions .recap-period-select .themed-dropdown-value {
+  min-width: 0 !important;
+  max-width: calc(100% - 28px) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 760px) {
+  .recap-page .recap-banner {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    padding: 15px !important;
+    gap: 12px !important;
+  }
+  .recap-page .recap-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    flex-wrap: nowrap !important;
+    gap: 9px !important;
+    width: 100% !important;
+  }
+  .recap-page .recap-actions .recap-period-label,
+  .recap-page .recap-actions .recap-period-select,
+  .recap-page .recap-actions .recap-period-select .themed-dropdown-trigger,
+  .recap-page .recap-actions > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: 0 0 auto !important;
+  }
+  .recap-page .recap-actions > button {
+    min-height: 43px !important;
+  }
+}
+
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -3921,6 +3994,254 @@ function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
     <footer className="public-footer"><span>Kas Warga RT 26 / RW 04</span><span>Ringkasan agregat · {period}</span></footer>
   </section>;
 }
+
+// Memuat html2canvas hanya saat pengguna meminta ekspor JPG HD.
+const loadHtml2Canvas = () =>
+  new Promise((resolve, reject) => {
+    if (typeof window !== "undefined" && typeof window.html2canvas === "function") {
+      resolve(window.html2canvas);
+      return;
+    }
+
+    const existingScript = document.querySelector("script[data-html2canvas-jpg]");
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve(window.html2canvas), { once: true });
+      existingScript.addEventListener("error", () => reject(new Error("Library ekspor JPG gagal dimuat.")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+    script.async = true;
+    script.dataset.html2canvasJpg = "true";
+    script.onload = () => {
+      if (typeof window.html2canvas === "function") resolve(window.html2canvas);
+      else reject(new Error("Library ekspor JPG tidak tersedia."));
+    };
+    script.onerror = () => reject(new Error("Tidak dapat memuat library ekspor JPG. Periksa koneksi internet."));
+    document.head.appendChild(script);
+  });
+
+// JPG dibuat dari konten Rekap Bulanan yang sama dengan PDF:
+// periode, ringkasan, kategori iuran, dan tabel mengikuti filter aktif.
+const exportRecapJpgHD = async (period) => {
+  const html2canvas = await loadHtml2Canvas();
+  const source = document.querySelector(".recap-page");
+  if (!source) throw new Error("Area Rekap Bulanan tidak ditemukan.");
+
+  const host = document.createElement("div");
+  host.className = "recap-jpg-export-host";
+  host.style.cssText = [
+    "position:fixed",
+    "left:-12000px",
+    "top:0",
+    "width:794px",
+    "min-width:794px",
+    "max-width:794px",
+    "z-index:-1",
+    "opacity:1",
+    "pointer-events:none",
+    "background:#ffffff",
+    "overflow:visible"
+  ].join(";");
+
+  const clone = source.cloneNode(true);
+  clone.classList.add("recap-jpg-capture");
+  clone.style.cssText = "width:794px!important;min-width:794px!important;max-width:794px!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important;";
+
+  // PDF tidak menampilkan kontrol filter, tombol, maupun popup detail.
+  clone.querySelectorAll(
+    ".recap-actions, .recap-detail-toolbar, .payment-detail-backdrop, button, input, select, textarea"
+  ).forEach((node) => node.remove());
+
+  const printLikeStyle = document.createElement("style");
+  printLikeStyle.textContent = `
+    .recap-jpg-capture, .recap-jpg-capture * {
+      box-sizing: border-box !important;
+      font-family: Arial, Helvetica, sans-serif !important;
+      animation: none !important;
+      transition: none !important;
+      text-shadow: none !important;
+    }
+    .recap-jpg-capture {
+      display:block!important; width:794px!important; min-width:794px!important;
+      max-width:794px!important; margin:0!important; padding:0!important;
+      color:#20352E!important; background:#FFFFFF!important; overflow:visible!important;
+      font-size:9pt!important;
+    }
+    .recap-jpg-capture .recap-banner {
+      display:block!important; min-height:0!important; height:auto!important;
+      margin:0 0 8px!important; padding:10px 12px!important;
+      color:#102A43!important; background:#EFF6FF!important;
+      border:1px solid #BFDBFE!important; border-radius:7px!important;
+      box-shadow:none!important;
+    }
+    .recap-jpg-capture .recap-banner h2 {
+      margin:2px 0 4px!important; color:#102A43!important;
+      font-size:17pt!important; line-height:1.2!important;
+    }
+    .recap-jpg-capture .recap-banner p {
+      margin:2px 0 0!important; color:#475569!important; font-size:8.5pt!important;
+    }
+    .recap-jpg-capture .recap-banner .eyebrow {
+      color:#245789!important; font-size:7pt!important; font-weight:700!important;
+    }
+    .recap-jpg-capture .recap-grid {
+      display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:7px!important; margin:7px 0 10px!important;
+    }
+    .recap-jpg-capture .big-card {
+      min-width:0!important; min-height:0!important; height:auto!important;
+      margin:0!important; padding:8px 9px!important; color:#20352E!important;
+      background:#FFFFFF!important; border:1px solid #DCE5EF!important;
+      border-radius:6px!important; box-shadow:none!important;
+      break-inside:avoid!important; page-break-inside:avoid!important;
+    }
+    .recap-jpg-capture .big-card strong {
+      display:block!important; margin:2px 0!important; color:#102A43!important;
+      font-size:13pt!important; line-height:1.2!important;
+    }
+    .recap-jpg-capture .big-card small,
+    .recap-jpg-capture .big-card span { color:#52665D!important; font-size:7.5pt!important; }
+    .recap-jpg-capture .bar { height:4px!important; margin:4px 0!important; background:#DBEAFE!important; }
+    .recap-jpg-capture .bar i { background:#2563EB!important; }
+    .recap-jpg-capture .recap-income-details { margin-top:6px!important; }
+    .recap-jpg-capture .recap-income-details > div {
+      display:flex!important; justify-content:space-between!important; gap:8px!important;
+      padding:3px 0!important; font-size:7.5pt!important;
+    }
+    .recap-jpg-capture .section-head {
+      display:flex!important; justify-content:space-between!important; align-items:end!important;
+      gap:6px!important; margin:9px 0 5px!important; padding:0 0 4px!important;
+      border-bottom:1px solid #DCE5EF!important;
+    }
+    .recap-jpg-capture .section-head h2 {
+      margin:1px 0 3px!important; color:#102A43!important;
+      font-size:10.5pt!important; line-height:1.25!important;
+    }
+    .recap-jpg-capture .eyebrow {
+      color:#245789!important; font-size:7pt!important; font-weight:700!important;
+    }
+    .recap-jpg-capture .table-card {
+      display:block!important; width:100%!important; min-width:0!important;
+      max-width:100%!important; margin:0!important; padding:0!important;
+      overflow:visible!important; background:#fff!important;
+      border:1px solid #DCE5EF!important; border-radius:6px!important;
+      box-shadow:none!important;
+    }
+    .recap-jpg-capture table {
+      display:table!important; width:100%!important; min-width:0!important;
+      max-width:100%!important; margin:0!important; border-collapse:collapse!important;
+      table-layout:fixed!important; font-size:7pt!important; color:#263B33!important;
+    }
+    .recap-jpg-capture thead { display:table-header-group!important; }
+    .recap-jpg-capture tbody { display:table-row-group!important; }
+    .recap-jpg-capture tr { break-inside:avoid!important; page-break-inside:avoid!important; }
+    .recap-jpg-capture th, .recap-jpg-capture td {
+      padding:4px!important; line-height:1.25!important; white-space:normal!important;
+      overflow-wrap:anywhere!important; word-break:normal!important; vertical-align:top!important;
+      border-bottom:1px solid #E2EAE5!important;
+    }
+    .recap-jpg-capture th {
+      color:#475569!important; background:#F1F5F9!important;
+      font-size:6.5pt!important; font-weight:700!important;
+    }
+    .recap-jpg-capture tbody tr:nth-child(even) { background:#F8FBF9!important; }
+    .recap-jpg-capture .status-paid, .recap-jpg-capture .status-unpaid,
+    .recap-jpg-capture .block-tag {
+      display:inline-block!important; padding:2px 4px!important; font-size:6.5pt!important;
+      border-radius:4px!important;
+    }
+    .recap-jpg-capture .status-paid {
+      color:#065F46!important; background:#E6F4ED!important; border:1px solid #C8E7D7!important;
+    }
+    .recap-jpg-capture .status-unpaid {
+      color:#991B1B!important; background:#FEE2E2!important; border:1px solid #FECACA!important;
+    }
+    .recap-jpg-capture .block-tag {
+      color:#173B65!important; background:#EFF6FF!important; border:1px solid #BFDBFE!important;
+    }
+    .recap-jpg-capture .empty-table { color:#64748B!important; }
+  `;
+
+  host.appendChild(printLikeStyle);
+  host.appendChild(clone);
+  document.body.appendChild(host);
+
+  try {
+    if (document.fonts?.ready) await document.fonts.ready;
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+    const scale = 2480 / 794; // lebar A4 300 DPI
+    const fullCanvas = await html2canvas(clone, {
+      backgroundColor: "#FFFFFF",
+      scale,
+      width: 794,
+      windowWidth: 794,
+      scrollX: 0,
+      scrollY: 0,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      imageTimeout: 15000
+    });
+
+    if (!fullCanvas.width || !fullCanvas.height) {
+      throw new Error("Konten Rekap Bulanan tidak berhasil dirender.");
+    }
+
+    const pageWidth = 2480;
+    const pageHeight = 3508;
+    const pageCount = Math.ceil(fullCanvas.height / pageHeight);
+    const slug = String(period || "semua-periode")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = pageWidth;
+      pageCanvas.height = pageHeight;
+      const context = pageCanvas.getContext("2d");
+      context.fillStyle = "#FFFFFF";
+      context.fillRect(0, 0, pageWidth, pageHeight);
+
+      const sourceY = pageIndex * pageHeight;
+      const sliceHeight = Math.min(pageHeight, fullCanvas.height - sourceY);
+      context.drawImage(
+        fullCanvas,
+        0, sourceY, fullCanvas.width, sliceHeight,
+        0, 0, pageWidth, sliceHeight
+      );
+
+      const blob = await new Promise((resolve, reject) => {
+        pageCanvas.toBlob(
+          (result) => result ? resolve(result) : reject(new Error("Gagal membuat file JPG.")),
+          "image/jpeg",
+          0.95
+        );
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `rekap-bulanan-${slug}${pageCount > 1 ? `-halaman-${pageIndex + 1}` : ""}-hd.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 15000);
+
+      // Beri ruang agar browser memproses setiap unduhan untuk laporan multi-halaman.
+      if (pageIndex < pageCount - 1) {
+        await new Promise((resolve) => window.setTimeout(resolve, 350));
+      }
+    }
+
+    return pageCount;
+  } finally {
+    host.remove();
+  }
+};
+
 function Recap({
   entries,
   total,
@@ -3930,6 +4251,7 @@ function Recap({
   startEditEntry,
   deleteEntry
 }) { const [selectedRecapPayment, setSelectedRecapPayment] = useState(null);
+const [isExportingJpg, setIsExportingJpg] = useState(false);
 const [recapPeriod, setRecapPeriod] = useState(getPeriodeSekarang());
 
 // Filter status iuran
@@ -4008,7 +4330,25 @@ const filteredEntries = searchedRows.filter((entry) => {
   const matchesBlock = recapBlockFilter === "semua" ||
     String(entry.block || "").trim().toUpperCase() === recapBlockFilter;
   return matchesStatus && matchesBlock;
-}); const periodTotal = monthEntries.reduce((sum, e) => sum + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = monthEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = monthEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = monthEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const paidCount = new Set(monthEntries.map(e => e.residentId || e.resident || `${e.block}-${e.subBlock}`)).size; const paidPercent = residents.length ? Math.round((paidCount / residents.length) * 100) : 0; return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><label className="recap-period-label">Pilih bulan<ThemedDropdown className="recap-period-select" value={recapPeriod} onChange={setRecapPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} ariaLabel="Pilih bulan rekap" /></label><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status")}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button></div></div><div className="recap-grid">
+}); const periodTotal = monthEntries.reduce((sum, e) => sum + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = monthEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = monthEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = monthEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const paidCount = new Set(monthEntries.map(e => e.residentId || e.resident || `${e.block}-${e.subBlock}`)).size; const paidPercent = residents.length ? Math.round((paidCount / residents.length) * 100) : 0;
+const handleExportJpgHD = async () => {
+  if (isExportingJpg) return;
+  setIsExportingJpg(true);
+  try {
+    const pages = await exportRecapJpgHD(recapPeriod);
+    window.alert(
+      pages > 1
+        ? `Export JPG HD selesai. ${pages} gambar A4 telah dibuat.`
+        : "Export JPG HD selesai."
+    );
+  } catch (error) {
+    console.error("Gagal mengekspor Rekap Bulanan ke JPG HD:", error);
+    window.alert(error?.message || "Export JPG HD gagal. Silakan coba kembali.");
+  } finally {
+    setIsExportingJpg(false);
+  }
+};
+return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><label className="recap-period-label">Pilih bulan<ThemedDropdown className="recap-period-select" value={recapPeriod} onChange={setRecapPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} ariaLabel="Pilih bulan rekap" /></label><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status")}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button><button className="outline-light" type="button" onClick={handleExportJpgHD} disabled={isExportingJpg}><FileText size={16} /> {isExportingJpg ? "Menyiapkan JPG HD..." : "Ekspor JPG HD"}</button></div></div><div className="recap-grid">
   {/* Kartu total terkumpul */}
   <div className="big-card recap-total-card">
     <span className="eyebrow">Total terkumpul</span>
@@ -4238,3 +4578,4 @@ const filteredEntries = searchedRows.filter((entry) => {
 })()}
 </section>; }
 function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><ThemedDropdown className="resident-filter resident-block-filter" value={residentFilter} onChange={(nextValue) => { setResidentFilter(nextValue); setResidentSubFilter("Semua sub blok"); }} ariaLabel="Filter berdasarkan blok" options={[{value:"Semua blok",label:"Semua blok"}, ...blocks.map(b=>({value:b,label:`Blok ${b}`}))]} /><ThemedDropdown className="resident-filter resident-subblock-filter" value={residentSubFilter} onChange={setResidentSubFilter} ariaLabel="Filter berdasarkan sub blok" options={[{value:"Semua sub blok",label:"Semua sub blok"}, ...subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb=>({value:sb,label:sb}))]} /><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
+
