@@ -1,6 +1,6 @@
 // Pinned subject: simple RT finance app for a neighborhood treasurer. Plan: warm paper ledger meets modern utility, with terracotta as the one owned accent, a fast entry flow, and monthly recaps that make cash movement obvious.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, FileText, Globe2, Home, LogOut, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, Check, ChevronDown, FileText, Globe2, Home, LogOut, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import "./styles.css";
 
@@ -203,8 +203,6 @@ export default function App({ user, onSignOut }) {
     user?.email?.split("@")[0] ||
     "Pengelola";
   const [active, setActive] = useState("overview");
-  // Menyimpan transaksi yang sedang dibuka pada popup detail di Beranda.
-  const [selectedPayment, setSelectedPayment] = useState(null);
   const signOutStarted = useRef(false);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [lastSync, setLastSync] = useState(() => localStorage.getItem("kas-warga-rt-last-sync") || "Belum disinkronkan");
@@ -244,7 +242,6 @@ export default function App({ user, onSignOut }) {
   const requestConfirmation = (message, action) => {setConfirmDialog({ message, action });};
   const handleConfirmAction = () => {
   const action = confirmDialog?.action;setConfirmDialog(null);if (action) action();};
-  const [summaryPeriod, setSummaryPeriod] = useState(getPeriodeSekarang());
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const fileInput = { current: null };
@@ -315,8 +312,14 @@ export default function App({ user, onSignOut }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory }));
   }, [residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory]);
 
-  const total = useMemo(() => entries.reduce((a, e) => a + e.clean + e.kas + (e.other || 0), 0), [entries]);
-  const runningBalance = useMemo(() => openingBalance + total - cashOut.reduce((a, e) => a + e.amount, 0) + manualAdjustment, [openingBalance, total, cashOut, manualAdjustment]);
+  const total = useMemo(
+    () => entries.reduce((sum, e) => sum + Number(e.clean || 0) + Number(e.kas || 0) + Number(e.other || 0), 0),
+    [entries]
+  );
+  const runningBalance = useMemo(
+    () => Number(openingBalance || 0) + total - cashOut.reduce((sum, e) => sum + Number(e.amount || 0), 0) + Number(manualAdjustment || 0),
+    [openingBalance, total, cashOut, manualAdjustment]
+  );
   const backupData = () => {
     const payload = { app: "Kas Warga RT", version: 1, exportedAt: new Date().toISOString(), residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -2010,6 +2013,144 @@ tbody tr:hover { background: #F8FAFC !important; }
   }
 
 }
+
+/* Dropdown popup kustom — tema Navy Blue + Putih */
+.themed-dropdown {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: #102A43;
+  z-index: 20;
+}
+.themed-dropdown-trigger {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 0 13px !important;
+  border: 1px solid #C9D8E8 !important;
+  border-radius: 10px !important;
+  background: #FFFFFF !important;
+  color: #102A43 !important;
+  box-shadow: 0 1px 3px rgba(16,42,67,.05) !important;
+  font: 600 13px/1.25 Inter, sans-serif !important;
+  text-align: left !important;
+  cursor: pointer;
+}
+.themed-dropdown-trigger:focus-visible {
+  outline: none !important;
+  border-color: #2563A6 !important;
+  box-shadow: 0 0 0 3px rgba(37,99,166,.14) !important;
+}
+.themed-dropdown-trigger:disabled {
+  background: #F1F5F9 !important;
+  color: #94A3B8 !important;
+  border-color: #E2E8F0 !important;
+  cursor: not-allowed;
+}
+.themed-dropdown-value {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.themed-dropdown-trigger > svg {
+  flex: 0 0 auto;
+  color: #173B65;
+  transition: transform .18s ease;
+}
+.themed-dropdown.is-open { z-index: 100001; }
+.themed-dropdown.is-open .themed-dropdown-trigger > svg { transform: rotate(180deg); }
+.themed-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  right: 0;
+  z-index: 100002;
+  max-height: min(310px, 52vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid #DCE5EF;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: 0 16px 38px rgba(16,42,67,.18);
+  animation: themedDropdownIn .14s ease-out;
+}
+@keyframes themedDropdownIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.themed-dropdown-option {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #334155;
+  font: 500 13px/1.3 Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+.themed-dropdown-option:hover,
+.themed-dropdown-option:focus-visible {
+  outline: none;
+  background: #F1F5F9;
+  color: #102A43;
+}
+.themed-dropdown-option.selected {
+  background: #EFF6FF;
+  color: #173B65;
+  font-weight: 700;
+}
+.themed-dropdown-option.selected svg { color: #2563A6; flex: 0 0 auto; }
+.recap-detail-head,
+.recap-detail-toolbar { overflow: visible !important; }
+.recap-detail-toolbar .themed-dropdown { min-width: 0; }
+.recap-detail-toolbar .recap-status-filter .themed-dropdown-trigger,
+.recap-detail-toolbar .recap-block-filter .themed-dropdown-trigger {
+  min-height: 43px !important;
+  font-size: 13px !important;
+}
+@media screen and (max-width: 760px) {
+  .themed-dropdown-trigger { min-height: 46px !important; font-size: 14px !important; padding: 0 11px !important; }
+  .themed-dropdown-menu { max-height: min(270px, 46vh); padding: 6px; border-radius: 11px; }
+  .themed-dropdown-option { min-height: 44px; padding: 10px 11px; font-size: 14px; }
+  .recap-detail-toolbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .recap-detail-toolbar .recap-resident-search {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+  .recap-detail-toolbar .recap-status-filter,
+  .recap-detail-toolbar .recap-block-filter {
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+  .recap-detail-toolbar .recap-status-filter .themed-dropdown-trigger,
+  .recap-detail-toolbar .recap-block-filter .themed-dropdown-trigger {
+    min-height: 43px !important;
+    padding: 0 9px !important;
+    font-size: 13px !important;
+  }
+}
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -2102,16 +2243,10 @@ tbody tr:hover { background: #F8FAFC !important; }
   cashOut={cashOut}
   residents={residents}
   runningBalance={runningBalance}
-  summaryPeriod={summaryPeriod}
-  setSummaryPeriod={setSummaryPeriod}
   setActive={setActive}
   setSettingsOpen={setSettingsOpen}
   onSignOut={onSignOut}
   requestConfirmation={requestConfirmation}
-  selectedPayment={selectedPayment}
-  setSelectedPayment={setSelectedPayment}
-  startEditEntry={startEditEntry}
-  deleteEntry={deleteEntry}
 />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
         {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
@@ -2256,56 +2391,43 @@ function SettingsPanel({ backupData, restoreData, resetData, openingBalance, set
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
 function Overview({
-  entries,
+  entries = [],
   cashOut = [],
   runningBalance,
-  summaryPeriod,
-  setSummaryPeriod,
   setActive,
   setSettingsOpen,
   residents = [],
   onSignOut,
-  requestConfirmation,
-  selectedPayment,
-  setSelectedPayment,
-  startEditEntry,
-  deleteEntry
+  requestConfirmation
 }) {
-  const periodEntries = sortPaymentEntries(
-    entries.filter((e) => cocokPeriode(e, summaryPeriod))
-  );
-
-  // Total masing-masing jenis iuran untuk periode yang sedang dipilih.
-  const cleanTotal = periodEntries.reduce(
+  // Semua nilai pada Beranda memakai akumulasi seluruh periode,
+  // agar konsisten dengan saldo kas berjalan.
+  const cleanTotal = entries.reduce(
     (sum, e) => sum + Number(e.clean || 0),
     0
   );
-  const kasTotal = periodEntries.reduce(
+  const kasTotal = entries.reduce(
     (sum, e) => sum + Number(e.kas || 0),
     0
   );
-  const otherTotal = periodEntries.reduce(
+  const otherTotal = entries.reduce(
     (sum, e) => sum + Number(e.other || 0),
     0
   );
-
-  const periodExpenses = cashOut.filter(
-    (e) => cocokPeriode(e, summaryPeriod)
-  );
-
-  const periodTotal = periodEntries.reduce(
-    (sum, e) =>
-      sum +
-      Number(e.clean || 0) +
-      Number(e.kas || 0) +
-      Number(e.other || 0),
-    0
-  );
-
-  const periodOutgoing = periodExpenses.reduce(
+  const totalIncome = cleanTotal + kasTotal + otherTotal;
+  const totalExpense = cashOut.reduce(
     (sum, e) => sum + Number(e.amount || 0),
     0
   );
+  const paidResidentCount = new Set(
+    entries
+      .map((e) => e.residentId || e.resident || `${e.block || ""}-${e.subBlock || ""}`)
+      .filter((value) => String(value).trim() && String(value) !== "-")
+      .map((value) => String(value).trim().toLowerCase())
+  ).size;
+  const paidPercent = residents.length
+    ? Math.round((paidResidentCount / residents.length) * 100)
+    : 0;
 
   return (
     <section className="content">
@@ -2321,15 +2443,8 @@ function Overview({
 
 <span className="hero-note">
   <WalletCards size={15} />
-  Total seluruh pembayaran masuk dikurangi pengeluaran
+  Saldo awal + total pemasukan − total pengeluaran + koreksi
 </span>
-    <span className="hero-note">
-      <ArrowUpRight size={15} />
-      {summaryPeriod === "Semua periode"
-        ? "Saldo total seluruh periode"
-        : `Perhitungan untuk ${summaryPeriod}`}
-    </span>
-
     <div className="hero-income-details">
       <div>
         <span>Total iuran kebersihan</span>
@@ -2361,20 +2476,6 @@ function Overview({
     <h2>Ringkasan kas</h2>
   </div>
 
-  <select
-    className="period-filter"
-    value={summaryPeriod}
-    onChange={e => setSummaryPeriod(e.target.value)}
-  >
-    <option>Semua periode</option>
-
-    {getDaftarPeriode().map(periode => (
-      <option key={periode} value={periode}>
-        {periode}
-      </option>
-    ))}
-  </select>
-
   <button
     className="text-btn"
     onClick={() => setActive("input")}
@@ -2382,9 +2483,29 @@ function Overview({
     + Input pembayaran
   </button>
 </div>
-    <div className="stat-grid"><Stat title={`Pemasukan ${summaryPeriod === "Semua periode" ? "keseluruhan" : "periode"}`} value={money(periodTotal)} icon={ArrowDownLeft} tone="green" meta={`Dari ${periodEntries.length} pembayaran`} /><Stat title={summaryPeriod === "Semua periode" ? "Pengeluaran keseluruhan" : `Pengeluaran ${summaryPeriod}`} value={money(periodOutgoing)} icon={ArrowUpRight} tone="red" meta={`${periodOutgoing ? "Transaksi tercatat" : "Belum ada transaksi"}`} /><Stat title="Warga sudah bayar" value={`${periodEntries.length} / ${residents.length}`} icon={Users} tone="gold" meta={residents.length ? `${Math.round((periodEntries.length / residents.length) * 100)}% tingkat pembayaran` : "Belum ada data warga"} /></div>
-    <div className="table-card recent-payment-card"><table className="recent-payment-table"><thead><tr><th>Tanggal</th><th>Nama warga</th><th>Blok</th><th>Iuran kebersihan</th><th>Iuran kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Aksi</th></tr></thead><tbody>{periodEntries.length === 0 ? <tr><td colSpan="8" className="empty-table">Belum ada data pembayaran untuk periode ini.</td></tr> : periodEntries.map((e) => <tr key={e.id} className="recent-payment-row" tabIndex={0} role="button" aria-label={`Detail pembayaran ${e.resident || "warga"}`} onClick={() => setSelectedPayment(e)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedPayment(e); } }}><td className="muted" data-label="Tanggal">{e.date}</td><td data-label="Nama warga"><b>{e.resident || residents.find((r) => r.block === e.block && r.subBlock === e.subBlock)?.name || "Nama belum diisi"}</b></td><td data-label="Blok"><span className="block-tag">{e.subBlock || e.block || "-"}</span></td><td data-label="Iuran kebersihan">{money(e.clean)}</td><td data-label="Iuran kas RT">{money(e.kas)}</td><td data-label="Iuran lainnya">{money(e.other || 0)}</td><td data-label="Total"><b>{money(e.clean + e.kas + (e.other || 0))}</b></td><td data-label="Aksi"><div className="entry-actions"><button className="icon-btn edit" title="Edit pembayaran" onClick={(event) => { event.stopPropagation(); startEditEntry(e); }}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus pembayaran" onClick={(event) => { event.stopPropagation(); deleteEntry(e.id); }}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
-    {selectedPayment && (() => { const payment = selectedPayment; const paymentTotal = Number(payment.clean || 0) + Number(payment.kas || 0) + Number(payment.other || 0); return <div className="payment-detail-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedPayment(null); }}><section className="payment-detail-modal" role="dialog" aria-modal="true" aria-labelledby="payment-detail-title"><button type="button" className="payment-detail-close" aria-label="Tutup" onClick={() => setSelectedPayment(null)}><X size={19}/></button><span className="eyebrow">Rincian transaksi</span><h2 id="payment-detail-title">Detail pembayaran</h2><div className="payment-detail-person"><b>{payment.resident || "Nama belum diisi"}</b><span>Blok {payment.subBlock || payment.block || "-"}</span></div><div className="payment-detail-lines"><div><span>Tanggal pembayaran</span><b>{payment.date || "-"}</b></div><div><span>Periode iuran</span><b>{payment.period || periodeDariTanggal(payment.date) || "-"}</b></div><div><span>Iuran kebersihan</span><b>{money(payment.clean || 0)}</b></div><div><span>Iuran kas RT</span><b>{money(payment.kas || 0)}</b></div><div><span>Iuran lainnya</span><b>{money(payment.other || 0)}</b></div></div><div className="payment-detail-total"><span>Total pembayaran</span><strong>{money(paymentTotal)}</strong></div><div className="payment-detail-actions"><button type="button" className="cancel-btn" onClick={() => setSelectedPayment(null)}>Tutup</button><button type="button" className="primary-btn" onClick={() => { setSelectedPayment(null); startEditEntry(payment); }}><Pencil size={16}/> Edit</button><button type="button" className="icon-btn delete" onClick={() => { setSelectedPayment(null); deleteEntry(payment.id); }}><Trash2 size={16}/> Hapus</button></div></section></div>; })()}
+    <div className="stat-grid">
+      <Stat
+        title="Total pemasukan"
+        value={money(totalIncome)}
+        icon={ArrowDownLeft}
+        tone="green"
+        meta={`${entries.length} transaksi pembayaran`}
+      />
+      <Stat
+        title="Total pengeluaran"
+        value={money(totalExpense)}
+        icon={ArrowUpRight}
+        tone="red"
+        meta={`${cashOut.length} transaksi pengeluaran`}
+      />
+      <Stat
+        title="Warga sudah bayar"
+        value={`${paidResidentCount} / ${residents.length}`}
+        icon={Users}
+        tone="gold"
+        meta={residents.length ? `${paidPercent}% warga tercatat membayar` : "Belum ada data warga"}
+      />
+    </div>
     <section className="home-shortcuts" aria-label="Menu lainnya">
       <div className="home-shortcuts-heading"><div><span className="eyebrow">Akses cepat</span><h2>Akses cepat</h2></div></div>
       <div className="home-shortcuts-grid">
@@ -2417,6 +2538,90 @@ function Overview({
   </section>
   );
 }
+function ThemedDropdown({
+  value,
+  onChange,
+  options = [],
+  className = "",
+  disabled = false,
+  placeholder = "Pilih pilihan",
+  ariaLabel = "Pilih pilihan",
+}) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const normalizedOptions = options.map((option) =>
+    typeof option === "string"
+      ? { value: option, label: option }
+      : option
+  );
+  const selectedOption = normalizedOptions.find(
+    (option) => String(option.value) === String(value)
+  );
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={dropdownRef}
+      className={`themed-dropdown ${className} ${open ? "is-open" : ""}`.trim()}
+    >
+      <button
+        type="button"
+        className="themed-dropdown-trigger"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        disabled={disabled}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className="themed-dropdown-value">
+          {selectedOption?.label ?? placeholder}
+        </span>
+        <ChevronDown size={17} aria-hidden="true" />
+      </button>
+
+      {open && !disabled && (
+        <div className="themed-dropdown-menu" role="listbox" aria-label={ariaLabel}>
+          {normalizedOptions.map((option) => {
+            const selected = String(option.value) === String(value);
+            return (
+              <button
+                key={`${String(option.value)}-${option.label}`}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                className={`themed-dropdown-option ${selected ? "selected" : ""}`}
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+              >
+                <span>{option.label}</span>
+                {selected && <Check size={17} strokeWidth={2.7} aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Stat({ title, value, icon: Icon, tone, meta }) { return <div className="stat-card"><div className={`stat-icon ${tone}`}><Icon size={18} /></div><span className="eyebrow">{title}</span><strong>{value}</strong><small>{meta}</small></div>; }
 function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }) {
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -2439,28 +2644,28 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
   }}
 ><div className="form-grid"><label>
   Periode pembayaran
-  <select
+  <ThemedDropdown
     value={paymentPeriod}
-    onChange={(e) => setPaymentPeriod(e.target.value)}
-    required
-  >
-    {getDaftarPeriode().map((periode) => (
-      <option key={periode} value={periode}>
-        {periode}
-      </option>
-    ))}
-  </select>
-</label><label>Blok<input value={block} onChange={(e) => { const nextBlock = e.target.value.toUpperCase(); const firstSub = residents.find((r) => r.block.trim().toUpperCase() === nextBlock)?.subBlock || ""; setBlock(nextBlock); setPaymentSubBlock(firstSub); syncResident(nextBlock, firstSub); }} placeholder="Contoh: A" required /></label><label>Sub blok<select value={paymentSubBlock} onChange={(e) => { setPaymentSubBlock(e.target.value); syncResident(block, e.target.value); }} disabled={!normalizedBlock}><option value="">{normalizedBlock ? "Pilih sub blok" : "Isi blok dahulu"}</option>{subBlocksForBlock.map((sub) => (
-  <option key={sub} value={sub}>
-    {sub} - {
-      residents.find(
-        (r) =>
-          r.block.trim().toUpperCase() === normalizedBlock &&
-          (r.subBlock || "").trim() === sub.trim()
-      )?.name || "Nama belum diisi"
-    }
-  </option>
-))}</select><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label>{
+    onChange={setPaymentPeriod}
+    options={getDaftarPeriode().map((periode) => ({ value: periode, label: periode }))}
+    className="input-select"
+    ariaLabel="Periode pembayaran"
+  />
+</label><label>Blok<input value={block} onChange={(e) => { const nextBlock = e.target.value.toUpperCase(); const firstSub = residents.find((r) => r.block.trim().toUpperCase() === nextBlock)?.subBlock || ""; setBlock(nextBlock); setPaymentSubBlock(firstSub); syncResident(nextBlock, firstSub); }} placeholder="Contoh: A" required /></label><label>Sub blok<ThemedDropdown
+  value={paymentSubBlock}
+  onChange={(nextValue) => { setPaymentSubBlock(nextValue); syncResident(block, nextValue); }}
+  disabled={!normalizedBlock}
+  placeholder={normalizedBlock ? "Pilih sub blok" : "Isi blok dahulu"}
+  options={[
+    { value: "", label: normalizedBlock ? "Pilih sub blok" : "Isi blok dahulu" },
+    ...subBlocksForBlock.map((sub) => ({
+      value: sub,
+      label: `${sub} - ${residents.find((r) => r.block.trim().toUpperCase() === normalizedBlock && (r.subBlock || "").trim() === sub.trim())?.name || "Nama belum diisi"}`
+    }))
+  ]}
+  className="input-select"
+  ariaLabel="Sub blok"
+/><small className="field-hint">Pilihan diambil dari Data Warga</small></label><label>Nama warga<input value={matchingResident?.name || resident} readOnly placeholder="Otomatis dari blok dan sub blok" /><small className="field-hint">Terisi otomatis dari Data Warga</small></label>{
 
 /* INPUT IURAN KEBERSIHAN */}
 <label>
@@ -2614,7 +2819,7 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
 <div className="tip">
 <span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
 }
-function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, expensePeriod, setExpensePeriod, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><label>Periode pengeluaran<select value={expensePeriod} onChange={e=>setExpensePeriod(e.target.value)} required>{getDaftarPeriode().map(periode=><option key={periode} value={periode}>{periode}</option>)}</select></label><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{sortPaymentEntries(entries).map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
+function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, expensePeriod, setExpensePeriod, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><label>Periode pengeluaran<ThemedDropdown value={expensePeriod} onChange={setExpensePeriod} options={getDaftarPeriode().map(periode=>({value:periode,label:periode}))} className="input-select" ariaLabel="Periode pengeluaran" /></label><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{sortPaymentEntries(entries).map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
 
 function ResidentReport({
   entries,
@@ -2740,18 +2945,13 @@ function ResidentReport({
       <label className="report-period-control">
         Pilih bulan laporan
 
-        <select
+        <ThemedDropdown
           value={reportPeriod}
-          onChange={e => setReportPeriod(e.target.value)}
-        >
-          <option>Semua periode</option>
-
-          {getDaftarPeriode().map(periode => (
-            <option key={periode} value={periode}>
-              {periode}
-            </option>
-          ))}
-        </select>
+          onChange={setReportPeriod}
+          options={[{ value: "Semua periode", label: "Semua periode" }, ...getDaftarPeriode().map(periode => ({ value: periode, label: periode }))]}
+          className="input-select"
+          ariaLabel="Periode laporan"
+        />
       </label>
 
       <div className="report-paper">
@@ -2873,7 +3073,7 @@ function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
   const expense = periodExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
   const balance = Number(openingBalance || 0) + income - expense + Number(manualAdjustment || 0);
   return <section className="content public-summary">
-    <div className="public-heading"><div><span className="eyebrow">Informasi untuk warga</span><h2>Laporan Kas Warga</h2><p>RT 26 / RW 04 · Ringkasan terbuka pengelolaan kas</p></div><div className="public-controls"><label>Pilih periode<select value={period} onChange={e => setPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map(periode => <option key={periode} value={periode}>{periode}</option>)}</select></label><button className="primary-btn" onClick={() => window.print()}><FileText size={16}/> Cetak / Simpan PDF</button></div></div>
+    <div className="public-heading"><div><span className="eyebrow">Informasi untuk warga</span><h2>Laporan Kas Warga</h2><p>RT 26 / RW 04 · Ringkasan terbuka pengelolaan kas</p></div><div className="public-controls"><label>Pilih periode<ThemedDropdown value={period} onChange={setPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} className="public-period-select" ariaLabel="Pilih periode ringkasan publik" /></label><button className="primary-btn" onClick={() => window.print()}><FileText size={16}/> Cetak / Simpan PDF</button></div></div>
     <div className="privacy-note"><span>✓</span><div><b>Tampilan publik, data pribadi disembunyikan</b><p>Tidak menampilkan nama warga, nomor rumah, blok, atau rincian pembayaran per orang.</p></div></div>
     <div className="public-kpis"><article className="public-kpi income"><span>Total pemasukan</span><strong>{money(income)}</strong><small>Periode {period}</small></article><article className="public-kpi expense"><span>Total pengeluaran</span><strong>{money(expense)}</strong><small>Periode {period}</small></article><article className="public-kpi balance"><span>Saldo akhir</span><strong>{money(balance)}</strong><small>Saldo awal + masuk - keluar + koreksi</small></article></div>
     <div className="public-breakdown"><div className="section-head"><div><span className="eyebrow">Rangkuman kategori</span><h2>Rangkuman kategori iuran</h2></div></div><div className="public-breakdown-row"><span>Iuran kebersihan</span><b>{money(cleanTotal)}</b></div><div className="public-breakdown-row"><span>Iuran kas RT</span><b>{money(kasTotal)}</b></div><div className="public-breakdown-row"><span>Iuran lainnya</span><b>{money(otherTotal)}</b></div><div className="public-breakdown-row"><span>Total pengeluaran</span><b>{money(expense)}</b></div></div>
@@ -2893,6 +3093,7 @@ const [recapPeriod, setRecapPeriod] = useState(getPeriodeSekarang());
 
 // Filter status iuran
 const [recapStatusFilter, setRecapStatusFilter] = useState("lunas");
+const [recapBlockFilter, setRecapBlockFilter] = useState("semua");
 
 const monthEntries = sortPaymentEntries(
   entries.filter((e) => cocokPeriode(e, recapPeriod))
@@ -2954,11 +3155,19 @@ const searchedRows = allRecapRows.filter((entry) =>
 );
 
 // Filter status
-const filteredEntries = searchedRows.filter((entry) =>
-  recapStatusFilter === "semua" ||
-  (recapStatusFilter === "lunas" && entry.status === "Lunas") ||
-  (recapStatusFilter === "belum" && entry.status === "Belum Lunas")
-); const periodTotal = monthEntries.reduce((sum, e) => sum + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = monthEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = monthEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = monthEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const paidCount = new Set(monthEntries.map(e => e.residentId || e.resident || `${e.block}-${e.subBlock}`)).size; const paidPercent = residents.length ? Math.round((paidCount / residents.length) * 100) : 0; return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><label className="recap-period-label">Pilih bulan<select className="recap-period-select" value={recapPeriod} onChange={e => setRecapPeriod(e.target.value)}><option>Semua periode</option>{getDaftarPeriode().map(periode => <option key={periode} value={periode}>{periode}</option>)}</select></label><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status")}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button></div></div><div className="recap-grid">
+const recapBlockOptions = [...new Set([
+  ...residents.map((resident) => String(resident.block || "").trim().toUpperCase()),
+  ...monthEntries.map((entry) => String(entry.block || "").trim().toUpperCase())
+].filter(Boolean))].sort((a, b) => a.localeCompare(b, "id-ID", { numeric: true }));
+
+const filteredEntries = searchedRows.filter((entry) => {
+  const matchesStatus = recapStatusFilter === "semua" ||
+    (recapStatusFilter === "lunas" && entry.status === "Lunas") ||
+    (recapStatusFilter === "belum" && entry.status === "Belum Lunas");
+  const matchesBlock = recapBlockFilter === "semua" ||
+    String(entry.block || "").trim().toUpperCase() === recapBlockFilter;
+  return matchesStatus && matchesBlock;
+}); const periodTotal = monthEntries.reduce((sum, e) => sum + e.clean + e.kas + (e.other || 0), 0); const cleanTotal = monthEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0); const kasTotal = monthEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0); const otherTotal = monthEntries.reduce((sum, e) => sum + Number(e.other || 0), 0); const paidCount = new Set(monthEntries.map(e => e.residentId || e.resident || `${e.block}-${e.subBlock}`)).size; const paidPercent = residents.length ? Math.round((paidCount / residents.length) * 100) : 0; return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><label className="recap-period-label">Pilih bulan<ThemedDropdown className="recap-period-select" value={recapPeriod} onChange={setRecapPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} ariaLabel="Pilih bulan rekap" /></label><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status")}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button></div></div><div className="recap-grid">
   {/* Kartu total terkumpul */}
   <div className="big-card recap-total-card">
     <span className="eyebrow">Total terkumpul</span>
@@ -3023,15 +3232,29 @@ const filteredEntries = searchedRows.filter((entry) =>
     </div>
 
     {/* Filter status pembayaran */}
-    <select
+    <ThemedDropdown
       className="recap-status-filter"
       value={recapStatusFilter}
-      onChange={e => setRecapStatusFilter(e.target.value)}
-    >
-      <option value="semua">Semua Status</option>
-      <option value="lunas">Lunas</option>
-      <option value="belum">Belum Lunas</option>
-    </select>
+      onChange={setRecapStatusFilter}
+      ariaLabel="Filter status pembayaran"
+      options={[
+        { value: "semua", label: "Semua status" },
+        { value: "lunas", label: "Lunas" },
+        { value: "belum", label: "Belum lunas" }
+      ]}
+    />
+
+    {/* Filter berdasarkan blok */}
+    <ThemedDropdown
+      className="recap-block-filter"
+      value={recapBlockFilter}
+      onChange={setRecapBlockFilter}
+      ariaLabel="Filter blok warga"
+      options={[
+        { value: "semua", label: "Semua blok" },
+        ...recapBlockOptions.map((blok) => ({ value: blok, label: `Blok ${blok}` }))
+      ]}
+    />
 
   </div>
 </div>
@@ -3173,4 +3396,4 @@ const filteredEntries = searchedRows.filter((entry) =>
   </div>;
 })()}
 </section>; }
-function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><select className="resident-filter" value={residentFilter} onChange={e => { setResidentFilter(e.target.value); setResidentSubFilter("Semua sub blok"); }}><option>Semua blok</option>{blocks.map(b => <option key={b}>{b}</option>)}</select><select className="resident-filter" value={residentSubFilter} onChange={e => setResidentSubFilter(e.target.value)}><option>Semua sub blok</option>{subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb => <option key={sb}>{sb}</option>)}</select><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
+function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><ThemedDropdown className="resident-filter" value={residentFilter} onChange={(nextValue) => { setResidentFilter(nextValue); setResidentSubFilter("Semua sub blok"); }} ariaLabel="Filter berdasarkan blok" options={[{value:"Semua blok",label:"Semua blok"}, ...blocks.map(b=>({value:b,label:`Blok ${b}`}))]} /><ThemedDropdown className="resident-filter" value={residentSubFilter} onChange={setResidentSubFilter} ariaLabel="Filter berdasarkan sub blok" options={[{value:"Semua sub blok",label:"Semua sub blok"}, ...subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb=>({value:sb,label:sb}))]} /><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
