@@ -448,11 +448,14 @@ const record = {
   const deleteExpense = (id) => {
   const target = cashOut.find((item) => item.id === id);
   if (!target) return;
+  const originMenu = active;
 
   requestConfirmation(
     `Apakah Anda yakin ingin menghapus pencatatan keluar "${target.title}"?`,
     () => {
       setCashOut(cashOut.filter((item) => item.id !== id));
+      setActive(originMenu);
+      setSettingsOpen(false);
       setNotice("Pengeluaran dihapus");
       setTimeout(() => setNotice(""), 2200);
     }
@@ -471,11 +474,14 @@ const record = {
   const deleteEntry = (id) => {
   const target = entries.find((item) => item.id === id);
   if (!target) return;
+  const originMenu = active;
 
   requestConfirmation(
     `Apakah Anda yakin ingin menghapus pembayaran ${target.resident}?`,
     () => {
       setEntries(entries.filter((item) => item.id !== id));
+      setActive(originMenu);
+      setSettingsOpen(false);
       setNotice("Pembayaran dihapus");
       setTimeout(() => setNotice(""), 2200);
     }
@@ -490,11 +496,14 @@ const record = {
   const deleteResident = (id) => {
   const target = residents.find((r) => r.id === id);
   if (!target) return;
+  const originMenu = active;
 
   requestConfirmation(
     `Apakah Anda yakin ingin menghapus data warga ${target.name}?`,
     () => {
       setResidents(residents.filter((r) => r.id !== id));
+      setActive(originMenu);
+      setSettingsOpen(false);
       setNotice("Data warga dihapus");
       setTimeout(() => setNotice(""), 2200);
     }
@@ -2374,6 +2383,289 @@ tbody tr:hover { background: #F8FAFC !important; }
 }
 
 
+
+/* =========================================================
+   FINAL MOBILE FILTER FIX — warga dan rekap bulanan
+   Menetralkan style filter lama agar tidak muncul bingkai/
+   panah ganda dan memastikan setiap kontrol berada di kolomnya.
+   ========================================================= */
+.resident-toolbar {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 9px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.resident-toolbar > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+.resident-toolbar .resident-search {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.resident-toolbar .resident-filter {
+  display: block !important;
+  position: relative !important;
+  grid-column: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.resident-toolbar .resident-filter::before,
+.resident-toolbar .resident-filter::after {
+  content: none !important;
+  display: none !important;
+}
+.resident-toolbar .resident-filter .themed-dropdown-trigger {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: flex !important;
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #C9D8E8 !important;
+  border-radius: 10px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 1px 3px rgba(16,42,67,.05) !important;
+  font-size: 13px !important;
+}
+.resident-toolbar .resident-filter .themed-dropdown-trigger::before,
+.resident-toolbar .resident-filter .themed-dropdown-trigger::after {
+  content: none !important;
+  display: none !important;
+}
+.resident-toolbar .resident-filter .themed-dropdown-value {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.resident-toolbar .resident-filter .themed-dropdown-trigger > svg {
+  display: block !important;
+  flex: 0 0 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 0 0 5px !important;
+}
+.resident-toolbar .print-btn {
+  grid-column: 1 / 2 !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.resident-toolbar .result-count {
+  grid-column: 2 / 3 !important;
+  justify-self: end !important;
+  white-space: nowrap !important;
+}
+
+/* Filter bulan dan tombol ekspor pada banner Rekap Bulanan */
+.recap-page .recap-banner {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 14px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.recap-page .recap-banner > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+.recap-page .recap-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 9px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+.recap-page .recap-actions .recap-period-label {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 6px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+.recap-page .recap-actions .recap-period-select,
+.recap-page .recap-actions .recap-period-select .themed-dropdown-trigger {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+.recap-page .recap-actions .recap-period-select::before,
+.recap-page .recap-actions .recap-period-select::after {
+  content: none !important;
+  display: none !important;
+}
+.recap-page .recap-actions > button {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (max-width: 760px) {
+  .resident-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+  .resident-toolbar .resident-search {
+    grid-column: 1 / -1 !important;
+  }
+  .resident-toolbar .resident-block-filter,
+  .resident-toolbar .resident-subblock-filter {
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .resident-toolbar .resident-filter .themed-dropdown-trigger {
+    height: 43px !important;
+    min-height: 43px !important;
+    max-height: 43px !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+  }
+  .resident-toolbar .print-btn {
+    grid-column: 1 / 2 !important;
+  }
+  .resident-toolbar .result-count {
+    grid-column: 2 / 3 !important;
+  }
+  .recap-page .recap-banner {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+    padding: 18px !important;
+  }
+  .recap-page .recap-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .recap-page .recap-actions .recap-period-label,
+  .recap-page .recap-actions .recap-period-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .recap-page .recap-actions > button {
+    width: 100% !important;
+    min-height: 42px !important;
+  }
+}
+
+
+  .cashflow-transaction-card.is-clickable { cursor:pointer; transition:border-color .16s ease, box-shadow .16s ease; }
+  .cashflow-transaction-card.is-clickable:hover { border-color:#9BB8D8; box-shadow:0 4px 14px rgba(23,59,101,.08); }
+  .cashflow-tap-hint { color:#8792A0; font-size:10px; font-weight:500; }
+  .cashflow-detail-backdrop { position:fixed; inset:0; z-index:100010; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(15,23,42,.56); }
+  .cashflow-detail-modal { width:min(100%,420px); max-height:85vh; overflow:auto; padding:20px; border:1px solid #DCE5EF; border-radius:18px; background:#fff; box-shadow:0 22px 60px rgba(15,23,42,.24); }
+  .cashflow-detail-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px; }
+  .cashflow-detail-heading h3 { margin:4px 0 0; color:#173B65; font-size:18px; overflow-wrap:anywhere; }
+  .cashflow-detail-close { display:grid; place-items:center; width:36px; height:36px; flex:0 0 36px; border:1px solid #DCE5EF; border-radius:10px; background:#F4F7FB; color:#173B65; }
+  .cashflow-detail-amount { display:flex; flex-direction:column; gap:5px; padding:14px; margin-bottom:12px; border-radius:12px; background:#FDECEC; }
+  .cashflow-detail-amount span { color:#8E3333; font-size:12px; font-weight:600; }
+  .cashflow-detail-amount strong { color:#B42318; font-size:23px; overflow-wrap:anywhere; }
+  .cashflow-detail-row { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; padding:11px 2px; border-bottom:1px solid #EDF1F6; font-size:13px; }
+  .cashflow-detail-row span { color:#718096; }
+  .cashflow-detail-row strong { color:#26384B; text-align:right; overflow-wrap:anywhere; }
+  .cashflow-detail-actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:18px; }
+  .cashflow-detail-actions button { min-height:43px; display:flex; align-items:center; justify-content:center; gap:7px; padding:9px; font-size:12px; }
+  .cashflow-detail-actions .danger-btn { border:0; border-radius:9px; background:#B42318; color:#fff; font-weight:700; cursor:pointer; }
+  @media(max-width:420px) { .cashflow-detail-modal { padding:16px; } .cashflow-detail-actions { grid-template-columns:1fr; } }
+
+  /* Desain ringkas Arus Kas */
+  .cashflow-redesign { display:flex; flex-direction:column; gap:16px; min-width:0; }
+  .cashflow-filter-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .cashflow-filter-row label { display:flex; flex-direction:column; gap:6px; min-width:0; color:var(--text); font-size:13px; font-weight:700; }
+  .cashflow-filter-row .input-select { width:100%; min-width:0; }
+  .cashflow-summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; min-width:0; }
+  .cashflow-summary-card,.cashflow-category-card,.cashflow-activity { min-width:0; background:#fff; border:1px solid #DCE5EF; border-radius:16px; padding:16px; box-shadow:0 5px 18px rgba(16,42,67,.045); }
+  .cashflow-summary-card { display:flex; flex-direction:column; gap:8px; }
+  .cashflow-summary-card>span { display:flex; align-items:center; gap:7px; color:#52657A; font-size:13px; font-weight:700; }
+  .cashflow-summary-card strong { color:#173B65; font-size:clamp(18px,2vw,25px); line-height:1.25; overflow-wrap:anywhere; }
+  .cashflow-summary-card small { color:#7A8796; font-size:11px; }
+  .cashflow-summary-card.incoming>span,.cashflow-transaction-amount.masuk { color:#16734A; }
+  .cashflow-summary-card.outgoing>span,.cashflow-transaction-amount.keluar { color:#B42318; }
+  .cashflow-summary-card.balance>span { color:#173B65; }
+  .cashflow-section-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; min-width:0; }
+  .cashflow-section-heading h3 { margin:3px 0 0; color:#173B65; font-size:18px; }
+  .cashflow-section-heading>small { color:#718096; white-space:nowrap; }
+  .cashflow-category-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:11px 0; border-top:1px solid #EDF1F6; min-width:0; }
+  .cashflow-category-row>span { display:flex; align-items:center; gap:9px; color:#40536A; font-size:14px; min-width:0; }
+  .cashflow-category-row strong { color:#173B65; text-align:right; overflow-wrap:anywhere; }
+  .category-dot { width:9px; height:9px; border-radius:50%; flex:0 0 9px; background:#2563A6; }
+  .category-dot.clean { background:#2563A6; } .category-dot.kas { background:#0F766E; } .category-dot.other { background:#B7791F; }
+  .cashflow-expense-details { border:1px solid #DCE5EF; border-radius:14px; background:#fff; overflow:hidden; }
+  .cashflow-expense-details>summary { display:flex; align-items:center; gap:8px; padding:14px 16px; color:#173B65; font-weight:700; cursor:pointer; list-style:none; }
+  .cashflow-expense-details>summary::-webkit-details-marker { display:none; }
+  .cashflow-expense-details[open]>summary { border-bottom:1px solid #E5EAF1; }
+  .cashflow-expense-details .expense-form { margin:0; border:0; box-shadow:none; border-radius:0; }
+  .cashflow-form-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .cashflow-activity { padding:16px; }
+  .cashflow-transaction-list { display:flex; flex-direction:column; gap:9px; }
+  .cashflow-transaction-card { display:flex; align-items:center; gap:11px; min-width:0; padding:12px; border:1px solid #E7EDF4; border-radius:13px; background:#fff; }
+  .cashflow-transaction-icon { width:38px; height:38px; flex:0 0 38px; display:grid; place-items:center; border-radius:11px; }
+  .cashflow-transaction-icon.masuk { background:#E7F6EE; color:#16734A; }
+  .cashflow-transaction-icon.keluar { background:#FDECEC; color:#B42318; }
+  .cashflow-transaction-main { display:flex; flex:1; flex-direction:column; gap:4px; min-width:0; }
+  .cashflow-transaction-main strong { color:#26384B; font-size:14px; overflow-wrap:anywhere; }
+  .cashflow-transaction-main span { color:#8792A0; font-size:12px; }
+  .cashflow-transaction-amount { display:flex; flex-direction:column; align-items:flex-end; gap:5px; color:#16734A; font-size:13px; font-weight:800; text-align:right; overflow-wrap:anywhere; max-width:46%; }
+  .cashflow-transaction-actions { display:flex; gap:5px; }
+  .cashflow-transaction-actions button { display:grid; place-items:center; width:28px; height:28px; border:1px solid #DCE5EF; border-radius:8px; background:#F4F7FB; color:#173B65; }
+  .cashflow-transaction-actions button:last-child { background:#FEECEC; color:#B42318; }
+  .cashflow-empty { padding:24px 12px; text-align:center; color:#8792A0; border:1px dashed #DCE5EF; border-radius:12px; }
+  @media(max-width:760px) {
+    .cashflow-redesign { gap:11px !important; padding-left:0 !important; padding-right:0 !important; }
+    .cashflow-filter-row { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .cashflow-filter-row label { font-size:12px; }
+    .cashflow-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .cashflow-summary-card { padding:12px 10px; border-radius:13px; gap:6px; }
+    .cashflow-summary-card:last-child { grid-column:1 / -1; }
+    .cashflow-summary-card>span { font-size:11px; }
+    .cashflow-summary-card strong { font-size:18px; }
+    .cashflow-summary-card small { font-size:10px; }
+    .cashflow-category-card,.cashflow-activity { padding:12px; border-radius:13px; }
+    .cashflow-section-heading h3 { font-size:16px; }
+    .cashflow-category-row { padding:10px 0; }
+    .cashflow-category-row>span { font-size:12px; }
+    .cashflow-category-row strong { font-size:12px; }
+    .cashflow-transaction-card { gap:8px; padding:10px 8px; }
+    .cashflow-transaction-icon { width:32px; height:32px; flex-basis:32px; }
+    .cashflow-transaction-main strong { font-size:12px; }
+    .cashflow-transaction-main span { font-size:10px; }
+    .cashflow-transaction-amount { font-size:11px; max-width:45%; }
+  }
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -3064,7 +3356,311 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
 <div className="tip">
 <span>✦</span><div><b>Nama warga otomatis</b><p>Pilih blok dan sub blok, nama akan diambil langsung dari Data Warga.</p></div></div></section>;
 }
-function Cashflow({ entries, cashOut, runningBalance, addExpense, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, expensePeriod, setExpensePeriod, editingExpense, setEditingExpense, startEditExpense, deleteExpense }) { const incoming = entries.reduce((a,e)=>a+e.clean+e.kas+(e.other||0),0); const outgoing = cashOut.reduce((a,e)=>a+e.amount,0); return <section className="content"><div className="recap-banner cashflow-banner"><div><span className="eyebrow light">Catatan keuangan</span><h2>Arus masuk & keluar</h2><p>Pantau pergerakan kas warga.</p></div></div><form className="expense-form" onSubmit={addExpense}><div><span className="eyebrow">Input pengeluaran</span><h2>Catat uang keluar</h2></div><label>Periode pengeluaran<ThemedDropdown value={expensePeriod} onChange={setExpensePeriod} options={getDaftarPeriode().map(periode=>({value:periode,label:periode}))} className="input-select" ariaLabel="Periode pengeluaran" /></label><input placeholder="Keterangan pengeluaran" value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} required /><div className="input-money"><span>Rp</span><input type="number" min="1" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} required /></div><button className="primary-btn" type="submit"><Plus size={18}/>{editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}</button></form><div className="recap-grid"><div className="big-card cash-balance"><span className="eyebrow">Saldo berjalan</span><strong>{money(runningBalance)}</strong></div><div className="big-card cash-in"><span className="eyebrow">Total uang masuk</span><strong>{money(incoming)}</strong></div><div className="big-card cash-out"><span className="eyebrow">Total uang keluar</span><strong>{money(outgoing)}</strong></div></div><div className="table-card"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>{sortPaymentEntries(entries).map(e=><tr key={`in-${e.id}`}><td>{e.date}</td><td>Iuran {e.resident}</td><td><span className="flow-in">Masuk</span></td><td>{money(e.clean+e.kas+(e.other||0))}</td></tr>)}{cashOut.map(e=><tr key={`out-${e.id}`}><td>{e.date}</td><td>{e.title}</td><td><span className="flow-out">Keluar</span></td><td>{money(e.amount)}</td></tr>)}</tbody></table></div></section>; }
+function Cashflow({
+  entries,
+  cashOut,
+  runningBalance,
+  addExpense,
+  expenseTitle,
+  setExpenseTitle,
+  expenseAmount,
+  setExpenseAmount,
+  expensePeriod,
+  setExpensePeriod,
+  editingExpense,
+  setEditingExpense,
+  startEditExpense,
+  deleteExpense
+}) {
+  const currentYear = String(new Date().getFullYear());
+  const getYear = (value) => {
+    const match = String(value || "").match(/\b(?:19|20)\d{2}\b/);
+    return match ? match[0] : currentYear;
+  };
+  const years = [...new Set([
+    currentYear,
+    ...entries.map((item) => getYear(item.date || item.period)),
+    ...cashOut.map((item) => getYear(item.date || item.period))
+  ])].sort((a, b) => Number(b) - Number(a));
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [cashType, setCashType] = useState("semua");
+  const [selectedExpense, setSelectedExpense] = useState(null);
+
+  useEffect(() => {
+    if (selectedExpense && !cashOut.some((item) => item.id === selectedExpense.id)) {
+      setSelectedExpense(null);
+    }
+  }, [cashOut, selectedExpense]);
+
+  const yearEntries = entries.filter((item) =>
+    getYear(item.date || item.period) === selectedYear
+  );
+  const yearExpenses = cashOut.filter((item) =>
+    getYear(item.date || item.period) === selectedYear
+  );
+
+  const cleanTotal = yearEntries.reduce((sum, item) => sum + Number(item.clean || 0), 0);
+  const kasTotal = yearEntries.reduce((sum, item) => sum + Number(item.kas || 0), 0);
+  const otherTotal = yearEntries.reduce((sum, item) => sum + Number(item.other || 0), 0);
+  const incoming = cleanTotal + kasTotal + otherTotal;
+  const outgoing = yearExpenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+  const transactions = [
+    ...yearEntries.map((item) => ({
+      id: `in-${item.id}`,
+      date: item.date || item.period || "-",
+      title: `Iuran ${item.resident || "warga"}`,
+      type: "masuk",
+      amount: Number(item.clean || 0) + Number(item.kas || 0) + Number(item.other || 0),
+      raw: item
+    })),
+    ...yearExpenses.map((item) => ({
+      id: `out-${item.id}`,
+      date: item.date || item.period || "-",
+      title: item.title || "Pengeluaran",
+      type: "keluar",
+      amount: Number(item.amount || 0),
+      raw: item
+    }))
+  ].filter((item) => cashType === "semua" || item.type === cashType);
+
+  const dateValue = (value) => {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return parsed.getTime();
+    const monthIndex = namaBulan.findIndex((month) =>
+      String(value).toLowerCase().includes(month.toLowerCase())
+    );
+    const year = Number(getYear(value));
+    const day = Number(String(value).match(/\b\d{1,2}\b/)?.[0] || 1);
+    return monthIndex >= 0 ? new Date(year, monthIndex, day).getTime() : 0;
+  };
+  transactions.sort((a, b) => dateValue(b.date) - dateValue(a.date));
+
+  return (
+    <section className="content cashflow-page cashflow-redesign">
+      <div className="recap-banner cashflow-banner">
+        <div>
+          <span className="eyebrow light">Catatan keuangan</span>
+          <h2>Arus Kas</h2>
+          <p>Pantau pemasukan, pengeluaran, dan saldo kas warga.</p>
+        </div>
+      </div>
+
+      <div className="cashflow-filter-row">
+        <label>
+          <span>Tahun</span>
+          <ThemedDropdown
+            value={selectedYear}
+            onChange={setSelectedYear}
+            options={years.map((year) => ({ value: year, label: year }))}
+            className="input-select"
+            ariaLabel="Filter tahun arus kas"
+          />
+        </label>
+        <label>
+          <span>Jenis kas</span>
+          <ThemedDropdown
+            value={cashType}
+            onChange={setCashType}
+            options={[
+              { value: "semua", label: "Semua kas" },
+              { value: "masuk", label: "Kas masuk" },
+              { value: "keluar", label: "Kas keluar" }
+            ]}
+            className="input-select"
+            ariaLabel="Filter jenis kas"
+          />
+        </label>
+      </div>
+
+      <div className="cashflow-summary-grid">
+        <article className="cashflow-summary-card incoming">
+          <span><ArrowDownLeft size={17} /> Total kas masuk</span>
+          <strong>{money(incoming)}</strong>
+          <small>Tahun {selectedYear}</small>
+        </article>
+        <article className="cashflow-summary-card outgoing">
+          <span><ArrowUpRight size={17} /> Total kas keluar</span>
+          <strong>{money(outgoing)}</strong>
+          <small>Tahun {selectedYear}</small>
+        </article>
+        <article className="cashflow-summary-card balance">
+          <span><WalletCards size={17} /> Saldo kas berjalan</span>
+          <strong>{money(runningBalance)}</strong>
+          <small>Akumulasi seluruh periode</small>
+        </article>
+      </div>
+
+      <section className="cashflow-category-card">
+        <div className="cashflow-section-heading">
+          <div>
+            <span className="eyebrow">Rincian pemasukan</span>
+            <h3>Total iuran tahun {selectedYear}</h3>
+          </div>
+        </div>
+        <div className="cashflow-category-row">
+          <span><i className="category-dot clean" /> Iuran kebersihan</span>
+          <strong>{money(cleanTotal)}</strong>
+        </div>
+        <div className="cashflow-category-row">
+          <span><i className="category-dot kas" /> Iuran kas RT</span>
+          <strong>{money(kasTotal)}</strong>
+        </div>
+        <div className="cashflow-category-row">
+          <span><i className="category-dot other" /> Iuran lainnya</span>
+          <strong>{money(otherTotal)}</strong>
+        </div>
+      </section>
+
+      <details className="cashflow-expense-details" open={Boolean(editingExpense)}>
+        <summary><Plus size={18} /> {editingExpense ? "Ubah pengeluaran" : "Input pengeluaran"}</summary>
+        <form className="expense-form" onSubmit={addExpense}>
+          <div>
+            <span className="eyebrow">Catatan kas keluar</span>
+            <h2>{editingExpense ? "Simpan perubahan" : "Catat uang keluar"}</h2>
+          </div>
+          <label>
+            Periode pengeluaran
+            <ThemedDropdown
+              value={expensePeriod}
+              onChange={setExpensePeriod}
+              options={getDaftarPeriode().map((period) => ({ value: period, label: period }))}
+              className="input-select"
+              ariaLabel="Periode pengeluaran"
+            />
+          </label>
+          <input
+            placeholder="Keterangan pengeluaran"
+            value={expenseTitle}
+            onChange={(event) => setExpenseTitle(event.target.value)}
+            required
+          />
+          <div className="input-money">
+            <span>Rp</span>
+            <input
+              type="number"
+              min="1"
+              value={expenseAmount}
+              onChange={(event) => setExpenseAmount(event.target.value)}
+              required
+            />
+          </div>
+          <div className="cashflow-form-actions">
+            <button className="primary-btn" type="submit">
+              <Plus size={18} /> {editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}
+            </button>
+            {editingExpense && (
+              <button type="button" className="secondary-btn" onClick={() => setEditingExpense(null)}>
+                Batal
+              </button>
+            )}
+          </div>
+        </form>
+      </details>
+
+      <section className="cashflow-activity">
+        <div className="cashflow-section-heading">
+          <div>
+            <span className="eyebrow">Riwayat transaksi</span>
+            <h3>Aktivitas kas</h3>
+          </div>
+          <small>{transactions.length} transaksi</small>
+        </div>
+        {transactions.length ? (
+          <div className="cashflow-transaction-list">
+            {transactions.map((item) => (
+              <article
+                className={`cashflow-transaction-card ${item.type === "keluar" ? "is-clickable" : ""}`}
+                key={item.id}
+                role={item.type === "keluar" ? "button" : undefined}
+                tabIndex={item.type === "keluar" ? 0 : undefined}
+                onClick={item.type === "keluar" ? () => setSelectedExpense(item.raw) : undefined}
+                onKeyDown={item.type === "keluar" ? (event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedExpense(item.raw);
+                  }
+                } : undefined}
+              >
+                <div className={`cashflow-transaction-icon ${item.type}`}>
+                  {item.type === "masuk" ? <ArrowDownLeft size={19} /> : <ArrowUpRight size={19} />}
+                </div>
+                <div className="cashflow-transaction-main">
+                  <strong>{item.title}</strong>
+                  <span>{item.date} · {item.type === "masuk" ? "Kas masuk" : "Kas keluar"}</span>
+                </div>
+                <div className={`cashflow-transaction-amount ${item.type}`}>
+                  {item.type === "masuk" ? "+" : "−"}{money(item.amount)}
+                  {item.type === "keluar" && <small className="cashflow-tap-hint">Lihat rincian</small>}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="cashflow-empty">Belum ada transaksi untuk filter yang dipilih.</div>
+        )}
+      </section>
+
+      {selectedExpense && (
+        <div className="cashflow-detail-backdrop" onClick={() => setSelectedExpense(null)}>
+          <section
+            className="cashflow-detail-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cashflow-detail-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="cashflow-detail-heading">
+              <div>
+                <span className="eyebrow">Rincian pengeluaran</span>
+                <h3 id="cashflow-detail-title">{selectedExpense.title || "Pengeluaran"}</h3>
+              </div>
+              <button type="button" className="cashflow-detail-close" aria-label="Tutup rincian" onClick={() => setSelectedExpense(null)}>
+                <X size={19} />
+              </button>
+            </div>
+            <div className="cashflow-detail-amount">
+              <span>Total pengeluaran</span>
+              <strong>{money(selectedExpense.amount)}</strong>
+            </div>
+            <div className="cashflow-detail-row">
+              <span>Tanggal transaksi</span>
+              <strong>{selectedExpense.date || "-"}</strong>
+            </div>
+            <div className="cashflow-detail-row">
+              <span>Periode</span>
+              <strong>{selectedExpense.period || "-"}</strong>
+            </div>
+            <div className="cashflow-detail-actions">
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={() => {
+                  const expense = selectedExpense;
+                  setSelectedExpense(null);
+                  startEditExpense(expense);
+                }}
+              >
+                <Pencil size={16} /> Edit pengeluaran
+              </button>
+              <button
+                type="button"
+                className="danger-btn"
+                onClick={() => {
+                  const id = selectedExpense.id;
+                  setSelectedExpense(null);
+                  deleteExpense(id);
+                }}
+              >
+                <Trash2 size={16} /> Hapus pengeluaran
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+    </section>
+  );
+}
 
 function ResidentReport({
   entries,
