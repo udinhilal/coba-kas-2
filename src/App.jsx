@@ -203,6 +203,8 @@ export default function App({ user, onSignOut }) {
     user?.email?.split("@")[0] ||
     "Pengelola";
   const [active, setActive] = useState("overview");
+  // Menyimpan transaksi yang sedang dibuka pada popup detail di Beranda.
+  const [selectedPayment, setSelectedPayment] = useState(null);
   const signOutStarted = useRef(false);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [lastSync, setLastSync] = useState(() => localStorage.getItem("kas-warga-rt-last-sync") || "Belum disinkronkan");
@@ -2106,6 +2108,10 @@ tbody tr:hover { background: #F8FAFC !important; }
   setSettingsOpen={setSettingsOpen}
   onSignOut={onSignOut}
   requestConfirmation={requestConfirmation}
+  selectedPayment={selectedPayment}
+  setSelectedPayment={setSelectedPayment}
+  startEditEntry={startEditEntry}
+  deleteEntry={deleteEntry}
 />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
         {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
@@ -2259,10 +2265,28 @@ function Overview({
   setSettingsOpen,
   residents = [],
   onSignOut,
-  requestConfirmation
+  requestConfirmation,
+  selectedPayment,
+  setSelectedPayment,
+  startEditEntry,
+  deleteEntry
 }) {
   const periodEntries = sortPaymentEntries(
     entries.filter((e) => cocokPeriode(e, summaryPeriod))
+  );
+
+  // Total masing-masing jenis iuran untuk periode yang sedang dipilih.
+  const cleanTotal = periodEntries.reduce(
+    (sum, e) => sum + Number(e.clean || 0),
+    0
+  );
+  const kasTotal = periodEntries.reduce(
+    (sum, e) => sum + Number(e.kas || 0),
+    0
+  );
+  const otherTotal = periodEntries.reduce(
+    (sum, e) => sum + Number(e.other || 0),
+    0
   );
 
   const periodExpenses = cashOut.filter(
