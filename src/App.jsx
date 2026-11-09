@@ -2739,6 +2739,126 @@ tbody tr:hover { background: #F8FAFC !important; }
 }
 
 
+/* FIX FINAL FILTER BULAN: satu kontrol dropdown kustom saja */
+.recap-page .recap-period-label,
+.recap-page .recap-period-label::before,
+.recap-page .recap-period-label::after {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  content: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+.recap-page .recap-period-select {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+.recap-page .recap-period-select::before,
+.recap-page .recap-period-select::after,
+.recap-page .recap-period-select .themed-dropdown-trigger::before,
+.recap-page .recap-period-select .themed-dropdown-trigger::after {
+  content: none !important;
+  display: none !important;
+}
+.recap-page .recap-period-select select,
+.recap-page .recap-period-select > select {
+  display: none !important;
+}
+.recap-page .recap-period-select .themed-dropdown-trigger {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 0 13px !important;
+  border: 1px solid #DCE5EF !important;
+  border-radius: 10px !important;
+  background: #FFFFFF !important;
+  background-image: none !important;
+  box-shadow: 0 1px 3px rgba(16,42,67,.05) !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+.recap-page .recap-period-select .themed-dropdown-trigger > svg {
+  display: block !important;
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
+}
+.recap-page .recap-period-select .themed-dropdown-value {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: calc(100% - 28px) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Popup ekspor JPG HD: dialog internal aplikasi, bukan alert browser. */
+.recap-export-notice-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(16,42,67,.56);
+}
+.recap-export-notice {
+  width: min(100%, 390px);
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid #DCE5EF;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: 0 22px 60px rgba(16,42,67,.22);
+  text-align: left;
+}
+.recap-export-notice-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 15px;
+  border-radius: 14px;
+}
+.recap-export-notice-icon.success { color: #15803D; background: #DCFCE7; }
+.recap-export-notice-icon.error { color: #B91C1C; background: #FEE2E2; }
+.recap-export-notice h3 { margin: 5px 0 8px; color: #102A43; font-size: 19px; line-height: 1.3; }
+.recap-export-notice p { margin: 0 0 21px; color: #64748B; font-size: 14px; line-height: 1.6; }
+.recap-export-notice .primary-btn { width: 100%; min-height: 44px; justify-content: center; }
+@media (max-width: 480px) {
+  .recap-export-notice { padding: 21px 19px; border-radius: 17px; }
+}
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -4047,7 +4167,9 @@ const exportRecapJpgHD = async (period) => {
 
   const clone = source.cloneNode(true);
   clone.classList.add("recap-jpg-capture");
-  clone.style.cssText = "width:794px!important;min-width:794px!important;max-width:794px!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important;";
+  // Lebar area konten dibuat setara area cetak A4 (margin kiri/kanan 10 mm).
+  // Margin atas/bawah diterapkan lagi pada setiap kanvas halaman di bawah.
+  clone.style.cssText = "width:794px!important;min-width:794px!important;max-width:794px!important;margin:0!important;padding:0 38px!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important;";
 
   // PDF tidak menampilkan kontrol filter, tombol, maupun popup detail.
   clone.querySelectorAll(
@@ -4065,7 +4187,7 @@ const exportRecapJpgHD = async (period) => {
     }
     .recap-jpg-capture {
       display:block!important; width:794px!important; min-width:794px!important;
-      max-width:794px!important; margin:0!important; padding:0!important;
+      max-width:794px!important; margin:0!important; padding:0 38px!important;
       color:#20352E!important; background:#FFFFFF!important; overflow:visible!important;
       font-size:9pt!important;
     }
@@ -4172,7 +4294,14 @@ const exportRecapJpgHD = async (period) => {
     if (document.fonts?.ready) await document.fonts.ready;
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-    const scale = 2480 / 794; // lebar A4 300 DPI
+    const pageWidth = 2480;
+    const pageHeight = 3508;
+    const marginX = 118; // sekitar 10 mm pada 300 DPI
+    const marginY = 118; // sekitar 10 mm pada 300 DPI
+    const contentWidth = pageWidth - (marginX * 2);
+    const pageContentHeight = pageHeight - (marginY * 2);
+    const cssContentWidth = 794 - (38 * 2);
+    const scale = contentWidth / cssContentWidth;
     const fullCanvas = await html2canvas(clone, {
       backgroundColor: "#FFFFFF",
       scale,
@@ -4190,9 +4319,7 @@ const exportRecapJpgHD = async (period) => {
       throw new Error("Konten Rekap Bulanan tidak berhasil dirender.");
     }
 
-    const pageWidth = 2480;
-    const pageHeight = 3508;
-    const pageCount = Math.ceil(fullCanvas.height / pageHeight);
+    const pageCount = Math.ceil(fullCanvas.height / pageContentHeight);
     const slug = String(period || "semua-periode")
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
@@ -4206,12 +4333,12 @@ const exportRecapJpgHD = async (period) => {
       context.fillStyle = "#FFFFFF";
       context.fillRect(0, 0, pageWidth, pageHeight);
 
-      const sourceY = pageIndex * pageHeight;
-      const sliceHeight = Math.min(pageHeight, fullCanvas.height - sourceY);
+      const sourceY = pageIndex * pageContentHeight;
+      const sliceHeight = Math.min(pageContentHeight, fullCanvas.height - sourceY);
       context.drawImage(
         fullCanvas,
         0, sourceY, fullCanvas.width, sliceHeight,
-        0, 0, pageWidth, sliceHeight
+        0, marginY, pageWidth, sliceHeight
       );
 
       const blob = await new Promise((resolve, reject) => {
@@ -4252,6 +4379,7 @@ function Recap({
   deleteEntry
 }) { const [selectedRecapPayment, setSelectedRecapPayment] = useState(null);
 const [isExportingJpg, setIsExportingJpg] = useState(false);
+const [exportNotice, setExportNotice] = useState(null);
 const [recapPeriod, setRecapPeriod] = useState(getPeriodeSekarang());
 
 // Filter status iuran
@@ -4336,14 +4464,20 @@ const handleExportJpgHD = async () => {
   setIsExportingJpg(true);
   try {
     const pages = await exportRecapJpgHD(recapPeriod);
-    window.alert(
-      pages > 1
-        ? `Export JPG HD selesai. ${pages} gambar A4 telah dibuat.`
-        : "Export JPG HD selesai."
-    );
+    setExportNotice({
+      type: "success",
+      title: "Export JPG HD berhasil",
+      message: pages > 1
+        ? `${pages} gambar A4 berhasil dibuat dan siap dibagikan.`
+        : "Gambar JPG HD berhasil dibuat dan siap dibagikan."
+    });
   } catch (error) {
     console.error("Gagal mengekspor Rekap Bulanan ke JPG HD:", error);
-    window.alert(error?.message || "Export JPG HD gagal. Silakan coba kembali.");
+    setExportNotice({
+      type: "error",
+      title: "Export JPG HD belum berhasil",
+      message: error?.message || "Silakan periksa koneksi internet dan coba kembali."
+    });
   } finally {
     setIsExportingJpg(false);
   }
@@ -4496,6 +4630,21 @@ return <section className="content recap-page"><div className="recap-banner"><di
     </td>
   </tr>
 )}</tbody></table></div>
+{exportNotice && (
+  <div className="recap-export-notice-backdrop" onMouseDown={(event) => {
+    if (event.target === event.currentTarget) setExportNotice(null);
+  }}>
+    <section className="recap-export-notice" role="dialog" aria-modal="true" aria-labelledby="recap-export-notice-title">
+      <div className={`recap-export-notice-icon ${exportNotice.type}`}>
+        {exportNotice.type === "success" ? <Check size={25} strokeWidth={2.8} /> : <X size={24} strokeWidth={2.8} />}
+      </div>
+      <span className="eyebrow">Kas Warga · Rekap Bulanan</span>
+      <h3 id="recap-export-notice-title">{exportNotice.title}</h3>
+      <p>{exportNotice.message}</p>
+      <button type="button" className="primary-btn" onClick={() => setExportNotice(null)}>Mengerti</button>
+    </section>
+  </div>
+)}
 {selectedRecapPayment && (() => {
   const payment = selectedRecapPayment;
   const isUnpaid = payment.status === "Belum Lunas" || payment.isUnpaidPlaceholder === true;
