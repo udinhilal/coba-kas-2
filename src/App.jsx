@@ -2151,6 +2151,229 @@ tbody tr:hover { background: #F8FAFC !important; }
   }
 }
 
+/* =====================================================
+   FIX LAYOUT FILTER: tidak saling menumpuk di desktop/HP
+   ===================================================== */
+.resident-toolbar {
+  display: grid !important;
+  grid-template-columns: minmax(180px, 1fr) minmax(125px, 150px) minmax(145px, 170px) auto auto !important;
+  align-items: center !important;
+  gap: 9px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.resident-toolbar > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+.resident-toolbar .resident-search {
+  grid-column: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.resident-toolbar .resident-filter {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex: initial !important;
+}
+.resident-toolbar .resident-filter .themed-dropdown-trigger {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 42px !important;
+  padding-left: 10px !important;
+  padding-right: 9px !important;
+  font-size: 12px !important;
+}
+.resident-toolbar .print-btn {
+  justify-self: start !important;
+  white-space: nowrap !important;
+}
+.resident-toolbar .result-count {
+  justify-self: end !important;
+  white-space: nowrap !important;
+}
+
+/* Filter bulan tetap satu kolom dan tidak bertumpuk dengan tombol ekspor. */
+.recap-banner,
+.recap-actions,
+.recap-period-label {
+  min-width: 0 !important;
+}
+.recap-actions {
+  display: flex !important;
+  align-items: flex-end !important;
+  flex-wrap: wrap !important;
+  gap: 9px !important;
+}
+.recap-actions .recap-period-label {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  flex: 1 1 160px !important;
+  min-width: 0 !important;
+}
+.recap-actions .recap-period-select {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+.recap-actions > button {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+}
+
+@media screen and (max-width: 760px) {
+  .resident-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 14px !important;
+  }
+  .resident-toolbar .resident-search {
+    grid-column: 1 / -1 !important;
+  }
+  .resident-toolbar .resident-block-filter,
+  .resident-toolbar .resident-subblock-filter {
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .resident-toolbar .resident-filter .themed-dropdown-trigger {
+    min-height: 42px !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+  }
+  .resident-toolbar .print-btn {
+    grid-column: 1 / 2 !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .resident-toolbar .result-count {
+    grid-column: 2 / 3 !important;
+    justify-self: end !important;
+  }
+
+  .recap-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    gap: 9px !important;
+  }
+  .recap-actions .recap-period-label {
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .recap-actions .recap-period-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .recap-actions > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+}
+
+
+/* FINAL FIX: ukuran filter Status dan Blok pada Rekap Bulanan */
+.recap-detail-toolbar {
+  display: grid !important;
+  grid-template-columns: minmax(190px, 1.35fr) minmax(135px, 1fr) minmax(125px, 1fr) !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.recap-detail-toolbar .recap-resident-search,
+.recap-detail-toolbar > .recap-status-filter,
+.recap-detail-toolbar > .recap-block-filter {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: 43px !important;
+  min-height: 43px !important;
+  max-height: 43px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+.recap-detail-toolbar > .recap-status-filter,
+.recap-detail-toolbar > .recap-block-filter {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+.recap-detail-toolbar .recap-status-filter .themed-dropdown-trigger,
+.recap-detail-toolbar .recap-block-filter .themed-dropdown-trigger {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 43px !important;
+  min-height: 43px !important;
+  max-height: 43px !important;
+  padding: 0 10px !important;
+  box-sizing: border-box !important;
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+.recap-detail-toolbar .recap-status-filter .themed-dropdown-value,
+.recap-detail-toolbar .recap-block-filter .themed-dropdown-value {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+@media screen and (max-width: 760px) {
+  .recap-detail-toolbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+  .recap-detail-toolbar .recap-resident-search {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+  .recap-detail-toolbar > .recap-status-filter,
+  .recap-detail-toolbar > .recap-block-filter {
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+  .recap-detail-toolbar .recap-status-filter .themed-dropdown-trigger,
+  .recap-detail-toolbar .recap-block-filter .themed-dropdown-trigger {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+  }
+  .recap-detail-toolbar .recap-status-filter .themed-dropdown-trigger > svg,
+  .recap-detail-toolbar .recap-block-filter .themed-dropdown-trigger > svg {
+    width: 15px !important;
+    height: 15px !important;
+    margin-left: 5px !important;
+  }
+}
+
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -2419,12 +2642,34 @@ function Overview({
     (sum, e) => sum + Number(e.amount || 0),
     0
   );
-  const paidResidentCount = new Set(
-    entries
-      .map((e) => e.residentId || e.resident || `${e.block || ""}-${e.subBlock || ""}`)
-      .filter((value) => String(value).trim() && String(value) !== "-")
-      .map((value) => String(value).trim().toLowerCase())
-  ).size;
+  // Kartu warga di Beranda menampilkan total seluruh warga dan jumlah
+  // warga yang sudah membayar pada periode kalender yang sedang berjalan.
+  const currentPeriod = getPeriodeSekarang();
+  const currentPeriodEntries = entries.filter((entry) =>
+    cocokPeriode(entry, currentPeriod)
+  );
+  const paidResidentCount = residents.filter((resident) =>
+    currentPeriodEntries.some((payment) => {
+      const sameId =
+        payment.residentId != null && resident.id != null &&
+        String(payment.residentId) === String(resident.id);
+
+      const paymentName = String(payment.resident || "").trim().toLocaleLowerCase("id-ID");
+      const residentName = String(resident.name || "").trim().toLocaleLowerCase("id-ID");
+      const sameName = Boolean(paymentName && residentName && paymentName === residentName);
+
+      const paymentBlock = String(payment.block || "").trim().toLocaleUpperCase("id-ID");
+      const residentBlock = String(resident.block || "").trim().toLocaleUpperCase("id-ID");
+      const paymentSubBlock = String(payment.subBlock || "").trim().toLocaleUpperCase("id-ID");
+      const residentSubBlock = String(resident.subBlock || "").trim().toLocaleUpperCase("id-ID");
+      const sameAddress = Boolean(
+        paymentBlock && residentBlock && paymentBlock === residentBlock &&
+        paymentSubBlock && residentSubBlock && paymentSubBlock === residentSubBlock
+      );
+
+      return sameId || sameName || sameAddress;
+    })
+  ).length;
   const paidPercent = residents.length
     ? Math.round((paidResidentCount / residents.length) * 100)
     : 0;
@@ -2503,7 +2748,7 @@ function Overview({
         value={`${paidResidentCount} / ${residents.length}`}
         icon={Users}
         tone="gold"
-        meta={residents.length ? `${paidPercent}% warga tercatat membayar` : "Belum ada data warga"}
+        meta={residents.length ? `${paidPercent}% warga membayar pada ${currentPeriod}` : "Belum ada data warga"}
       />
     </div>
     <section className="home-shortcuts" aria-label="Menu lainnya">
@@ -3396,4 +3641,4 @@ const filteredEntries = searchedRows.filter((entry) => {
   </div>;
 })()}
 </section>; }
-function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><ThemedDropdown className="resident-filter" value={residentFilter} onChange={(nextValue) => { setResidentFilter(nextValue); setResidentSubFilter("Semua sub blok"); }} ariaLabel="Filter berdasarkan blok" options={[{value:"Semua blok",label:"Semua blok"}, ...blocks.map(b=>({value:b,label:`Blok ${b}`}))]} /><ThemedDropdown className="resident-filter" value={residentSubFilter} onChange={setResidentSubFilter} ariaLabel="Filter berdasarkan sub blok" options={[{value:"Semua sub blok",label:"Semua sub blok"}, ...subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb=>({value:sb,label:sb}))]} /><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
+function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><ThemedDropdown className="resident-filter resident-block-filter" value={residentFilter} onChange={(nextValue) => { setResidentFilter(nextValue); setResidentSubFilter("Semua sub blok"); }} ariaLabel="Filter berdasarkan blok" options={[{value:"Semua blok",label:"Semua blok"}, ...blocks.map(b=>({value:b,label:`Blok ${b}`}))]} /><ThemedDropdown className="resident-filter resident-subblock-filter" value={residentSubFilter} onChange={setResidentSubFilter} ariaLabel="Filter berdasarkan sub blok" options={[{value:"Semua sub blok",label:"Semua sub blok"}, ...subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb=>({value:sb,label:sb}))]} /><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
