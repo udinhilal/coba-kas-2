@@ -3145,6 +3145,132 @@ tbody tr:hover { background: #F8FAFC !important; }
   }
 }
 
+
+/* Tampilan filter status & blok yang dicetak (nilai aktif, bukan kontrol interaktif). */
+.recap-print-filters { display:none !important; }
+
+@media print {
+  /* Kontrol periode dan tombol ekspor tidak ikut tercetak. */
+  .app-shell .recap-page .recap-banner .recap-actions,
+  .app-shell .recap-page .recap-banner .recap-actions * { display:none !important; }
+  .app-shell .recap-page .recap-detail-head .recap-detail-toolbar { display:none !important; }
+
+  .app-shell .recap-page .recap-print-filters {
+    display:flex !important; align-items:center !important; justify-content:flex-end !important;
+    flex-wrap:wrap !important; gap:6px !important; width:100% !important;
+    margin:-1px 0 6px !important; padding:0 !important;
+    color:#475569 !important; font-size:7.5pt !important; line-height:1.2 !important;
+  }
+  .app-shell .recap-page .recap-print-filters > span {
+    display:inline-block !important; padding:3px 6px !important;
+    border:1px solid #DCE5EF !important; border-radius:4px !important;
+    background:#F8FAFC !important; color:#334155 !important; white-space:nowrap !important;
+  }
+  .app-shell .recap-page .recap-print-filters b { color:#173B65 !important; font-weight:700 !important; }
+
+  /* PDF mengikuti ukuran dan susunan ringkas pada JPG HD. */
+  .app-shell .recap-page .recap-banner {
+    display:block !important; min-height:0 !important; height:auto !important;
+    margin:0 0 8px !important; padding:10px 12px !important;
+    border:1px solid #BFDBFE !important; border-radius:7px !important;
+    background:#EFF6FF !important; color:#102A43 !important; box-shadow:none !important;
+    break-inside:avoid !important; page-break-inside:avoid !important;
+  }
+  .app-shell .recap-page .recap-banner h2 {
+    margin:2px 0 4px !important; color:#102A43 !important;
+    font-size:17pt !important; line-height:1.2 !important;
+  }
+  .app-shell .recap-page .recap-banner p {
+    margin:2px 0 0 !important; color:#475569 !important; font-size:8.5pt !important;
+  }
+  .app-shell .recap-page .recap-banner .eyebrow {
+    color:#245789 !important; font-size:7pt !important; line-height:1.15 !important;
+  }
+  .app-shell .recap-page .recap-grid {
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    align-items:start !important; gap:7px !important; margin:7px 0 8px !important;
+  }
+  .app-shell .recap-page .recap-grid > .big-card {
+    display:block !important; align-self:start !important;
+    width:auto !important; min-width:0 !important; min-height:0 !important; height:auto !important;
+    margin:0 !important; padding:7px 8px !important;
+    border:1px solid #DCE5EF !important; border-radius:6px !important;
+    background:#FFFFFF !important; color:#20352E !important; box-shadow:none !important;
+    break-inside:avoid !important; page-break-inside:avoid !important;
+  }
+  .app-shell .recap-page .recap-grid > .big-card .eyebrow {
+    display:block !important; margin:0 0 2px !important;
+    color:#245789 !important; font-size:7pt !important; line-height:1.15 !important;
+  }
+  .app-shell .recap-page .recap-grid > .big-card strong {
+    display:block !important; margin:1px 0 !important; color:#102A43 !important;
+    font-size:13pt !important; line-height:1.12 !important;
+  }
+  .app-shell .recap-page .recap-grid > .big-card small {
+    display:block !important; margin:0 !important; color:#52665D !important;
+    font-size:7.5pt !important; line-height:1.15 !important;
+  }
+  .app-shell .recap-page .recap-grid .bar {
+    height:4px !important; margin:3px 0 !important; background:#DBEAFE !important;
+  }
+  .app-shell .recap-page .recap-grid .bar i { background:#2563EB !important; }
+  .app-shell .recap-page .recap-income-details {
+    display:flex !important; flex-direction:column !important; gap:0 !important;
+    margin:4px 0 0 !important; padding-top:4px !important;
+    border-top:1px solid #E2E8F0 !important; line-height:1.15 !important;
+  }
+  .app-shell .recap-page .recap-income-details > div {
+    display:flex !important; align-items:center !important; justify-content:space-between !important;
+    gap:8px !important; min-height:0 !important; padding:2px 0 !important;
+    line-height:1.15 !important; font-size:7.2pt !important;
+  }
+  .app-shell .recap-page .recap-income-details span,
+  .app-shell .recap-page .recap-income-details b {
+    color:#52665D !important; font-size:7.2pt !important; line-height:1.15 !important;
+  }
+  .app-shell .recap-page .recap-income-details b {
+    color:#173B65 !important; font-weight:700 !important; white-space:nowrap !important;
+  }
+  .app-shell .recap-page .recap-detail-head {
+    display:flex !important; justify-content:space-between !important; align-items:flex-end !important;
+    gap:8px !important; margin:7px 0 4px !important; padding-bottom:4px !important;
+    border-bottom:1px solid #DCE5EF !important;
+  }
+  .app-shell .recap-page .recap-detail-head h2 {
+    margin:1px 0 2px !important; color:#102A43 !important;
+    font-size:10.5pt !important; line-height:1.2 !important;
+  }
+  .app-shell .recap-page .recap-detail-head .eyebrow {
+    color:#245789 !important; font-size:7pt !important; line-height:1.1 !important;
+  }
+  .app-shell .recap-page .recap-payment-card {
+    display:block !important; width:100% !important; min-width:0 !important; max-width:100% !important;
+    margin:0 !important; padding:0 !important; overflow:visible !important;
+    border:1px solid #DCE5EF !important; border-radius:6px !important;
+    background:#FFFFFF !important; box-shadow:none !important;
+  }
+  .app-shell .recap-page .recap-payment-table {
+    display:table !important; width:100% !important; min-width:0 !important; max-width:100% !important;
+    margin:0 !important; border-collapse:collapse !important; table-layout:fixed !important;
+    font-size:7pt !important;
+  }
+  .app-shell .recap-page .recap-payment-table th,
+  .app-shell .recap-page .recap-payment-table td {
+    padding:4px !important; line-height:1.2 !important; white-space:normal !important;
+    overflow-wrap:anywhere !important; vertical-align:top !important; border-bottom:1px solid #E2EAE5 !important;
+  }
+  .app-shell .recap-page .recap-payment-table th {
+    color:#475569 !important; background:#F1F5F9 !important;
+    font-size:6.5pt !important; font-weight:700 !important;
+  }
+  .app-shell .recap-page .recap-payment-table .status-paid,
+  .app-shell .recap-page .recap-payment-table .status-unpaid,
+  .app-shell .recap-page .recap-payment-table .block-tag {
+    display:inline-block !important; padding:2px 4px !important; border-radius:4px !important;
+    font-size:6.5pt !important; white-space:nowrap !important;
+  }
+}
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -4496,7 +4622,7 @@ const exportRecapJpgHD = async (period) => {
     }
     .recap-jpg-capture .recap-grid {
       display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important;
-      gap:7px!important; margin:7px 0 10px!important;
+      align-items:start!important; gap:7px!important; margin:7px 0 8px!important;
     }
     .recap-jpg-capture .big-card {
       min-width:0!important; min-height:0!important; height:auto!important;
@@ -4570,6 +4696,31 @@ const exportRecapJpgHD = async (period) => {
       color:#173B65!important; background:#EFF6FF!important; border:1px solid #BFDBFE!important;
     }
     .recap-jpg-capture .empty-table { color:#64748B!important; }
+
+    /* Kartu ringkasan JPG HD dibuat lebih ringkas. */
+    .recap-jpg-capture .big-card {
+      align-self:start!important; display:block!important; padding:7px 8px!important;
+    }
+    .recap-jpg-capture .big-card .eyebrow {
+      display:block!important; margin:0 0 2px!important; line-height:1.15!important;
+    }
+    .recap-jpg-capture .big-card strong {
+      margin:1px 0!important; line-height:1.12!important;
+    }
+    .recap-jpg-capture .big-card small {
+      display:block!important; margin:0!important; line-height:1.15!important;
+    }
+    .recap-jpg-capture .bar { margin:3px 0!important; }
+    .recap-jpg-capture .recap-income-details {
+      margin:4px 0 0!important; padding-top:4px!important; gap:0!important; line-height:1.15!important;
+    }
+    .recap-jpg-capture .recap-income-details > div {
+      min-height:0!important; padding:2px 0!important; line-height:1.15!important; font-size:7.2pt!important;
+    }
+    .recap-jpg-capture .recap-income-details span,
+    .recap-jpg-capture .recap-income-details b {
+      font-size:7.2pt!important; line-height:1.15!important;
+    }
   `;
 
   host.appendChild(printLikeStyle);
@@ -4858,6 +5009,10 @@ return <section className="content recap-page"><div className="recap-banner"><di
     />
 
   </div>
+</div>
+<div className="recap-print-filters" aria-label="Filter rekap yang digunakan saat dicetak">
+  <span><b>Status pembayaran:</b> {recapStatusFilter === "semua" ? "Semua status" : recapStatusFilter === "lunas" ? "Lunas" : "Belum lunas"}</span>
+  <span><b>Blok:</b> {recapBlockFilter === "semua" ? "Semua blok" : `Blok ${recapBlockFilter}`}</span>
 </div>
 <div className="table-card recap-payment-card"><table className="recap-payment-table"><thead><tr><th>Tanggal</th><th>Nama warga</th><th>Periode</th><th>Blok</th><th>Kebersihan</th><th>Kas RT</th><th>Iuran lainnya</th><th>Total</th><th>Status</th></tr></thead><tbody>{filteredEntries.length ? (
   filteredEntries.map((e) => (
