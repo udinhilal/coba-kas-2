@@ -4581,7 +4581,7 @@ const exportRecapJpgHD = async (period) => {
   clone.classList.add("recap-jpg-capture");
   // Lebar area konten dibuat setara area cetak A4 (margin kiri/kanan 10 mm).
   // Margin atas/bawah diterapkan lagi pada setiap kanvas halaman di bawah.
-  clone.style.cssText = "width:794px!important;min-width:794px!important;max-width:794px!important;margin:0!important;padding:0 16px!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important;";
+  clone.style.cssText = "width:794px!important;min-width:794px!important;max-width:794px!important;margin:0!important;padding:0 24px!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important;";
 
   // PDF tidak menampilkan kontrol filter, tombol, maupun popup detail.
   clone.querySelectorAll(
@@ -4599,7 +4599,7 @@ const exportRecapJpgHD = async (period) => {
     }
     .recap-jpg-capture {
       display:block!important; width:794px!important; min-width:794px!important;
-      max-width:794px!important; margin:0!important; padding:0 16px!important;
+      max-width:794px!important; margin:0!important; padding:0 24px!important;
       color:#20352E!important; background:#FFFFFF!important; overflow:visible!important;
       font-size:9pt!important;
     }
@@ -4737,7 +4737,7 @@ const exportRecapJpgHD = async (period) => {
     const marginY = 118; // sekitar 10 mm pada 300 DPI
     const contentWidth = pageWidth - (marginX * 2);
     const pageContentHeight = pageHeight - (marginY * 2);
-    const cssContentWidth = 794 - (56 * 2);
+    const cssContentWidth = 794 - (24 * 2);
     const scale = contentWidth / cssContentWidth;
     const fullCanvas = await html2canvas(clone, {
       backgroundColor: "#FFFFFF",
