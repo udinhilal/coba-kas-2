@@ -2859,6 +2859,292 @@ tbody tr:hover { background: #F8FAFC !important; }
   .recap-export-notice { padding: 21px 19px; border-radius: 17px; }
 }
 
+
+/* =========================================================
+   FINAL FIX REKAP MOBILE:
+   - Pembungkus filter bukan label kontrol bawaan.
+   - Hanya satu bingkai dan satu ikon panah pada dropdown custom.
+   - Dialog ekspor memakai tampilan aplikasi Navy + Putih.
+   ========================================================= */
+.recap-page .recap-banner .recap-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.recap-page .recap-banner .recap-period-label {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 7px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: #DBEAFE !important;
+  font: 600 13px/1.35 Inter, sans-serif !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+.recap-page .recap-period-label::before,
+.recap-page .recap-period-label::after,
+.recap-page .recap-period-title::before,
+.recap-page .recap-period-title::after,
+.recap-page .recap-period-select::before,
+.recap-page .recap-period-select::after,
+.recap-page .recap-period-select .themed-dropdown-trigger::before,
+.recap-page .recap-period-select .themed-dropdown-trigger::after {
+  content: none !important;
+  display: none !important;
+}
+.recap-page .recap-period-title {
+  display: block !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #DBEAFE !important;
+  font: 600 13px/1.35 Inter, sans-serif !important;
+}
+.recap-page .recap-period-select {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+.recap-page .recap-period-select .themed-dropdown-trigger {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+  margin: 0 !important;
+  padding: 0 13px !important;
+  border: 1px solid #C9D8E8 !important;
+  border-radius: 10px !important;
+  background: #FFFFFF !important;
+  background-image: none !important;
+  box-shadow: 0 1px 3px rgba(16,42,67,.05) !important;
+  color: #102A43 !important;
+  font: 600 14px/1.25 Inter, sans-serif !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+.recap-page .recap-period-select .themed-dropdown-value {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: calc(100% - 30px) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.recap-page .recap-period-select .themed-dropdown-trigger > svg {
+  display: block !important;
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
+  color: #173B65 !important;
+  transform: none;
+}
+.recap-page .recap-period-select.is-open .themed-dropdown-trigger > svg {
+  transform: rotate(180deg) !important;
+}
+.recap-page .recap-actions > button {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 44px !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+/* Dialog ekspor JPG HD: gaya dialog aplikasi, bukan dialog alamat situs. */
+.recap-export-notice-backdrop {
+  z-index: 100120 !important;
+  padding: 18px !important;
+  background: rgba(10, 27, 46, .62) !important;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.recap-export-notice {
+  width: min(100%, 410px) !important;
+  padding: 0 22px 22px !important;
+  overflow: hidden !important;
+  border: 1px solid #DCE5EF !important;
+  border-radius: 20px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 24px 65px rgba(7, 25, 45, .28) !important;
+}
+.recap-export-notice::before {
+  content: "KAS WARGA  ·  RT 26 / RW 04";
+  display: block;
+  margin: 0 -22px 20px;
+  padding: 17px 22px;
+  background: linear-gradient(120deg, #102A43, #173B65 68%, #2563A6);
+  color: #FFFFFF;
+  font: 700 12px/1.3 Inter, sans-serif;
+  letter-spacing: .07em;
+}
+.recap-export-notice-icon {
+  width: 54px !important;
+  height: 54px !important;
+  margin: 0 0 12px !important;
+  border-radius: 16px !important;
+}
+.recap-export-notice h3 {
+  margin: 5px 0 8px !important;
+  color: #102A43 !important;
+  font-size: 19px !important;
+  font-weight: 800 !important;
+}
+.recap-export-notice p {
+  margin: 0 0 20px !important;
+  color: #64748B !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+.recap-export-notice .primary-btn {
+  min-height: 46px !important;
+  border-radius: 11px !important;
+  background: #173B65 !important;
+  border-color: #173B65 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+@media screen and (max-width: 760px) {
+  .recap-page .recap-banner {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 13px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 17px !important;
+    box-sizing: border-box !important;
+  }
+  .recap-page .recap-banner > div,
+  .recap-page .recap-actions,
+  .recap-page .recap-period-label,
+  .recap-page .recap-period-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .recap-page .recap-period-select .themed-dropdown-trigger {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+  }
+  .recap-export-notice {
+    padding: 0 19px 19px !important;
+    border-radius: 19px !important;
+  }
+  .recap-export-notice::before {
+    margin: 0 -19px 18px;
+    padding: 16px 19px;
+  }
+}
+
+
+/* FINAL MOBILE ACTION LAYOUT:
+   PDF dan JPG HD berdampingan, Excel tetap satu baris penuh. */
+.recap-page .recap-banner .recap-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.recap-page .recap-banner .recap-actions .recap-period-label {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.recap-page .recap-banner .recap-actions > button:nth-of-type(1) {
+  grid-column: 1 / -1 !important;
+}
+.recap-page .recap-banner .recap-actions > button:nth-of-type(2) {
+  grid-column: 1 !important;
+}
+.recap-page .recap-banner .recap-actions > button:nth-of-type(3) {
+  grid-column: 2 !important;
+}
+.recap-page .recap-banner .recap-actions > button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 43px !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+  padding: 9px 7px !important;
+  white-space: normal !important;
+  text-align: center !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+}
+.recap-page .recap-banner .recap-actions > button svg {
+  flex: 0 0 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+@media screen and (max-width: 760px) {
+  .recap-page .recap-banner .recap-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .recap-page .recap-banner .recap-actions .recap-period-label {
+    grid-column: 1 / -1 !important;
+  }
+  .recap-page .recap-banner .recap-actions > button:nth-of-type(1) {
+    grid-column: 1 / -1 !important;
+  }
+  .recap-page .recap-banner .recap-actions > button:nth-of-type(2) {
+    grid-column: 1 !important;
+  }
+  .recap-page .recap-banner .recap-actions > button:nth-of-type(3) {
+    grid-column: 2 !important;
+  }
+}
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -4169,7 +4455,7 @@ const exportRecapJpgHD = async (period) => {
   clone.classList.add("recap-jpg-capture");
   // Lebar area konten dibuat setara area cetak A4 (margin kiri/kanan 10 mm).
   // Margin atas/bawah diterapkan lagi pada setiap kanvas halaman di bawah.
-  clone.style.cssText = "width:794px!important;min-width:794px!important;max-width:794px!important;margin:0!important;padding:0 38px!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important;";
+  clone.style.cssText = "width:794px!important;min-width:794px!important;max-width:794px!important;margin:0!important;padding:0 56px!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important;";
 
   // PDF tidak menampilkan kontrol filter, tombol, maupun popup detail.
   clone.querySelectorAll(
@@ -4187,7 +4473,7 @@ const exportRecapJpgHD = async (period) => {
     }
     .recap-jpg-capture {
       display:block!important; width:794px!important; min-width:794px!important;
-      max-width:794px!important; margin:0!important; padding:0 38px!important;
+      max-width:794px!important; margin:0!important; padding:0 56px!important;
       color:#20352E!important; background:#FFFFFF!important; overflow:visible!important;
       font-size:9pt!important;
     }
@@ -4296,11 +4582,11 @@ const exportRecapJpgHD = async (period) => {
 
     const pageWidth = 2480;
     const pageHeight = 3508;
-    const marginX = 118; // sekitar 10 mm pada 300 DPI
-    const marginY = 118; // sekitar 10 mm pada 300 DPI
+    const marginX = 177; // sekitar 15 mm pada 300 DPI
+    const marginY = 177; // sekitar 15 mm pada 300 DPI
     const contentWidth = pageWidth - (marginX * 2);
     const pageContentHeight = pageHeight - (marginY * 2);
-    const cssContentWidth = 794 - (38 * 2);
+    const cssContentWidth = 794 - (56 * 2);
     const scale = contentWidth / cssContentWidth;
     const fullCanvas = await html2canvas(clone, {
       backgroundColor: "#FFFFFF",
@@ -4482,7 +4768,7 @@ const handleExportJpgHD = async () => {
     setIsExportingJpg(false);
   }
 };
-return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><label className="recap-period-label">Pilih bulan<ThemedDropdown className="recap-period-select" value={recapPeriod} onChange={setRecapPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} ariaLabel="Pilih bulan rekap" /></label><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status")}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button><button className="outline-light" type="button" onClick={handleExportJpgHD} disabled={isExportingJpg}><FileText size={16} /> {isExportingJpg ? "Menyiapkan JPG HD..." : "Ekspor JPG HD"}</button></div></div><div className="recap-grid">
+return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><div className="recap-period-label"><span className="recap-period-title">Pilih bulan</span><ThemedDropdown className="recap-period-select" value={recapPeriod} onChange={setRecapPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} ariaLabel="Pilih bulan rekap" /></div><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status")}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button><button className="outline-light" type="button" onClick={handleExportJpgHD} disabled={isExportingJpg}><FileText size={16} /> {isExportingJpg ? "Menyiapkan JPG HD..." : "Ekspor JPG HD"}</button></div></div><div className="recap-grid">
   {/* Kartu total terkumpul */}
   <div className="big-card recap-total-card">
     <span className="eyebrow">Total terkumpul</span>
