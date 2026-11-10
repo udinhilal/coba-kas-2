@@ -4733,8 +4733,8 @@ const exportRecapJpgHD = async (period) => {
 
     const pageWidth = 2480;
     const pageHeight = 3508;
-    const marginX = 177; // sekitar 15 mm pada 300 DPI
-    const marginY = 177; // sekitar 15 mm pada 300 DPI
+    const marginX = 154; // sekitar 13 mm pada 300 DPI
+    const marginY = 154; // sekitar 13 mm pada 300 DPI
     const contentWidth = pageWidth - (marginX * 2);
     const pageContentHeight = pageHeight - (marginY * 2);
     const cssContentWidth = 794 - (56 * 2);
