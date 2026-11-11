@@ -4678,7 +4678,7 @@ function ResidentReport({
               groupedIncome.map((item, index) => (
                 <tr key={`${item.block}-${item.period}-${index}`}>
                   <td>
-                    Pemasukan iuran dari blok {item.block}
+                    Pemasukan iuran blok {item.block}
                     {" "}periode {item.period}
                   </td>
 
