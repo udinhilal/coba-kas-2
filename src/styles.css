@@ -1068,3 +1068,126 @@ select:disabled {
   }
 
 }
+
+
+
+/* KARTU RINGKAS MOBILE — LAPORAN & RINGKASAN PUBLIK */
+@media screen and (max-width: 760px) {
+  .report-page .report-stats {
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    align-items:stretch !important;
+    gap:8px !important;
+    width:100% !important;
+    margin:12px 0 18px !important;
+  }
+  .report-page .report-stats > div {
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    gap:5px !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    width:auto !important;
+    margin:0 !important;
+    padding:12px 10px !important;
+    border:1px solid #DCE5EF !important;
+    border-radius:13px !important;
+    background:#FFFFFF !important;
+    box-shadow:0 4px 14px rgba(16,42,67,.045) !important;
+  }
+  .report-page .report-stats > div:nth-child(1) {
+    background:#EFF6FF !important;
+    border-color:#DBEAFE !important;
+  }
+  .report-page .report-stats > div:nth-child(2) {
+    background:#FEF2F2 !important;
+    border-color:#FEE2E2 !important;
+  }
+  .report-page .report-stats > div:nth-child(3) {
+    grid-column:1 / -1 !important;
+    background:#EAF3FC !important;
+    border-color:#CFE0F3 !important;
+  }
+  .report-page .report-stats span {
+    display:block !important;
+    margin:0 !important;
+    color:#52657A !important;
+    font-size:11px !important;
+    font-weight:700 !important;
+    line-height:1.25 !important;
+    letter-spacing:0 !important;
+  }
+  .report-page .report-stats b {
+    display:block !important;
+    margin:0 !important;
+    color:#173B65 !important;
+    font-family:Inter,sans-serif !important;
+    font-size:clamp(15px,4.2vw,18px) !important;
+    font-weight:800 !important;
+    line-height:1.2 !important;
+    overflow-wrap:anywhere !important;
+  }
+
+  .public-summary .public-kpis {
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    align-items:stretch !important;
+    gap:8px !important;
+    width:100% !important;
+    margin:12px 0 16px !important;
+  }
+  .public-summary .public-kpi {
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    gap:5px !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:12px 10px !important;
+    border-radius:13px !important;
+    box-shadow:0 4px 14px rgba(16,42,67,.045) !important;
+  }
+  .public-summary .public-kpi.income {
+    background:#EFF6FF !important;
+    border-color:#DBEAFE !important;
+  }
+  .public-summary .public-kpi.expense {
+    background:#FEF2F2 !important;
+    border-color:#FEE2E2 !important;
+  }
+  .public-summary .public-kpi.balance {
+    grid-column:1 / -1 !important;
+    background:#EAF3FC !important;
+    border-color:#CFE0F3 !important;
+  }
+  .public-summary .public-kpi span {
+    display:block !important;
+    margin:0 !important;
+    color:#52657A !important;
+    font-size:11px !important;
+    font-weight:700 !important;
+    letter-spacing:0 !important;
+    line-height:1.25 !important;
+  }
+  .public-summary .public-kpi strong {
+    display:block !important;
+    margin:0 !important;
+    font-family:Inter,sans-serif !important;
+    font-size:clamp(15px,4.2vw,18px) !important;
+    font-weight:800 !important;
+    line-height:1.2 !important;
+    overflow-wrap:anywhere !important;
+  }
+  .public-summary .public-kpi small {
+    display:block !important;
+    margin:0 !important;
+    color:#718096 !important;
+    font-size:10px !important;
+    line-height:1.25 !important;
+  }
+  .public-summary .public-kpi.balance strong {
+    color:#173B65 !important;
+  }
+}

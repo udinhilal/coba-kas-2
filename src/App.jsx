@@ -185,6 +185,19 @@ const exportExcel = (
     { origin: -1 }
   );
 
+  // Lebarkan baris identitas ke seluruh lebar tabel Excel.
+  worksheet["!merges"] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } },
+  ];
+  worksheet["!rows"] = [
+    { hpt: 24 },
+    { hpt: 19 },
+    { hpt: 18 },
+    { hpt: 8 },
+  ];
+
   worksheet["!cols"] = [
     { wch: 6 },
     { wch: 24 },
@@ -3341,6 +3354,28 @@ tbody tr:hover { background: #F8FAFC !important; }
           .identity-save-btn { width:100%; justify-content:center; }
         }
 
+
+        @media print {
+          .recap-page .community-report-identity {
+            display:block !important;
+            margin:4px 0 0 !important;
+            color:#244563 !important;
+            font-size:8pt !important;
+            font-weight:700 !important;
+            line-height:1.3 !important;
+          }
+          .report-page .report-kicker,
+          .public-summary .public-heading p,
+          .public-summary .public-footer span:first-child {
+            color:#244563 !important;
+            font-weight:700 !important;
+          }
+          .report-page .report-community-location {
+            color:#52677F !important;
+            font-size:8.5pt !important;
+          }
+        }
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -4812,6 +4847,11 @@ const exportRecapJpgHD = async (period) => {
     }
     .recap-jpg-capture .recap-banner .eyebrow {
       color:#245789!important; font-size:7pt!important; font-weight:700!important;
+    }
+    .recap-jpg-capture .community-report-identity {
+      display:block!important; margin:4px 0 0!important; padding:0!important;
+      color:#244563!important; font-size:8pt!important; font-weight:700!important;
+      line-height:1.3!important; overflow-wrap:anywhere!important;
     }
     .recap-jpg-capture .recap-grid {
       display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important;
