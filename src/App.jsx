@@ -71,6 +71,22 @@ const seedEntries = [
   { id: 3, date: "18 Okt 2026", resident: "Andi Wijaya", block: "B", clean: 15000, kas: 10000, other: 0 },
   { id: 4, date: "16 Okt 2026", resident: "Rina Kartika", block: "B", clean: 15000, kas: 10000, other: 0 },
 ];
+const DEFAULT_COMMUNITY_IDENTITY = {
+  rtNumber: "26",
+  rwNumber: "04",
+  kelurahan: "",
+  kecamatan: "",
+  kabupatenKota: "",
+};
+const getCommunityIdentityLine = (identity = DEFAULT_COMMUNITY_IDENTITY) =>
+  `RT ${String(identity.rtNumber || "26").trim()} / RW ${String(identity.rwNumber || "04").trim()}`;
+const getCommunityLocationLine = (identity = DEFAULT_COMMUNITY_IDENTITY) =>
+  [
+    identity.kelurahan ? `Kel. ${String(identity.kelurahan).trim()}` : "",
+    identity.kecamatan ? `Kec. ${String(identity.kecamatan).trim()}` : "",
+    identity.kabupatenKota ? String(identity.kabupatenKota).trim() : "",
+  ].filter(Boolean).join(" · ");
+
 const STORAGE_KEY = "kas-warga-rt-data-v1";
 const readStored = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch { return null; } };
 const money = (n) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
@@ -108,7 +124,9 @@ const sortPaymentEntries = (items = []) =>
 const exportExcel = (
   entries,
   period = "Semua periode",
-  fileLabel = ""
+  fileLabel = "",
+  communityIdentityLine = "RT 26 / RW 04",
+  communityLocationLine = ""
 ) => {
   // Urutkan data sebelum diekspor
   const sortedEntries = sortPaymentEntries(entries);
@@ -145,7 +163,13 @@ const exportExcel = (
     Status: e.status || "Lunas",
   }));
 
-  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const worksheet = XLSX.utils.aoa_to_sheet([
+    ["KAS WARGA"],
+    [communityIdentityLine],
+    [communityLocationLine],
+    [],
+  ]);
+  XLSX.utils.sheet_add_json(worksheet, rows, { origin: "A5" });
 
   // Tambahkan ringkasan total di bawah tabel pembayaran
   XLSX.utils.sheet_add_aoa(
@@ -214,6 +238,12 @@ export default function App({ user, onSignOut }) {
   const [openingBalance, setOpeningBalance] = useState(stored?.openingBalance ?? 0);
   const [manualAdjustment, setManualAdjustment] = useState(stored?.manualAdjustment ?? 0);
   const [balanceHistory, setBalanceHistory] = useState(stored?.balanceHistory ?? []);
+  const [communityIdentity, setCommunityIdentity] = useState(() => ({
+    ...DEFAULT_COMMUNITY_IDENTITY,
+    ...(stored?.communityIdentity || {}),
+  }));
+  const communityIdentityLine = getCommunityIdentityLine(communityIdentity);
+  const communityLocationLine = getCommunityLocationLine(communityIdentity);
   const [expenseTitle, setExpenseTitle] = useState("");
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expensePeriod, setExpensePeriod] = useState(getPeriodeSekarang());
@@ -309,8 +339,8 @@ export default function App({ user, onSignOut }) {
     setEntries((current) => current.map((item) => item.resident ? item : { ...item, resident: residents.find((r) => r.block === item.block && r.subBlock === item.subBlock)?.name || "Nama belum diisi" }));
   }, []);
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory }));
-  }, [residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory, communityIdentity }));
+  }, [residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory, communityIdentity]);
 
   const total = useMemo(
     () => entries.reduce((sum, e) => sum + Number(e.clean || 0) + Number(e.kas || 0) + Number(e.other || 0), 0),
@@ -321,7 +351,7 @@ export default function App({ user, onSignOut }) {
     [openingBalance, total, cashOut, manualAdjustment]
   );
   const backupData = () => {
-    const payload = { app: "Kas Warga RT", version: 1, exportedAt: new Date().toISOString(), residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory };
+    const payload = { app: `Kas Warga ${communityIdentityLine}`, version: 1, exportedAt: new Date().toISOString(), residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory, communityIdentity };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob); const link = document.createElement("a");
     link.href = url; link.download = `backup-kas-rt-${new Date().toISOString().slice(0, 10)}.json`; link.click(); URL.revokeObjectURL(url);
@@ -335,7 +365,7 @@ export default function App({ user, onSignOut }) {
   const restoreData = (event) => {
     const file = event.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => { try { const data = JSON.parse(reader.result); if (!Array.isArray(data.residents) || !Array.isArray(data.entries)) throw new Error(); setResidents(data.residents); setEntries(data.entries); if (Number.isFinite(Number(data.openingBalance))) setOpeningBalance(Number(data.openingBalance)); if (Number.isFinite(Number(data.manualAdjustment))) setManualAdjustment(Number(data.manualAdjustment)); if (Array.isArray(data.balanceHistory)) setBalanceHistory(data.balanceHistory); setNotice("Data berhasil dipulihkan"); } catch { setNotice("File backup tidak valid"); } setTimeout(() => setNotice(""), 2600); event.target.value = ""; };
+    reader.onload = () => { try { const data = JSON.parse(reader.result); if (!Array.isArray(data.residents) || !Array.isArray(data.entries)) throw new Error(); setResidents(data.residents); setEntries(data.entries); if (Number.isFinite(Number(data.openingBalance))) setOpeningBalance(Number(data.openingBalance)); if (Number.isFinite(Number(data.manualAdjustment))) setManualAdjustment(Number(data.manualAdjustment)); if (Array.isArray(data.balanceHistory)) setBalanceHistory(data.balanceHistory); if (data.communityIdentity && typeof data.communityIdentity === "object") setCommunityIdentity({ ...DEFAULT_COMMUNITY_IDENTITY, ...data.communityIdentity }); setNotice("Data berhasil dipulihkan"); } catch { setNotice("File backup tidak valid"); } setTimeout(() => setNotice(""), 2600); event.target.value = ""; };
     reader.readAsText(file);
   };
   const addExpense = (event) => {
@@ -3008,7 +3038,7 @@ tbody tr:hover { background: #F8FAFC !important; }
   box-shadow: 0 24px 65px rgba(7, 25, 45, .28) !important;
 }
 .recap-export-notice::before {
-  content: "KAS WARGA  ·  RT 26 / RW 04";
+  content: "KAS WARGA";
   display: block;
   margin: 0 -22px 20px;
   padding: 17px 22px;
@@ -3271,6 +3301,46 @@ tbody tr:hover { background: #F8FAFC !important; }
   }
 }
 
+
+        .community-report-identity { display:block; margin-top:4px; color:#DBEAFE; font-size:11px; line-height:1.35; }
+        .report-community-location { margin:3px 0 0; color:#52677F; font-size:9pt; line-height:1.35; }
+        .community-location-label { display:block; max-width:220px; margin-top:2px; color:#93A9C1 !important; font-size:10px !important; line-height:1.3 !important; }
+        .identity-settings {
+          display:flex; flex-direction:column; gap:16px; margin:0 0 18px; padding:20px;
+          background:#FFFFFF; border:1px solid #DCE5EF; border-radius:14px;
+          box-shadow:0 5px 18px rgba(16,42,67,.045);
+        }
+        .identity-settings-heading h3 { margin:4px 0 5px; color:#102A43; font-size:18px; }
+        .identity-settings-heading p { margin:0; color:#64748B; font-size:13px; line-height:1.5; }
+        .identity-settings-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+        .identity-settings-grid label { display:flex; flex-direction:column; gap:6px; color:#334155; font-size:13px; font-weight:600; min-width:0; }
+        .identity-settings-grid input { width:100%; min-width:0; min-height:43px; box-sizing:border-box; padding:10px 12px; border:1px solid #DCE5EF; border-radius:9px; background:#fff; color:#1F2937; font:inherit; }
+        .identity-settings-grid .identity-wide { grid-column:1 / -1; }
+        .identity-preview { display:flex; flex-direction:column; gap:4px; padding:14px 16px; border:1px solid #BFDBFE; border-radius:11px; background:#EFF6FF; }
+        .identity-preview .eyebrow { color:#64748B !important; font-size:10px; letter-spacing:.08em; }
+        .identity-preview strong { color:#173B65; font-size:18px; letter-spacing:.03em; }
+        .identity-preview b { color:#173B65; font-size:15px; }
+        .identity-preview small { color:#52677F; font-size:12px; line-height:1.4; }
+        .identity-save-btn { align-self:flex-start; min-height:43px; }
+        .resident-print-title { display:none; }
+        @media print {
+          .resident-print-title {
+            display:block !important;
+            margin:0 0 12px !important;
+            padding:0 0 7px !important;
+            border-bottom:2px solid #173B65 !important;
+            color:#102A43 !important;
+            font:700 17pt/1.2 Arial, sans-serif !important;
+          }
+          .content.narrow .section-head:after { content:none !important; display:none !important; }
+        }
+        @media(max-width:600px) {
+          .identity-settings { padding:15px; gap:13px; }
+          .identity-settings-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+          .identity-settings-grid .identity-wide { grid-column:1 / -1; }
+          .identity-save-btn { width:100%; justify-content:center; }
+        }
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -3281,7 +3351,7 @@ tbody tr:hover { background: #F8FAFC !important; }
   />
 )}
       <aside className={`sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
-        <div className="brand"><Logo /><div><strong>kas warga</strong><small>RT 26 / RW 04</small></div></div>
+        <div className="brand"><Logo /><div><strong>kas warga</strong><small>{communityIdentityLine}</small>{communityLocationLine && <small className="community-location-label">{communityLocationLine}</small>}</div></div>
         <div className="side-label">Menu utama</div>
         <nav>
           {[["overview", Home, "Ringkasan"], ["input", ReceiptText, "Input pembayaran"], ["cashflow", WalletCards, "Arus keuangan"], ["recap", CalendarDays, "Rekap bulanan"], ["report", FileText, "Laporan warga"], ["public", Users, "Ringkasan publik"], ["residents", Users, "Data warga"]].map(([id, Icon, label]) => (
@@ -3359,6 +3429,7 @@ tbody tr:hover { background: #F8FAFC !important; }
 </header>
         {notice && <div className="toast"><span>✓</span>{notice}</div>}
         {active === "overview" && !settingsOpen && <Overview
+  communityIdentityLine={communityIdentityLine}
   entries={entries}
   cashOut={cashOut}
   residents={residents}
@@ -3371,6 +3442,8 @@ tbody tr:hover { background: #F8FAFC !important; }
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
         {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
         {active === "recap" && !settingsOpen && <Recap
+  communityIdentityLine={communityIdentityLine}
+  communityLocationLine={communityLocationLine}
   entries={entries}
   total={total}
   residents={residents}
@@ -3379,10 +3452,10 @@ tbody tr:hover { background: #F8FAFC !important; }
   startEditEntry={startEditEntry}
   deleteEntry={deleteEntry}
 />}
-        {active === "report" && !settingsOpen && <ResidentReport entries={entries} cashOut={cashOut} runningBalance={runningBalance} openingBalance={openingBalance} manualAdjustment={manualAdjustment} residents={residents} />}
-        {active === "public" && !settingsOpen && <PublicSummary entries={entries} cashOut={cashOut} openingBalance={openingBalance} manualAdjustment={manualAdjustment} />}
-        {settingsOpen && <SettingsPanel backupData={backupData} restoreData={restoreData} resetData={resetData} openingBalance={openingBalance} setOpeningBalance={setOpeningBalance} manualAdjustment={manualAdjustment} setManualAdjustment={setManualAdjustment} balanceHistory={balanceHistory} setBalanceHistory={setBalanceHistory} setNotice={setNotice} />}
-        {active === "residents" && !settingsOpen && <Residents {...{ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }} />}
+        {active === "report" && !settingsOpen && <ResidentReport entries={entries} cashOut={cashOut} runningBalance={runningBalance} openingBalance={openingBalance} manualAdjustment={manualAdjustment} residents={residents} communityIdentityLine={communityIdentityLine} communityLocationLine={communityLocationLine} />}
+        {active === "public" && !settingsOpen && <PublicSummary entries={entries} cashOut={cashOut} openingBalance={openingBalance} manualAdjustment={manualAdjustment} communityIdentityLine={communityIdentityLine} communityLocationLine={communityLocationLine} />}
+        {settingsOpen && <SettingsPanel backupData={backupData} restoreData={restoreData} resetData={resetData} openingBalance={openingBalance} setOpeningBalance={setOpeningBalance} manualAdjustment={manualAdjustment} setManualAdjustment={setManualAdjustment} balanceHistory={balanceHistory} setBalanceHistory={setBalanceHistory} setNotice={setNotice} communityIdentity={communityIdentity} setCommunityIdentity={setCommunityIdentity} communityIdentityLine={communityIdentityLine} communityLocationLine={communityLocationLine} />}
+        {active === "residents" && !settingsOpen && <Residents {...{ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter, communityIdentityLine, communityLocationLine }} />}
       </main>
       {confirmDialog && (
   <div
@@ -3498,19 +3571,136 @@ tbody tr:hover { background: #F8FAFC !important; }
 }
 
 function Logo({ large = false }) { return <span className={`brand-mark ${large ? "large" : ""}`} aria-label="Logo Kas Warga"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 10v28M12 24l20-14M12 24l21 14" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M29 10h7v7M30 38h6v-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M8 42h32" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity=".65"/></svg></span>; }
-function LoginScreen({ onLogin }) { return <main className="login-screen"><div className="login-art"><div className="login-orbit orbit-one" /><div className="login-orbit orbit-two" /><div className="login-sun" /><div className="login-logo-lockup"><Logo large /></div></div><section className="login-card"><div className="brand login-brand"><Logo /><div><strong>kas warga</strong><small>RT 26 / RW 04</small></div></div><span className="eyebrow">Ruang bendahara</span><h1>Kelola kas warga,<br/><em>tanpa ribet.</em></h1><p className="login-copy">Masuk untuk mencatat iuran, memantau arus kas, dan membagikan laporan yang transparan.</p><button className="login-btn" type="button" onClick={onLogin}>Masuk ke aplikasi <span>→</span></button><small className="login-note">Akses lokal untuk pengelola kas RT</small></section></main>; }
+function LoginScreen({ onLogin, communityIdentityLine = "RT 26 / RW 04", communityLocationLine = "" }) { return <main className="login-screen"><div className="login-art"><div className="login-orbit orbit-one" /><div className="login-orbit orbit-two" /><div className="login-sun" /><div className="login-logo-lockup"><Logo large /></div></div><section className="login-card"><div className="brand login-brand"><Logo /><div><strong>kas warga</strong><small>{communityIdentityLine}</small>{communityLocationLine && <small>{communityLocationLine}</small>}</div></div><span className="eyebrow">Ruang bendahara</span><h1>Kelola kas warga,<br/><em>tanpa ribet.</em></h1><p className="login-copy">Masuk untuk mencatat iuran, memantau arus kas, dan membagikan laporan yang transparan.</p><button className="login-btn" type="button" onClick={onLogin}>Masuk ke aplikasi <span>→</span></button><small className="login-note">Akses lokal untuk pengelola kas RT</small></section></main>; }
 
-function SettingsPanel({ backupData, restoreData, resetData, openingBalance, setOpeningBalance, manualAdjustment, setManualAdjustment, balanceHistory, setBalanceHistory, setNotice }) {
-  const saveBalanceChange = (event) => { event.preventDefault(); setBalanceHistory([{ id: Date.now(), date: "23 Okt 2026, 13:26", opening: openingBalance, correction: manualAdjustment }, ...balanceHistory]); setNotice("Perubahan saldo dicatat"); setTimeout(() => setNotice(""), 2200); };
+function SettingsPanel({
+  backupData, restoreData, resetData,
+  openingBalance, setOpeningBalance,
+  manualAdjustment, setManualAdjustment,
+  balanceHistory, setBalanceHistory, setNotice,
+  communityIdentity, setCommunityIdentity,
+  communityIdentityLine, communityLocationLine
+}) {
+  const [identityDraft, setIdentityDraft] = useState({
+    ...DEFAULT_COMMUNITY_IDENTITY,
+    ...(communityIdentity || {}),
+  });
+
+  useEffect(() => {
+    setIdentityDraft({
+      ...DEFAULT_COMMUNITY_IDENTITY,
+      ...(communityIdentity || {}),
+    });
+  }, [communityIdentity]);
+
+  const updateIdentityField = (field, value) =>
+    setIdentityDraft((current) => ({ ...current, [field]: value }));
+
+  const saveIdentity = (event) => {
+    event.preventDefault();
+    const nextIdentity = {
+      rtNumber: String(identityDraft.rtNumber || "").trim(),
+      rwNumber: String(identityDraft.rwNumber || "").trim(),
+      kelurahan: String(identityDraft.kelurahan || "").trim(),
+      kecamatan: String(identityDraft.kecamatan || "").trim(),
+      kabupatenKota: String(identityDraft.kabupatenKota || "").trim(),
+    };
+
+    if (!nextIdentity.rtNumber || !nextIdentity.rwNumber) {
+      setNotice("Nomor RT dan RW wajib diisi.");
+      setTimeout(() => setNotice(""), 2600);
+      return;
+    }
+    if (!/^[0-9A-Za-z.-]{1,5}$/.test(nextIdentity.rtNumber) ||
+        !/^[0-9A-Za-z.-]{1,5}$/.test(nextIdentity.rwNumber)) {
+      setNotice("Nomor RT dan RW maksimal 5 karakter.");
+      setTimeout(() => setNotice(""), 2600);
+      return;
+    }
+
+    setCommunityIdentity(nextIdentity);
+    setNotice("Identitas berhasil diperbarui. Perubahan akan disinkronkan ke Supabase.");
+    setTimeout(() => setNotice(""), 3200);
+  };
+
+  const saveBalanceChange = (event) => {
+    event.preventDefault();
+    setBalanceHistory([{ id: Date.now(), date: new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }), opening: openingBalance, correction: manualAdjustment }, ...balanceHistory]);
+    setNotice("Perubahan saldo dicatat");
+    setTimeout(() => setNotice(""), 2200);
+  };
+
   return <section className="content settings-panel">
-    <div className="form-intro"><div className="notebook-icon"><Settings2 size={25} /></div><div><h2>Pengaturan data</h2><p>Amankan data kas RT dengan backup berkala.</p></div></div>
-    <form className="balance-settings" onSubmit={saveBalanceChange}><div><span className="eyebrow">Saldo awal kas</span><h3>Atur saldo awal</h3><p>Nilai ini menjadi titik awal perhitungan saldo berjalan.</p></div><div className="settings-inputs"><label>Saldo awal<div className="input-money"><span>Rp</span><input type="number" min="0" value={openingBalance} onChange={e => setOpeningBalance(Number(e.target.value || 0))} /></div></label><label>Koreksi manual<div className="input-money"><span>Rp</span><input type="number" value={manualAdjustment} onChange={e => setManualAdjustment(Number(e.target.value || 0))} /></div></label><button className="primary-btn" type="submit"><Plus size={18} /> Simpan koreksi</button></div></form>
-    <div className="history-card"><div className="section-head"><div><span className="eyebrow">Audit saldo</span><h2>Riwayat perubahan</h2></div></div>{balanceHistory.length === 0 ? <p className="history-empty">Belum ada perubahan saldo atau koreksi.</p> : <div className="history-list">{balanceHistory.map(item => <div className="history-row" key={item.id}><span className="history-dot">↻</span><div><b>Saldo diperbarui</b><small>{item.date}</small></div><div className="history-values"><span>Awal: {money(item.opening)}</span><span>Koreksi: {item.correction >= 0 ? "+" : ""}{money(item.correction)}</span></div></div>)}</div>}</div>
-    <div className="backup-card"><div><span className="eyebrow">Backup dan pemulihan</span><h3>Simpan salinan data kas</h3><p>Backup menyimpan daftar warga dan seluruh catatan pembayaran dalam file JSON.</p></div><div className="backup-actions"><button className="primary-btn" onClick={backupData}><FileText size={17} /> Backup data</button><label className="restore-btn"><UploadIcon /> Pulihkan data<input type="file" accept="application/json,.json" onChange={restoreData} /></label></div></div><div className="tip"><span>✦</span><div><b>Saran aman</b><p>Simpan file backup di tempat aman dan buat salinan baru setelah ada perubahan penting.</p></div></div>
+    <div className="form-intro">
+      <div className="notebook-icon"><Settings2 size={25} /></div>
+      <div><h2>Pengaturan data</h2><p>Kelola identitas lingkungan dan data kas warga.</p></div>
+    </div>
+
+    <form className="identity-settings" onSubmit={saveIdentity}>
+      <div className="identity-settings-heading">
+        <span className="eyebrow">Identitas aplikasi</span>
+        <h3>Atur nama RT / RW</h3>
+        <p>Identitas ini digunakan pada halaman login, header aplikasi, laporan, dan hasil ekspor.</p>
+      </div>
+      <div className="identity-settings-grid">
+        <label>Nomor RT
+          <input type="text" inputMode="numeric" maxLength={5} value={identityDraft.rtNumber} onChange={(e) => updateIdentityField("rtNumber", e.target.value)} placeholder="Contoh: 26" required />
+        </label>
+        <label>Nomor RW
+          <input type="text" inputMode="numeric" maxLength={5} value={identityDraft.rwNumber} onChange={(e) => updateIdentityField("rwNumber", e.target.value)} placeholder="Contoh: 04" required />
+        </label>
+        <label>Desa / Kelurahan
+          <input type="text" maxLength={100} value={identityDraft.kelurahan} onChange={(e) => updateIdentityField("kelurahan", e.target.value)} placeholder="Nama desa atau kelurahan" />
+        </label>
+        <label>Kecamatan
+          <input type="text" maxLength={100} value={identityDraft.kecamatan} onChange={(e) => updateIdentityField("kecamatan", e.target.value)} placeholder="Nama kecamatan" />
+        </label>
+        <label className="identity-wide">Kabupaten / Kota
+          <input type="text" maxLength={100} value={identityDraft.kabupatenKota} onChange={(e) => updateIdentityField("kabupatenKota", e.target.value)} placeholder="Contoh: Kabupaten Malang" />
+        </label>
+      </div>
+      <div className="identity-preview">
+        <span className="eyebrow">Pratinjau identitas</span>
+        <strong>KAS WARGA</strong>
+        <b>RT {identityDraft.rtNumber || "—"} / RW {identityDraft.rwNumber || "—"}</b>
+        {(identityDraft.kelurahan || identityDraft.kecamatan || identityDraft.kabupatenKota) && (
+          <small>{[
+            identityDraft.kelurahan ? `Kel. ${identityDraft.kelurahan}` : "",
+            identityDraft.kecamatan ? `Kec. ${identityDraft.kecamatan}` : "",
+            identityDraft.kabupatenKota || "",
+          ].filter(Boolean).join(" · ")}</small>
+        )}
+      </div>
+      <button className="primary-btn identity-save-btn" type="submit"><Check size={18} /> Simpan identitas</button>
+    </form>
+
+    <form className="balance-settings" onSubmit={saveBalanceChange}>
+      <div><span className="eyebrow">Saldo awal kas</span><h3>Atur saldo awal</h3><p>Nilai ini menjadi titik awal perhitungan saldo berjalan.</p></div>
+      <div className="settings-inputs">
+        <label>Saldo awal<div className="input-money"><span>Rp</span><input type="number" min="0" value={openingBalance} onChange={e => setOpeningBalance(Number(e.target.value || 0))} /></div></label>
+        <label>Koreksi manual<div className="input-money"><span>Rp</span><input type="number" value={manualAdjustment} onChange={e => setManualAdjustment(Number(e.target.value || 0))} /></div></label>
+        <button className="primary-btn" type="submit"><Plus size={18} /> Simpan koreksi</button>
+      </div>
+    </form>
+
+    <div className="history-card">
+      <div className="section-head"><div><span className="eyebrow">Audit saldo</span><h2>Riwayat perubahan</h2></div></div>
+      {balanceHistory.length === 0 ? <p className="history-empty">Belum ada perubahan saldo atau koreksi.</p> : <div className="history-list">{balanceHistory.map(item => <div className="history-row" key={item.id}><span className="history-dot">↻</span><div><b>Saldo diperbarui</b><small>{item.date}</small></div><div className="history-values"><span>Awal: {money(item.opening)}</span><span>Koreksi: {item.correction >= 0 ? "+" : ""}{money(item.correction)}</span></div></div>)}</div>}
+    </div>
+
+    <div className="backup-card">
+      <div><span className="eyebrow">Backup dan pemulihan</span><h3>Simpan salinan data kas</h3><p>Backup menyimpan identitas lingkungan, daftar warga, dan seluruh catatan pembayaran dalam file JSON.</p></div>
+      <div className="backup-actions">
+        <button className="primary-btn" onClick={backupData}><FileText size={17} /> Backup data</button>
+        <label className="restore-btn"><UploadIcon /> Pulihkan data<input type="file" accept="application/json,.json" onChange={restoreData} /></label>
+      </div>
+    </div>
+    <div className="tip"><span>✦</span><div><b>Saran aman</b><p>Simpan file backup di tempat aman dan buat salinan baru setelah ada perubahan penting.</p></div></div>
   </section>;
 }
 function UploadIcon() { return <span className="upload-icon">↥</span>; }
 function Overview({
+  communityIdentityLine = "RT 26 / RW 04",
   entries = [],
   cashOut = [],
   runningBalance,
@@ -4272,7 +4462,9 @@ function ResidentReport({
   cashOut,
   runningBalance,
   openingBalance = 0,
-  manualAdjustment = 0
+  manualAdjustment = 0,
+  communityIdentityLine = "RT 26 / RW 04",
+  communityLocationLine = ""
 }) {
   const [reportPeriod, setReportPeriod] = useState(getPeriodeSekarang());
 
@@ -4375,7 +4567,7 @@ function ResidentReport({
           <span className="eyebrow">Dokumen warga</span>
           <h2>Laporan Pertanggungjawaban</h2>
           <p className="subcopy">
-            Ringkasan kas RT 26 / RW 04.
+            Ringkasan kas {communityIdentityLine}.
           </p>
         </div>
 
@@ -4405,8 +4597,9 @@ function ResidentReport({
         <div className="report-heading">
           <div>
             <div className="report-kicker">
-              RT 26 / RW 04
+              {communityIdentityLine}
             </div>
+            {communityLocationLine && <p className="report-community-location">{communityLocationLine}</p>}
 
             <h1>Laporan Pertanggungjawaban Kas</h1>
 
@@ -4508,7 +4701,7 @@ function ResidentReport({
     </section>
   );
 }
-function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
+function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment, communityIdentityLine = "RT 26 / RW 04", communityLocationLine = "" }) {
   const [period, setPeriod] = useState(getPeriodeSekarang());
   const periodEntries = entries.filter((e) => cocokPeriode(e, period));
   const periodExpenses = cashOut.filter((e) => cocokPeriode(e, period));
@@ -4519,11 +4712,11 @@ function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment }) {
   const expense = periodExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
   const balance = Number(openingBalance || 0) + income - expense + Number(manualAdjustment || 0);
   return <section className="content public-summary">
-    <div className="public-heading"><div><span className="eyebrow">Informasi untuk warga</span><h2>Laporan Kas Warga</h2><p>RT 26 / RW 04 · Ringkasan terbuka pengelolaan kas</p></div><div className="public-controls"><label>Pilih periode<ThemedDropdown value={period} onChange={setPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} className="public-period-select" ariaLabel="Pilih periode ringkasan publik" /></label><button className="primary-btn" onClick={() => window.print()}><FileText size={16}/> Cetak / Simpan PDF</button></div></div>
+    <div className="public-heading"><div><span className="eyebrow">Informasi untuk warga</span><h2>Laporan Kas Warga</h2><p>{communityIdentityLine}{communityLocationLine ? ` · ${communityLocationLine}` : ""} · Ringkasan terbuka pengelolaan kas</p></div><div className="public-controls"><label>Pilih periode<ThemedDropdown value={period} onChange={setPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} className="public-period-select" ariaLabel="Pilih periode ringkasan publik" /></label><button className="primary-btn" onClick={() => window.print()}><FileText size={16}/> Cetak / Simpan PDF</button></div></div>
     <div className="privacy-note"><span>✓</span><div><b>Tampilan publik, data pribadi disembunyikan</b><p>Tidak menampilkan nama warga, nomor rumah, blok, atau rincian pembayaran per orang.</p></div></div>
     <div className="public-kpis"><article className="public-kpi income"><span>Total pemasukan</span><strong>{money(income)}</strong><small>Periode {period}</small></article><article className="public-kpi expense"><span>Total pengeluaran</span><strong>{money(expense)}</strong><small>Periode {period}</small></article><article className="public-kpi balance"><span>Saldo akhir</span><strong>{money(balance)}</strong><small>Saldo awal + masuk - keluar + koreksi</small></article></div>
     <div className="public-breakdown"><div className="section-head"><div><span className="eyebrow">Rangkuman kategori</span><h2>Rangkuman kategori iuran</h2></div></div><div className="public-breakdown-row"><span>Iuran kebersihan</span><b>{money(cleanTotal)}</b></div><div className="public-breakdown-row"><span>Iuran kas RT</span><b>{money(kasTotal)}</b></div><div className="public-breakdown-row"><span>Iuran lainnya</span><b>{money(otherTotal)}</b></div><div className="public-breakdown-row"><span>Total pengeluaran</span><b>{money(expense)}</b></div></div>
-    <footer className="public-footer"><span>Kas Warga RT 26 / RW 04</span><span>Ringkasan agregat · {period}</span></footer>
+    <footer className="public-footer"><span>Kas Warga {communityIdentityLine}{communityLocationLine ? ` · ${communityLocationLine}` : ""}</span><span>Ringkasan agregat · {period}</span></footer>
   </section>;
 }
 
@@ -4807,6 +5000,8 @@ const exportRecapJpgHD = async (period) => {
 };
 
 function Recap({
+  communityIdentityLine = "RT 26 / RW 04",
+  communityLocationLine = "",
   entries,
   total,
   residents = [],
@@ -4919,7 +5114,7 @@ const handleExportJpgHD = async () => {
     setIsExportingJpg(false);
   }
 };
-return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p></div><div className="recap-actions"><div className="recap-period-label"><span className="recap-period-title">Pilih bulan</span><ThemedDropdown className="recap-period-select" value={recapPeriod} onChange={setRecapPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} ariaLabel="Pilih bulan rekap" /></div><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status")}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button><button className="outline-light" type="button" onClick={handleExportJpgHD} disabled={isExportingJpg}><FileText size={16} /> {isExportingJpg ? "Menyiapkan JPG HD..." : "Ekspor JPG HD"}</button></div></div><div className="recap-grid">
+return <section className="content recap-page"><div className="recap-banner"><div><span className="eyebrow light">Laporan periode</span><h2>Rekap {recapPeriod}</h2><p>Ringkasan pemasukan kas warga.</p><small className="community-report-identity">{communityIdentityLine}{communityLocationLine ? ` · ${communityLocationLine}` : ""}</small></div><div className="recap-actions"><div className="recap-period-label"><span className="recap-period-title">Pilih bulan</span><ThemedDropdown className="recap-period-select" value={recapPeriod} onChange={setRecapPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} ariaLabel="Pilih bulan rekap" /></div><button className="outline-light" onClick={() => exportExcel(filteredEntries, recapPeriod, recapStatusFilter === "belum" ? "belum-lunas" : recapStatusFilter === "lunas" ? "lunas" : "semua-status", communityIdentityLine, communityLocationLine)}><FileText size={16} /> Ekspor Excel</button><button className="outline-light" onClick={() => window.print()}><FileText size={16} /> Ekspor PDF</button><button className="outline-light" type="button" onClick={handleExportJpgHD} disabled={isExportingJpg}><FileText size={16} /> {isExportingJpg ? "Menyiapkan JPG HD..." : "Ekspor JPG HD"}</button></div></div><div className="recap-grid">
   {/* Kartu total terkumpul */}
   <div className="big-card recap-total-card">
     <span className="eyebrow">Total terkumpul</span>
@@ -5167,5 +5362,5 @@ return <section className="content recap-page"><div className="recap-banner"><di
   </div>;
 })()}
 </section>; }
-function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><ThemedDropdown className="resident-filter resident-block-filter" value={residentFilter} onChange={(nextValue) => { setResidentFilter(nextValue); setResidentSubFilter("Semua sub blok"); }} ariaLabel="Filter berdasarkan blok" options={[{value:"Semua blok",label:"Semua blok"}, ...blocks.map(b=>({value:b,label:`Blok ${b}`}))]} /><ThemedDropdown className="resident-filter resident-subblock-filter" value={residentSubFilter} onChange={setResidentSubFilter} ariaLabel="Filter berdasarkan sub blok" options={[{value:"Semua sub blok",label:"Semua sub blok"}, ...subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb=>({value:sb,label:sb}))]} /><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
+function Residents({ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter, communityIdentityLine = "RT 26 / RW 04", communityLocationLine = "" }) { const blocks = [...new Set(residents.map((r) => r.block).filter(Boolean))].sort(); const subBlocks = [...new Set(residents.map((r) => r.subBlock).filter(Boolean))].sort(); const query = residentSearch.trim().toLocaleLowerCase("id-ID"); const filteredResidents = residents.filter((r) => (residentFilter === "Semua blok" || r.block.toLocaleLowerCase("id-ID") === residentFilter.toLocaleLowerCase("id-ID")) && (residentSubFilter === "Semua sub blok" || (r.subBlock || "").toLocaleLowerCase("id-ID") === residentSubFilter.toLocaleLowerCase("id-ID")) && (r.name || "").toLocaleLowerCase("id-ID").includes(query)); return <section className="content narrow"><div className="resident-print-title">Daftar warga · {communityIdentityLine}{communityLocationLine ? ` · ${communityLocationLine}` : ""}</div><div className="section-head"><div><span className="eyebrow">Buku warga</span><h2>Daftar nama warga</h2><p className="subcopy">Kelola data yang muncul di menu input pembayaran.</p></div></div><form className="add-resident" onSubmit={addResident} noValidate><input placeholder="Nama lengkap warga" value={residentName} onChange={e => setResidentName(e.target.value)} /><input className="compact-field" value={residentBlock} onChange={e => setResidentBlock(e.target.value)} placeholder="Blok, contoh A" /><input className="compact-field" value={residentSubBlock} onChange={e => setResidentSubBlock(e.target.value)} placeholder="Sub blok, contoh A1" /><button className="primary-btn" type="submit"><Plus size={18} /> {editingResident ? "Simpan perubahan" : "Tambah warga"}</button>{editingResident && <button className="cancel-btn" type="button" onClick={() => { setEditingResident(null); setResidentName(""); }}><X size={16} /> Batal</button>}</form><div className="resident-toolbar"><div className="search resident-search"><Search size={16} /><input placeholder="Cari nama warga..." value={residentSearch} onChange={e => setResidentSearch(e.target.value)} /></div><ThemedDropdown className="resident-filter resident-block-filter" value={residentFilter} onChange={(nextValue) => { setResidentFilter(nextValue); setResidentSubFilter("Semua sub blok"); }} ariaLabel="Filter berdasarkan blok" options={[{value:"Semua blok",label:"Semua blok"}, ...blocks.map(b=>({value:b,label:`Blok ${b}`}))]} /><ThemedDropdown className="resident-filter resident-subblock-filter" value={residentSubFilter} onChange={setResidentSubFilter} ariaLabel="Filter berdasarkan sub blok" options={[{value:"Semua sub blok",label:"Semua sub blok"}, ...subBlocks.filter(sb => residentFilter === "Semua blok" || sb.startsWith(residentFilter)).map(sb=>({value:sb,label:sb}))]} /><button type="button" className="print-btn" onClick={() => window.print()}><FileText size={15} /> Cetak daftar</button><span className="result-count">{filteredResidents.length} warga</span></div><div className="resident-grid">{filteredResidents.map(r => <div className="resident-card" key={r.id}><span className="resident-avatar">{r.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span><div><b>{r.name}</b><small>Blok {r.block} · Sub blok {r.subBlock || `${r.block}1`} · Rumah {r.house}</small></div><div className="resident-actions"><button className="icon-btn edit" title="Edit warga" onClick={() => startEditResident(r)}><Pencil size={15} /></button><button className="icon-btn delete" title="Hapus warga" onClick={() => deleteResident(r.id)}><Trash2 size={15} /></button></div></div>)}{filteredResidents.length === 0 && <div className="empty-residents">Tidak ada warga yang cocok.</div>}</div></section>; }
 

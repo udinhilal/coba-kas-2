@@ -237,3 +237,31 @@
     margin-bottom: 26px;
   }
 }
+
+
+/* Identitas wilayah dinamis pada halaman login */
+.auth-community-meta {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+  min-width:0;
+}
+.auth-community-meta strong {
+  color:#102A43;
+  line-height:1.15;
+}
+.auth-community-rt {
+  color:#173B65 !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+  line-height:1.25 !important;
+}
+.auth-community-location {
+  max-width:260px;
+  color:#64748B !important;
+  font-size:10px !important;
+  line-height:1.4 !important;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}

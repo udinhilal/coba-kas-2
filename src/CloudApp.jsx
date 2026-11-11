@@ -7,6 +7,20 @@ import { supabase, supabaseConfigured } from "./lib/supabaseClient";
 
 const STORAGE_KEY = "kas-warga-rt-data-v1";
 const SYNC_KEY = "kas-warga-rt-last-sync";
+const DEFAULT_COMMUNITY_IDENTITY = {
+  rtNumber: "26",
+  rwNumber: "04",
+  kelurahan: "",
+  kecamatan: "",
+  kabupatenKota: "",
+};
+const normalizeCommunityIdentity = (value = {}) => ({
+  rtNumber: String(value.rt_number ?? value.rtNumber ?? "26").trim() || "26",
+  rwNumber: String(value.rw_number ?? value.rwNumber ?? "04").trim() || "04",
+  kelurahan: String(value.kelurahan || "").trim(),
+  kecamatan: String(value.kecamatan || "").trim(),
+  kabupatenKota: String(value.kabupaten_kota ?? value.kabupatenKota ?? "").trim(),
+});
 const MONTHS = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 const originalSetItem = Storage.prototype.setItem;
 
@@ -127,6 +141,15 @@ const buildSnapshot = (data, owner) => {
     snapshot[table] = rows;
   }
   snapshot.cash_settings = { owner_id: owner, opening_balance: num(data?.openingBalance), manual_adjustment: num(data?.manualAdjustment) };
+  const identity = normalizeCommunityIdentity(data?.communityIdentity || DEFAULT_COMMUNITY_IDENTITY);
+  snapshot.community_identity = {
+    id: 1,
+    rt_number: identity.rtNumber,
+    rw_number: identity.rwNumber,
+    kelurahan: identity.kelurahan,
+    kecamatan: identity.kecamatan,
+    kabupaten_kota: identity.kabupatenKota,
+  };
   return snapshot;
 };
 
@@ -158,22 +181,32 @@ const pushDiff = async (prev, next, owner) => {
     const { error } = await supabase.from("cash_settings").upsert({ ...next.cash_settings, updated_at: stamp }, { onConflict: "owner_id" });
     raise(error, "Simpan saldo");
   }
+  if (JSON.stringify(prev.community_identity) !== JSON.stringify(next.community_identity)) {
+    const { error } = await supabase.from("community_identity").upsert(
+      { ...next.community_identity, updated_at: stamp },
+      { onConflict: "id" }
+    );
+    raise(error, "Simpan identitas RT/RW");
+  }
 };
 
 const loadFromSupabase = async (owner) => {
-  const [residents, payments, expenses, history, settings] = await Promise.all([
+  const [residents, payments, expenses, history, settings, identity] = await Promise.all([
     supabase.from("residents").select("*").eq("owner_id", owner).order("created_at", { ascending: true }),
     supabase.from("payments").select("*").eq("owner_id", owner).order("payment_date", { ascending: false }).order("created_at", { ascending: false }),
     supabase.from("expenses").select("*").eq("owner_id", owner).order("expense_date", { ascending: false }).order("created_at", { ascending: false }),
     supabase.from("balance_history").select("*").eq("owner_id", owner).order("changed_at", { ascending: false }),
     supabase.from("cash_settings").select("*").eq("owner_id", owner).maybeSingle(),
+    supabase.from("community_identity").select("*").eq("id", 1).maybeSingle(),
   ]);
   raise(residents.error, "Muat data warga");
   raise(payments.error, "Muat pembayaran");
   raise(expenses.error, "Muat pengeluaran");
   raise(history.error, "Muat riwayat saldo");
   raise(settings.error, "Muat saldo");
+  raise(identity.error, "Muat identitas RT/RW");
   return {
+    communityIdentity: normalizeCommunityIdentity(identity.data || DEFAULT_COMMUNITY_IDENTITY),
     residents: (residents.data || []).map((r) => ({ id: uuidToId(r.id), block: r.block, subBlock: r.sub_block || "", name: r.name, house: r.house || "" })),
     entries: (payments.data || []).map((p) => ({
       id: uuidToId(p.id),

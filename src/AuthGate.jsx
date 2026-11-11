@@ -15,6 +15,49 @@ export default function AuthGate({ children }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [communityIdentity, setCommunityIdentity] = useState({
+    rtNumber: "26",
+    rwNumber: "04",
+    kelurahan: "",
+    kecamatan: "",
+    kabupatenKota: "",
+  });
+
+  // Identitas dibaca sebelum login agar halaman masuk selalu memakai nama lingkungan terkini.
+  useEffect(() => {
+    if (!supabaseConfigured || !supabase) return undefined;
+    let alive = true;
+    supabase
+      .from("community_identity")
+      .select("rt_number, rw_number, kelurahan, kecamatan, kabupaten_kota")
+      .eq("id", 1)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (!alive) return;
+        if (error) {
+          console.warn("Identitas lingkungan belum dapat dimuat:", error.message);
+          return;
+        }
+        if (data) {
+          setCommunityIdentity({
+            rtNumber: String(data.rt_number || "26"),
+            rwNumber: String(data.rw_number || "04"),
+            kelurahan: String(data.kelurahan || ""),
+            kecamatan: String(data.kecamatan || ""),
+            kabupatenKota: String(data.kabupaten_kota || ""),
+          });
+        }
+      })
+      .catch((error) => console.warn("Gagal memuat identitas lingkungan:", error));
+    return () => { alive = false; };
+  }, []);
+
+  const communityIdentityLine = `RT ${communityIdentity.rtNumber} / RW ${communityIdentity.rwNumber}`;
+  const communityLocationLine = [
+    communityIdentity.kelurahan ? `Kel. ${communityIdentity.kelurahan}` : "",
+    communityIdentity.kecamatan ? `Kec. ${communityIdentity.kecamatan}` : "",
+    communityIdentity.kabupatenKota || "",
+  ].filter(Boolean).join(" · ");
 
   useEffect(() => {
     if (!supabaseConfigured) {
@@ -211,9 +254,12 @@ export default function AuthGate({ children }) {
 
         <div className="auth-brand">
           <span className="brand-mark">K</span>
-          <div>
+          <div className="auth-community-meta">
             <strong>kas warga</strong>
-            <small>RT 26 / RW 04</small>
+            <small className="auth-community-rt">{communityIdentityLine}</small>
+            {communityLocationLine && (
+              <small className="auth-community-location">{communityLocationLine}</small>
+            )}
           </div>
         </div>
 
