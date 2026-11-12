@@ -342,7 +342,36 @@ export default function CloudApp({ user, onSignOut }) {
     await onSignOut?.();
   };
 
-  if (state.status === "loading") return h("main", { className: "auth-loading" }, "Memuat data kas dari Supabase…");
+  if (state.status === "loading") {
+  return h("main", {
+    className: "auth-loading",
+    role: "status",
+    "aria-live": "polite"
+  },
+    h("section", { className: "loading-card" },
+
+      h("div", { className: "loading-visual", "aria-hidden": "true" },
+        h("div", { className: "loading-ring" }),
+        h("div", { className: "loading-book" },
+          h("span", { className: "loading-book-title" }, "KAS"),
+          h("span", { className: "loading-book-line" }),
+          h("span", { className: "loading-book-line short" })
+        )
+      ),
+
+      h("h1", null, "Kas Warga"),
+      h("p", { className: "loading-title" },
+        "Menyiapkan data kas Anda"
+      ),
+
+      h("div", { className: "loading-progress" },
+        h("span")
+      ),
+
+      h("small", null, "Menghubungkan ke Supabase...")
+    )
+  );
+}
   if (state.status === "error") {
     return h("main", { className: "auth-shell" },
       h("section", { className: "auth-card" },
