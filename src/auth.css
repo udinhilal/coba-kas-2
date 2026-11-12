@@ -265,3 +265,173 @@
   white-space:normal;
   overflow-wrap:anywhere;
 }
+/* =================================
+   ANIMASI PEMUATAN DATA KAS WARGA
+   ================================= */
+
+.auth-loading {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 20px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at center,
+    #EAF3FF 0%,
+    #F4F7FB 55%,
+    #EEF3F9 100%);
+  color: #102A43;
+  font-family: Inter, sans-serif;
+}
+
+.loading-card {
+  width: min(100%, 340px);
+  padding: 32px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #FFFFFF;
+  border: 1px solid #DCE5EF;
+  border-radius: 22px;
+  box-shadow: 0 18px 48px rgba(16,42,67,.09);
+}
+
+.loading-visual {
+  width: 112px;
+  height: 112px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+}
+
+.loading-ring {
+  position: absolute;
+  inset: 3px;
+  border: 4px solid #DBEAFE;
+  border-top-color: #2563EB;
+  border-right-color: #93C5FD;
+  border-radius: 50%;
+  animation: kasSpin 1.5s linear infinite;
+}
+
+.loading-book {
+  width: 59px;
+  height: 72px;
+  border-radius: 9px;
+  background: linear-gradient(
+    145deg,
+    #173B65,
+    #102A43
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-shadow: 0 7px 18px rgba(16,42,67,.20);
+  animation: kasFloat 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+.loading-book-title {
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.loading-book-line {
+  width: 28px;
+  height: 3px;
+  border-radius: 10px;
+  background: #BFDBFE;
+}
+
+.loading-book-line.short {
+  width: 18px;
+}
+
+.loading-card h1 {
+  font-size: 21px;
+  font-weight: 800;
+  color: #102A43;
+  margin: 0 0 7px;
+}
+
+.loading-title {
+  color: #52657A;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 23px;
+}
+
+.loading-progress {
+  width: 100%;
+  height: 5px;
+  border-radius: 10px;
+  background: #DBEAFE;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 13px;
+}
+
+.loading-progress span {
+  position: absolute;
+  left: -35%;
+  width: 35%;
+  height: 100%;
+  border-radius: 10px;
+  background: #2563EB;
+  animation: kasProgress 1.5s ease-in-out infinite;
+}
+
+.loading-card small {
+  font-size: 11px;
+  color: #64748B;
+}
+
+/* Animasi ikon */
+@keyframes kasSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes kasFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Animasi garis progres */
+@keyframes kasProgress {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(400%);
+  }
+}
+
+/* Ukuran HP */
+@media (max-width: 480px) {
+  .loading-card {
+    max-width: 310px;
+    padding: 28px 22px;
+  }
+}
+
+/* Hormati pengaturan minimasi animasi perangkat */
+@media (prefers-reduced-motion: reduce) {
+  .loading-ring,
+  .loading-book,
+  .loading-progress span {
+    animation: none !important;
+  }
+}
