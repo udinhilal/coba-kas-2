@@ -271,8 +271,8 @@ export default function App({ user, onSignOut }) {
   const [other, setOther] = useState("");
   const [paymentPeriod, setPaymentPeriod] = useState(getPeriodeSekarang());
   const [residentName, setResidentName] = useState("");
-  const [residentBlock, setResidentBlock] = useState("A");
-  const [residentSubBlock, setResidentSubBlock] = useState("A1");
+  const [residentBlock, setResidentBlock] = useState("");
+  const [residentSubBlock, setResidentSubBlock] = useState("");
   const [editingResident, setEditingResident] = useState(null);
   const [editingEntry, setEditingEntry] = useState(null);
   const [residentSearch, setResidentSearch] = useState("");
