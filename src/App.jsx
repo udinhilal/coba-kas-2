@@ -3850,7 +3850,7 @@ function Overview({
     + Input pembayaran
   </button>
 </div>
-    <div className="stat-grid">
+    <div className="stat-grid overview-stat-grid">
       <Stat
         title="Total pemasukan"
         value={money(totalIncome)}
