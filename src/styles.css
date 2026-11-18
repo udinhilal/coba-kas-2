@@ -287,10 +287,11 @@
     min-width: 0;
     flex: 1;
   /* Geser tanggal, judul dan garis ke kiri */
-    transform: translateX(-14px);
+    transform: translateX(-16px);
 } 
   .topbar h1 {
     overflow-wrap: anywhere;
+    margin-top: 4px !important;
   }
 }
 
