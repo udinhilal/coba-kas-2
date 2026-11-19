@@ -3768,44 +3768,9 @@ const totalExpense = cashOut.reduce(
 );
 
 // ============================================
-// PERIODE TAHUN BERJALAN
+// MEMBACA BULAN DAN TAHUN BERDASARKAN PERIODE
 // ============================================
 
-const today = new Date();
-const currentYear = today.getFullYear();
-const currentMonthIndex = today.getMonth();
-// Menentukan periode terakhir dari seluruh data pemasukan dan pengeluaran
-const allPeriodDates = [
-  ...entries.map((item) => getHomeDateParts(item)),
-  ...cashOut.map((item) => getHomeDateParts(item))
-].filter(Boolean);
-
-const latestPeriod = allPeriodDates.reduce(
-  (latest, current) => {
-    if (!latest) return current;
-
-    const currentValue = current.year * 12 + current.month;
-    const latestValue = latest.year * 12 + latest.month;
-
-    return currentValue > latestValue ? current : latest;
-  },
-  null
-);
-
-// Periode akhir kartu mengikuti data terakhir,
-// tetapi minimal sampai bulan berjalan
-const lastDisplayYear = latestPeriod
-  ? Math.max(currentYear, latestPeriod.year)
-  : currentYear;
-
-const lastDisplayMonth =
-  latestPeriod && latestPeriod.year >= currentYear
-    ? Math.max(currentMonthIndex, latestPeriod.month)
-    : currentMonthIndex;
-
-// Membaca bulan dan tahun berdasarkan PERIODE input,
-// bukan tanggal transaksi.
-// Berlaku untuk pemasukan dan pengeluaran.
 const getHomeDateParts = (item) => {
   const value = String(item?.period || "").trim();
 
@@ -3814,51 +3779,51 @@ const getHomeDateParts = (item) => {
   let match;
 
   // Format: 2026-11 atau 2026-11-19
-  match = value.match(
-    /^(\d{4})-(\d{1,2})(?:-\d{1,2})?$/
-  );
+  match = value.match(/^(\d{4})-(\d{1,2})(?:-\d{1,2})?$/);
 
   if (match) {
-    return {
-      year: Number(match[1]),
-      month: Number(match[2]) - 1
-    };
+    const year = Number(match[1]);
+    const month = Number(match[2]) - 1;
+
+    if (month >= 0 && month < 12) {
+      return { year, month };
+    }
   }
 
   // Format: 2026/11
-  match = value.match(
-    /^(\d{4})[/-](\d{1,2})$/
-  );
+  match = value.match(/^(\d{4})[/-](\d{1,2})$/);
 
   if (match) {
-    return {
-      year: Number(match[1]),
-      month: Number(match[2]) - 1
-    };
+    const year = Number(match[1]);
+    const month = Number(match[2]) - 1;
+
+    if (month >= 0 && month < 12) {
+      return { year, month };
+    }
   }
 
   // Format: 19/11/2026 atau 19-11-2026
-  match = value.match(
-    /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
-  );
+  match = value.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
 
   if (match) {
-    return {
-      year: Number(match[3]),
-      month: Number(match[2]) - 1
-    };
+    const year = Number(match[3]);
+    const month = Number(match[2]) - 1;
+
+    if (month >= 0 && month < 12) {
+      return { year, month };
+    }
   }
 
   // Format: 11/2026 atau 11-2026
-  match = value.match(
-    /^(\d{1,2})[/-](\d{4})$/
-  );
+  match = value.match(/^(\d{1,2})[/-](\d{4})$/);
 
   if (match) {
-    return {
-      year: Number(match[2]),
-      month: Number(match[1]) - 1
-    };
+    const year = Number(match[2]);
+    const month = Number(match[1]) - 1;
+
+    if (month >= 0 && month < 12) {
+      return { year, month };
+    }
   }
 
   // Format: November 2026 atau 19 Nov 2026
@@ -3884,11 +3849,57 @@ const getHomeDateParts = (item) => {
   return null;
 };
 
+// ============================================
+// PERIODE TAHUN BERJALAN
+// ============================================
+
+const today = new Date();
+const currentYear = today.getFullYear();
+const currentMonthIndex = today.getMonth();
+
+// Menentukan periode terakhir dari seluruh data
+const allPeriodDates = [
+  ...entries.map((item) => getHomeDateParts(item)),
+  ...cashOut.map((item) => getHomeDateParts(item))
+].filter(Boolean);
+
+const latestPeriod = allPeriodDates.reduce(
+  (latest, current) => {
+    if (!latest) return current;
+
+    const currentValue = current.year * 12 + current.month;
+    const latestValue = latest.year * 12 + latest.month;
+
+    return currentValue > latestValue ? current : latest;
+  },
+  null
+);
+
+// Periode akhir kartu mengikuti periode data terakhir,
+// tetapi minimal sampai bulan berjalan
+let lastDisplayYear = currentYear;
+let lastDisplayMonth = currentMonthIndex;
+
+if (
+  latestPeriod &&
+  (
+    latestPeriod.year > currentYear ||
+    (
+      latestPeriod.year === currentYear &&
+      latestPeriod.month > currentMonthIndex
+    )
+  )
+) {
+  lastDisplayYear = latestPeriod.year;
+  lastDisplayMonth = latestPeriod.month;
+}
+  
 // Total satu transaksi pembayaran
 const getPaymentAmount = (item) =>
   Number(item.clean || 0) +
   Number(item.kas || 0) +
   Number(item.other || 0);
+
 
 // ============================================
 // REKAP PEMASUKAN DAN PENGELUARAN PER BULAN
@@ -3909,6 +3920,7 @@ const monthlyTotals = Array.from(
 let previousYearIncome = 0;
 let previousYearExpense = 0;
 
+
 // Hitung transaksi pembayaran
 entries.forEach((item) => {
   const dateParts = getHomeDateParts(item);
@@ -3921,19 +3933,20 @@ entries.forEach((item) => {
   }
 
   if (
-  dateParts.year >= currentYear &&
-  dateParts.month >= 0 &&
-  dateParts.month < 12
-) {
-  const monthIndex =
-    (dateParts.year - currentYear) * 12 +
-    dateParts.month;
+    dateParts.year >= currentYear &&
+    dateParts.month >= 0 &&
+    dateParts.month < 12
+  ) {
+    const monthIndex =
+      (dateParts.year - currentYear) * 12 +
+      dateParts.month;
 
-  if (monthlyTotals[monthIndex]) {
-    monthlyTotals[monthIndex].income += amount;
+    if (monthlyTotals[monthIndex]) {
+      monthlyTotals[monthIndex].income += amount;
+    }
   }
-}
 });
+
 
 // Hitung transaksi pengeluaran
 cashOut.forEach((item) => {
@@ -3947,41 +3960,35 @@ cashOut.forEach((item) => {
   }
 
   if (
-  dateParts.year >= currentYear &&
-  dateParts.month >= 0 &&
-  dateParts.month < 12
-) {
-  const monthIndex =
-    (dateParts.year - currentYear) * 12 +
-    dateParts.month;
+    dateParts.year >= currentYear &&
+    dateParts.month >= 0 &&
+    dateParts.month < 12
+  ) {
+    const monthIndex =
+      (dateParts.year - currentYear) * 12 +
+      dateParts.month;
 
-  if (monthlyTotals[monthIndex]) {
-    monthlyTotals[monthIndex].expense += amount;
+    if (monthlyTotals[monthIndex]) {
+      monthlyTotals[monthIndex].expense += amount;
+    }
   }
-}
 });
+
 
 // ============================================
 // HITUNG SALDO AKHIR SECARA AKUMULATIF
 // ============================================
 
-// Saldo awal tahun berjalan:
-// saldo awal + koreksi + transaksi tahun sebelumnya.
 let accumulatedBalance =
   Number(openingBalance || 0) +
   Number(manualAdjustment || 0) +
   previousYearIncome -
   previousYearExpense;
 
-// Tampilkan Januari sampai bulan sekarang.
 const monthlyRows = monthlyTotals.map((item, index) => {
   accumulatedBalance += item.income - item.expense;
 
-  const monthDate = new Date(
-    currentYear,
-    index,
-    1
-  );
+  const monthDate = new Date(currentYear, index, 1);
 
   return {
     monthIndex: monthDate.getMonth(),
@@ -4063,12 +4070,13 @@ const monthlyRows = monthlyTotals.map((item, index) => {
   <div className="home-monthly-heading">
     <div>
       <span>RINCIAN BULANAN</span>
-      <strong>Tahun {currentYear}</strong>
-    </div>
+      <strong>Rincian saldo kas</strong>
 
-    <small>
-      Januari – {namaBulan[currentMonthIndex]}
-    </small>
+<small>
+  Januari {currentYear} –{" "}
+  {monthlyRows[monthlyRows.length - 1]?.monthName}{" "}
+  {monthlyRows[monthlyRows.length - 1]?.year}
+</small>
   </div>
 
   <div className="home-monthly-list">
@@ -4076,8 +4084,9 @@ const monthlyRows = monthlyTotals.map((item, index) => {
     {monthlyRows.map((item) => (
 
       <div
-        key={item.monthIndex}
+        key={`${item.year}-${item.monthIndex}`}
         className={`home-month-row ${
+          item.year === currentYear &&
           item.monthIndex === currentMonthIndex
             ? "current"
             : ""
