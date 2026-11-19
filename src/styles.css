@@ -2685,3 +2685,6 @@ select:disabled {
     font-size: 9px;
   }
 }
+.home-month-income b {
+  transform: translateX(-8px);
+}
