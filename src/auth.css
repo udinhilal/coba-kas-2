@@ -265,171 +265,285 @@
   white-space:normal;
   overflow-wrap:anywhere;
 }
-/* =================================
-   ANIMASI PEMUATAN DATA KAS WARGA
-   ================================= */
+
+/* ==========================================
+   LOADING SCREEN KAS WARGA
+   TANPA KARTU / BINGKAI PUTIH
+   ========================================== */
 
 .auth-loading {
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 20px;
+  width: 100%;
+  padding: 24px;
   box-sizing: border-box;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at center,
-    #EAF3FF 0%,
-    #F4F7FB 55%,
-    #EEF3F9 100%);
-  color: #102A43;
-  font-family: Inter, sans-serif;
-}
 
-.loading-card {
-  width: min(100%, 340px);
-  padding: 32px 26px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  background: #FFFFFF;
-  border: 1px solid #DCE5EF;
-  border-radius: 22px;
-  box-shadow: 0 18px 48px rgba(16,42,67,.09);
-}
-
-.loading-visual {
-  width: 112px;
-  height: 112px;
-  position: relative;
-  display: grid;
-  place-items: center;
-  margin-bottom: 20px;
-}
-
-.loading-ring {
-  position: absolute;
-  inset: 3px;
-  border: 4px solid #DBEAFE;
-  border-top-color: #2563EB;
-  border-right-color: #93C5FD;
-  border-radius: 50%;
-  animation: kasSpin 1.5s linear infinite;
-}
-
-.loading-book {
-  width: 59px;
-  height: 72px;
-  border-radius: 9px;
-  background: linear-gradient(
-    145deg,
-    #173B65,
-    #102A43
-  );
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  box-shadow: 0 7px 18px rgba(16,42,67,.20);
-  animation: kasFloat 2s ease-in-out infinite;
-  z-index: 1;
-}
 
-.loading-book-title {
-  color: #FFFFFF;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
+  overflow: hidden;
+  text-align: center;
 
-.loading-book-line {
-  width: 28px;
-  height: 3px;
-  border-radius: 10px;
-  background: #BFDBFE;
-}
+  background:
+    radial-gradient(
+      circle at center,
+      #EAF3FF 0%,
+      #F4F7FB 55%,
+      #EEF3F9 100%
+    );
 
-.loading-book-line.short {
-  width: 18px;
-}
-
-.loading-card h1 {
-  font-size: 21px;
-  font-weight: 800;
   color: #102A43;
-  margin: 0 0 7px;
+  font-family: Inter, sans-serif;
 }
+
+/* AREA ANIMASI */
+
+.loading-visual {
+  width: 150px;
+  height: 150px;
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  margin-bottom: 16px;
+}
+
+/* LINGKARAN LUAR */
+
+.loading-orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.loading-orbit-one {
+  width: 125px;
+  height: 125px;
+
+  border-top-color: #2563EB;
+  border-right-color: #BFDBFE;
+
+  animation: kasLoadingOrbit 3s linear infinite;
+}
+
+.loading-orbit-two {
+  width: 103px;
+  height: 103px;
+
+  border-bottom-color: #93C5FD;
+  border-left-color: #DBEAFE;
+
+  animation: kasLoadingOrbit 4s linear infinite reverse;
+}
+
+/* BUKU KAS TERBUKA */
+
+.loading-book {
+  position: relative;
+
+  width: 74px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  z-index: 2;
+
+  filter:
+    drop-shadow(0 8px 12px rgba(23,59,101,.18));
+
+  animation: kasLoadingFloat 2s ease-in-out infinite;
+}
+
+/* HALAMAN BUKU */
+
+.loading-page {
+  display: block;
+
+  width: 33px;
+  height: 44px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #FFFFFF,
+      #DBEAFE
+    );
+
+  border: 1px solid #AFC9E8;
+  box-sizing: border-box;
+}
+
+/* HALAMAN KIRI */
+
+.loading-page-left {
+  border-radius: 7px 2px 2px 7px;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #FFFFFF 0px,
+      #FFFFFF 7px,
+      #BBD3EF 8px,
+      #FFFFFF 9px
+    );
+
+  transform: perspective(80px) rotateY(9deg);
+}
+
+/* HALAMAN KANAN */
+
+.loading-page-right {
+  border-radius: 2px 7px 7px 2px;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #EFF6FF 0px,
+      #EFF6FF 7px,
+      #BBD3EF 8px,
+      #EFF6FF 9px
+    );
+
+  transform: perspective(80px) rotateY(-9deg);
+}
+
+/* GARIS TENGAH BUKU */
+
+.loading-book-spine {
+  position: absolute;
+
+  left: 50%;
+  top: 7px;
+
+  width: 2px;
+  height: 42px;
+
+  transform: translateX(-50%);
+  background: #173B65;
+  border-radius: 3px;
+}
+
+/* JUDUL */
+
+.loading-brand {
+  margin: 0 0 8px;
+
+  color: #102A43;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -.7px;
+}
+
+/* STATUS PEMUATAN */
 
 .loading-title {
+  min-height: 18px;
+  margin: 0 0 23px;
+
   color: #52657A;
   font-size: 12px;
   font-weight: 600;
-  margin: 0 0 23px;
 }
 
+/* PROGRESS BAR */
+
 .loading-progress {
-  width: 100%;
-  height: 5px;
-  border-radius: 10px;
-  background: #DBEAFE;
-  overflow: hidden;
   position: relative;
+
+  width: 190px;
+  max-width: 70vw;
+  height: 5px;
+
   margin-bottom: 13px;
+
+  border-radius: 20px;
+  overflow: hidden;
+
+  background: #DBEAFE;
 }
 
 .loading-progress span {
   position: absolute;
+
   left: -35%;
   width: 35%;
   height: 100%;
-  border-radius: 10px;
-  background: #2563EB;
-  animation: kasProgress 1.5s ease-in-out infinite;
+
+  border-radius: 20px;
+  background: linear-gradient(
+    90deg,
+    #60A5FA,
+    #173B65
+  );
+
+  animation: kasLoadingProgress 1.5s ease-in-out infinite;
 }
 
-.loading-card small {
-  font-size: 11px;
-  color: #64748B;
+.loading-footnote {
+  color: #94A3B8;
+  font-size: 10px;
+  font-weight: 500;
 }
 
-/* Animasi ikon */
-@keyframes kasSpin {
+/* ANIMASI PUTAR */
+
+@keyframes kasLoadingOrbit {
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes kasFloat {
+/* ANIMASI BUKU MELAYANG */
+
+@keyframes kasLoadingFloat {
   0%, 100% {
     transform: translateY(0);
   }
+
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-6px);
   }
 }
 
-/* Animasi garis progres */
-@keyframes kasProgress {
+/* ANIMASI GARIS PROGRES */
+
+@keyframes kasLoadingProgress {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(400%);
   }
 }
 
-/* Ukuran HP */
+/* RESPONSIVE HP */
+
 @media (max-width: 480px) {
-  .loading-card {
-    max-width: 310px;
-    padding: 28px 22px;
+  .loading-visual {
+    width: 140px;
+    height: 140px;
+  }
+
+  .loading-brand {
+    font-size: 23px;
+  }
+
+  .loading-title {
+    font-size: 11px;
   }
 }
 
-/* Hormati pengaturan minimasi animasi perangkat */
+/* AKSESIBILITAS */
+
 @media (prefers-reduced-motion: reduce) {
-  .loading-ring,
+  .loading-orbit,
   .loading-book,
   .loading-progress span {
     animation: none !important;
