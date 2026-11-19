@@ -4635,36 +4635,48 @@ function ResidentReport({
   return (
     <section className="content report-page">
 
-      <div className="report-toolbar">
-        <div>
-          <span className="eyebrow">Dokumen warga</span>
-          <h2>Laporan Pertanggungjawaban</h2>
-          <p className="subcopy">
-            Ringkasan kas {communityIdentityLine}.
-          </p>
-        </div>
+      
+<div className="report-toolbar">
+  <div>
+    <span className="eyebrow">Dokumen warga</span>
+    <h2>Laporan Pertanggungjawaban</h2>
+    <p className="subcopy">
+      Ringkasan kas {communityIdentityLine}.
+    </p>
+  </div>
+</div>
 
-        <button
-          className="primary-btn"
-          onClick={() => window.print()}
-        >
-          <FileText size={17} />
-          Cetak / Simpan PDF
-        </button>
-      </div>
+{/* FILTER DAN TOMBOL CETAK */}
+<div className="report-controls">
 
-      <label className="report-period-control">
-        Pilih bulan laporan
+  <label className="report-period-control">
+    Pilih bulan laporan
 
-        <ThemedDropdown
-          value={reportPeriod}
-          onChange={setReportPeriod}
-          options={[{ value: "Semua periode", label: "Semua periode" }, ...getDaftarPeriode().map(periode => ({ value: periode, label: periode }))]}
-          className="input-select"
-          ariaLabel="Periode laporan"
-        />
-      </label>
+    <ThemedDropdown
+      value={reportPeriod}
+      onChange={setReportPeriod}
+      options={[
+        { value: "Semua periode", label: "Semua periode" },
+        ...getDaftarPeriode().map(periode => ({
+          value: periode,
+          label: periode
+        }))
+      ]}
+      className="input-select"
+      ariaLabel="Periode laporan"
+    />
+  </label>
 
+  <button
+    className="primary-btn"
+    onClick={() => window.print()}
+  >
+    <FileText size={17} />
+    Cetak / Simpan PDF
+  </button>
+
+</div>
+      
       <div className="report-paper">
 
         <div className="report-heading">
