@@ -3990,16 +3990,21 @@ function ThemedDropdown({
 }
 
 function Stat({ title, value, icon: Icon, tone, meta }) {
+
+  // Ukuran nominal menyesuaikan panjang tulisan
+  const valueText = String(value ?? "");
+
+  const valueFontSize = Math.max(10,Math.min(18, 18 - Math.max(0, valueText.length - 9) * 0.7));
+
   return (
     <div className="stat-card">
 
-      {/* Ikon kartu */}
-      <div className={`stat-icon ${tone}`}>
-        <Icon size={19} />
-      </div>
+      {/* Baris ikon dan judul */}
+      <div className="stat-card-heading">
 
-      {/* Isi kartu */}
-      <div className="stat-card-content">
+        <div className={`stat-icon ${tone}`}>
+          <Icon size={16} />
+        </div>
 
         <span
           className="eyebrow stat-card-title"
@@ -4008,7 +4013,14 @@ function Stat({ title, value, icon: Icon, tone, meta }) {
           {title}
         </span>
 
-        <strong>{value}</strong>
+      </div>
+
+      {/* Nominal dan keterangan di bawah ikon */}
+      <div className="stat-card-content">
+
+        <strong style={{ fontSize: `${valueFontSize}px` }}>
+          {value}
+        </strong>
 
         <small>{meta}</small>
 
