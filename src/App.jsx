@@ -3775,59 +3775,82 @@ const today = new Date();
 const currentYear = today.getFullYear();
 const currentMonthIndex = today.getMonth();
 
-// Membaca bulan dan tahun dari tanggal transaksi.
-// Mendukung tanggal ISO, 19 Nov 2026,
-// serta periode seperti November 2026.
+
+// Membaca bulan dan tahun berdasarkan PERIODE input,
+// bukan tanggal transaksi.
+// Berlaku untuk pemasukan dan pengeluaran.
 const getHomeDateParts = (item) => {
-  const candidates = [item?.date, item?.period];
+  const value = String(item?.period || "").trim();
 
-  for (const candidate of candidates) {
-    const value = String(candidate || "").trim();
+  if (!value) return null;
 
-    if (!value) continue;
+  let match;
 
-    // Format ISO: 2026-11-19
-    let match = value.match(
-      /^(\d{4})-(\d{1,2})-\d{1,2}/
+  // Format: 2026-11 atau 2026-11-19
+  match = value.match(
+    /^(\d{4})-(\d{1,2})(?:-\d{1,2})?$/
+  );
+
+  if (match) {
+    return {
+      year: Number(match[1]),
+      month: Number(match[2]) - 1
+    };
+  }
+
+  // Format: 2026/11
+  match = value.match(
+    /^(\d{4})[/-](\d{1,2})$/
+  );
+
+  if (match) {
+    return {
+      year: Number(match[1]),
+      month: Number(match[2]) - 1
+    };
+  }
+
+  // Format: 19/11/2026 atau 19-11-2026
+  match = value.match(
+    /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
+  );
+
+  if (match) {
+    return {
+      year: Number(match[3]),
+      month: Number(match[2]) - 1
+    };
+  }
+
+  // Format: 11/2026 atau 11-2026
+  match = value.match(
+    /^(\d{1,2})[/-](\d{4})$/
+  );
+
+  if (match) {
+    return {
+      year: Number(match[2]),
+      month: Number(match[1]) - 1
+    };
+  }
+
+  // Format: November 2026 atau 19 Nov 2026
+  match = value.match(
+    /(?:\d{1,2}\s+)?([A-Za-z]+)\s+(\d{4})/i
+  );
+
+  if (match) {
+    const monthIndex = namaBulan.findIndex(
+      (month) =>
+        month.slice(0, 3).toLowerCase() ===
+        match[1].slice(0, 3).toLowerCase()
     );
 
-    if (match) {
+    if (monthIndex >= 0) {
       return {
-        year: Number(match[1]),
-        month: Number(match[2]) - 1
+        year: Number(match[2]),
+        month: monthIndex
       };
-    }
-
-    // Format numerik: 19/11/2026 atau 19-11-2026
-    match = value.match(
-      /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
-    );
-
-    if (match) {
-      return {
-        year: Number(match[3]),
-        month: Number(match[2]) - 1
-      };
-    }
-
-    // Format Indonesia: 19 Nov 2026 / November 2026
-    match = value.match(
-      /(?:\d{1,2}\s+)?([A-Za-z]+)\s+(\d{4})/
-    );
-
-    if (match) {
-      const monthIndex = namaBulan.findIndex(
-        (month) =>
-          month.slice(0, 3).toLowerCase() ===
-          match[1].slice(0, 3).toLowerCase()
-      );
-
-      if (monthIndex >= 0) {
-        return {
-          year: Number(match[2]),
-          month: monthIndex
-        };
-      }
     }
   }
 
