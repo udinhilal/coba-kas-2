@@ -3839,7 +3839,6 @@ function Overview({
 </div>
     <div className="section-head home-summary-head">
   <div>
-    <span className="eyebrow">Ringkasan keuangan</span>
     <h2>Ringkasan kas</h2>
   </div>
 
