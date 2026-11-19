@@ -2686,5 +2686,7 @@ select:disabled {
   }
 }
 .home-month-income b {
-  transform: translateX(-8px);
+  margin-left: auto !important;
+  text-align: right !important;
+  transform: translateX(-8px) !important;
 }
