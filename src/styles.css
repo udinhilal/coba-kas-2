@@ -2396,3 +2396,162 @@ select:disabled {
     margin-left: auto;
   }
 }
+
+/* =========================================
+   BERANDA MOBILE - KARTU SALDO BULANAN
+   Desain minimalis dan proporsional
+========================================= */
+
+@media (max-width: 650px) {
+
+  /* Kartu utama */
+  .home-monthly-card {
+    margin: 10px 0 18px;
+    padding: 13px 12px;
+    border: 1px solid #e5ebf2;
+    border-radius: 14px;
+    box-shadow: none;
+    background: #ffffff;
+  }
+
+  /* Judul kartu */
+  .home-monthly-heading {
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+  }
+
+  .home-monthly-heading > div {
+    gap: 3px;
+  }
+
+  .home-monthly-heading > div > span {
+    font-size: 9px;
+    letter-spacing: 0.7px;
+  }
+
+  .home-monthly-heading strong {
+    font-size: 15px;
+  }
+
+  .home-monthly-heading small {
+    font-size: 10px;
+  }
+
+  /* Daftar bulan */
+  .home-monthly-list {
+    gap: 0;
+    padding-top: 5px;
+  }
+
+  /* Setiap baris bulan tanpa bingkai tebal */
+  .home-month-row {
+    padding: 10px 5px;
+    border: 0;
+    border-bottom: 1px solid #edf1f5;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  /* Penanda bulan berjalan */
+  .home-month-row.current {
+    padding-left: 8px;
+    padding-right: 8px;
+    border: 0;
+    border-radius: 9px;
+    background: #f3f7fc;
+  }
+
+  /* Nama bulan dan saldo akhir */
+  .home-month-row-top {
+    align-items: center;
+    gap: 8px;
+  }
+
+  .home-month-name {
+    font-size: 12px;
+    font-weight: 750;
+  }
+
+  .home-month-closing {
+    gap: 2px;
+  }
+
+  .home-month-closing small {
+    font-size: 9px;
+  }
+
+  .home-month-closing b {
+    font-size: clamp(12px, 3.2vw, 14px);
+    font-weight: 800;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  /* Pemasukan dan pengeluaran */
+  .home-month-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 7px;
+    border-top: 1px dashed #e8edf3;
+  }
+
+  .home-month-flow > span {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+    min-width: 0;
+    font-size: 10px;
+  }
+
+  .home-month-flow b {
+    margin-left: auto;
+    font-size: clamp(10px, 2.8vw, 11.5px);
+    font-weight: 750;
+    line-height: 1.4;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  /* Keterangan bawah kartu */
+  .home-monthly-footnote {
+    margin-top: 9px;
+    padding-top: 8px;
+    font-size: 9px;
+    line-height: 1.5;
+  }
+}
+
+
+/* Layar HP sangat kecil */
+@media (max-width: 350px) {
+
+  .home-monthly-card {
+    padding: 11px 9px;
+  }
+
+  .home-month-row {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .home-month-row.current {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .home-month-flow {
+    gap: 5px;
+  }
+
+  .home-month-flow > span {
+    font-size: 9px;
+    gap: 3px;
+  }
+
+  .home-month-flow b {
+    font-size: 10px;
+  }
+}
