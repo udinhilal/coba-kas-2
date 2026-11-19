@@ -4082,7 +4082,6 @@ const monthlyRows = monthlyTotals
 </button>
       </div>
     </section>
-  </section>
   );
 }
 function ThemedDropdown({
