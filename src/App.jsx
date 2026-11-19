@@ -4078,7 +4078,7 @@ const monthlyRows = monthlyTotals.map((item, index) => {
   {monthlyRows[monthlyRows.length - 1]?.year}
 </small>
   </div>
-
+</div>
   <div className="home-monthly-list">
 
     {monthlyRows.map((item) => (
@@ -4134,7 +4134,6 @@ const monthlyRows = monthlyTotals.map((item, index) => {
     Saldo akhir merupakan akumulasi saldo awal,
     pemasukan, dan pengeluaran sampai akhir setiap bulan.
   </div>
-</div>
 </section>
 
     <section className="home-shortcuts" aria-label="Menu lainnya">
