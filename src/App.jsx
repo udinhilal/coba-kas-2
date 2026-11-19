@@ -3989,7 +3989,34 @@ function ThemedDropdown({
   );
 }
 
-function Stat({ title, value, icon: Icon, tone, meta }) { return <div className="stat-card"><div className={`stat-icon ${tone}`}><Icon size={18} /></div><span className="eyebrow">{title}</span><strong>{value}</strong><small>{meta}</small></div>; }
+function Stat({ title, value, icon: Icon, tone, meta }) {
+  return (
+    <div className="stat-card">
+
+      {/* Ikon kartu */}
+      <div className={`stat-icon ${tone}`}>
+        <Icon size={19} />
+      </div>
+
+      {/* Isi kartu */}
+      <div className="stat-card-content">
+
+        <span
+          className="eyebrow stat-card-title"
+          data-tone={tone}
+        >
+          {title}
+        </span>
+
+        <strong>{value}</strong>
+
+        <small>{meta}</small>
+
+      </div>
+
+    </div>
+  );
+}
 function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const totalPreview =
