@@ -1676,3 +1676,118 @@ select:disabled {
   }
 
 }
+
+/* =================================================
+   FILTER + CETAK PDF
+   LAPORAN DAN RINGKASAN PUBLIK — 2 KOLOM
+   ================================================= */
+
+/* Menu Laporan */
+.report-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  width: 100%;
+  margin: 12px 0 20px;
+}
+
+.report-controls .report-period-control {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1;
+  min-width: 0;
+  margin: 0 !important;
+  gap: 6px;
+}
+
+.report-controls > .primary-btn {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 !important;
+}
+
+/* Menu Ringkasan Publik */
+.public-controls {
+  align-items: stretch;
+}
+
+.public-controls label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Tampilan HP */
+@media screen and (max-width: 760px) {
+
+  /* Dua kolom sejajar */
+  .report-page .report-controls,
+  .public-summary .public-controls {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: end !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 12px 0 16px !important;
+  }
+
+  /* Filter periode */
+  .report-controls .report-period-control,
+  .public-controls label {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    gap: 6px !important;
+  }
+
+  /* Dropdown memenuhi kolom */
+  .report-controls .themed-dropdown,
+  .report-controls .themed-dropdown-trigger,
+  .public-controls .themed-dropdown,
+  .public-controls .themed-dropdown-trigger {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Tombol PDF memenuhi kolom */
+  .report-controls > .primary-btn,
+  .public-controls > .primary-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    margin: 0 !important;
+    padding: 5px 7px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    box-sizing: border-box !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    white-space: normal !important;
+  }
+
+  .report-controls > .primary-btn svg,
+  .public-controls > .primary-btn svg {
+    width: 15px !important;
+    height: 15px !important;
+    flex-shrink: 0;
+  }
+}
+
+/* Jangan tampilkan kontrol pada hasil cetak */
+@media print {
+  .report-controls,
+  .public-controls {
+    display: none !important;
+  }
+}
