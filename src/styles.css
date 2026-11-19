@@ -2136,3 +2136,263 @@ select:disabled {
     justify-content: flex-end;
   }
 }
+
+/* =========================================
+   HERO CARD - RINCIAN PEMASUKAN PENGELUARAN
+========================================= */
+
+.hero-cashflow-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 540px;
+  margin-top: 17px;
+}
+
+.hero-cashflow-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.hero-cashflow-item span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.hero-cashflow-item b {
+  display: block;
+  min-width: 0;
+  color: #ffffff;
+  font-size: clamp(13px, 2vw, 19px);
+  font-weight: 750;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.hero-cashflow-item.incoming b {
+  color: #b8f3d0;
+}
+
+.hero-cashflow-item.outgoing b {
+  color: #ffd1d1;
+}
+
+
+/* =========================================
+   KARTU RINCIAN SALDO KAS PER BULAN
+========================================= */
+
+.home-monthly-card {
+  width: 100%;
+  min-width: 0;
+  margin: 14px 0 20px;
+  padding: 17px;
+  border: 1px solid #dce5ef;
+  border-radius: 17px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(16, 42, 67, 0.045);
+  box-sizing: border-box;
+}
+
+.home-monthly-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e8edf3;
+}
+
+.home-monthly-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.home-monthly-heading > div > span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.9px;
+}
+
+.home-monthly-heading strong {
+  color: #173b65;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.home-monthly-heading small {
+  color: #64748b;
+  font-size: 11px;
+  text-align: right;
+}
+
+.home-monthly-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-top: 13px;
+}
+
+.home-month-row {
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #e5ebf2;
+  border-radius: 12px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.home-month-row.current {
+  border-color: #9bb5d1;
+  background: #f3f7fc;
+}
+
+.home-month-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.home-month-name {
+  color: #263f59;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.home-month-closing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  gap: 3px;
+}
+
+.home-month-closing small {
+  color: #718096;
+  font-size: 10px;
+}
+
+.home-month-closing b {
+  color: #173b65;
+  font-size: clamp(12px, 2.8vw, 15px);
+  font-weight: 800;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.home-month-flow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px dashed #e1e8f0;
+}
+
+.home-month-flow > span {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  font-size: 11px;
+}
+
+.home-month-income {
+  color: #16834c;
+}
+
+.home-month-expense {
+  color: #c04444;
+}
+
+.home-month-flow b {
+  margin-left: auto;
+  font-size: clamp(10px, 2.6vw, 12px);
+  font-weight: 750;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.home-monthly-footnote {
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid #edf1f5;
+  color: #8491a1;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   RESPONSIVE - LAYAR HP
+========================================= */
+
+@media (max-width: 480px) {
+  .hero-cashflow-details {
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .hero-cashflow-item {
+    padding: 10px 9px;
+    border-radius: 11px;
+  }
+
+  .hero-cashflow-item span {
+    font-size: 10px;
+  }
+
+  .hero-cashflow-item b {
+    font-size: clamp(11px, 3.2vw, 15px);
+  }
+
+  .home-monthly-card {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .home-monthly-heading strong {
+    font-size: 15px;
+  }
+
+  .home-month-row {
+    padding: 11px 10px;
+  }
+
+  .home-month-flow {
+    gap: 7px;
+  }
+}
+
+@media (max-width: 350px) {
+  .home-month-flow {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .home-month-flow > span {
+    justify-content: flex-start;
+  }
+
+  .home-month-flow b {
+    margin-left: auto;
+  }
+}
