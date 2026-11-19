@@ -1791,3 +1791,348 @@ select:disabled {
     display: none !important;
   }
 }
+
+/* =================================================
+   BERANDA — HEADER SALDO KAS DAN RINCIAN BULANAN
+   TEMA NAVY BLUE + PUTIH
+   ================================================= */
+
+/* HEADER NAVY */
+.hero-card {
+  height: auto !important;
+  min-height: 230px;
+}
+
+.hero-card > div:first-child {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* DUA RINGKASAN DALAM HEADER */
+.hero-cashflow-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  max-width: 560px;
+  margin-top: 17px;
+  padding-top: 12px;
+
+  border-top: 1px solid rgba(255,255,255,.22);
+}
+
+.hero-cashflow-item {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+
+  padding: 10px 12px;
+
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 11px;
+}
+
+.hero-cashflow-item span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #DBEAFE;
+}
+
+.hero-cashflow-item.incoming span {
+  color: #BBF7D0;
+}
+
+.hero-cashflow-item.outgoing span {
+  color: #FECACA;
+}
+
+.hero-cashflow-item b {
+  display: block;
+  color: #FFFFFF;
+  font-size: clamp(13px, 1.8vw, 19px);
+  font-weight: 800;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+/* KARTU SALDO KAS BULANAN */
+.home-monthly-card {
+  width: 100%;
+  min-width: 0;
+
+  margin: 0 0 28px;
+  padding: 17px 18px;
+
+  background: #FFFFFF;
+  border: 1px solid #DCE5EF;
+  border-radius: 15px;
+
+  box-shadow: 0 5px 18px rgba(16,42,67,.045);
+}
+
+/* JUDUL KARTU */
+.home-monthly-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding-bottom: 12px;
+  margin-bottom: 2px;
+
+  border-bottom: 1px solid #E8EEF5;
+}
+
+.home-monthly-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.home-monthly-heading span {
+  color: #64748B;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.home-monthly-heading strong {
+  color: #173B65;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.home-monthly-heading small {
+  color: #64748B;
+  font-size: 10px;
+  text-align: right;
+}
+
+/* BARIS SETIAP BULAN */
+.home-month-row {
+  padding: 11px 0;
+  border-bottom: 1px solid #EDF1F6;
+}
+
+.home-month-row:last-child {
+  border-bottom: 0;
+}
+
+/* BULAN BERJALAN */
+.home-month-row.current {
+  margin: 0 -8px;
+  padding: 11px 8px;
+
+  background: #EFF6FF;
+  border-radius: 10px;
+  border-bottom-color: transparent;
+}
+
+/* NAMA BULAN DAN SALDO AKHIR */
+.home-month-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.home-month-name {
+  color: #173B65;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.home-month-closing {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 7px;
+  min-width: 0;
+}
+
+.home-month-closing small {
+  color: #64748B;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.home-month-closing b {
+  color: #102A43;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+/* NILAI MASUK DAN KELUAR */
+.home-month-flow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+
+  margin-top: 7px;
+}
+
+.home-month-income,
+.home-month-expense {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+
+  font-size: 10px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.home-month-income {
+  color: #15803D;
+}
+
+.home-month-expense {
+  color: #B91C1C;
+}
+
+.home-month-income b,
+.home-month-expense b {
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.home-month-income svg,
+.home-month-expense svg {
+  flex-shrink: 0;
+}
+
+/* CATATAN KARTU */
+.home-monthly-footnote {
+  padding-top: 10px;
+  border-top: 1px solid #E8EEF5;
+
+  color: #94A3B8;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+/* =================================================
+   PENYESUAIAN MOBILE
+   ================================================= */
+
+@media screen and (max-width: 760px) {
+
+  .hero-card {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 14px 15px !important;
+  }
+
+  .hero-cashflow-details {
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+  }
+
+  .hero-cashflow-item {
+    padding: 9px 8px;
+    border-radius: 9px;
+    gap: 6px;
+  }
+
+  .hero-cashflow-item span {
+    font-size: 9px;
+  }
+
+  .hero-cashflow-item b {
+    font-size: clamp(11px, 3.5vw, 15px);
+    line-height: 1.25;
+  }
+
+  .home-monthly-card {
+    padding: 12px;
+    border-radius: 13px;
+  }
+
+  .home-monthly-heading {
+    padding-bottom: 10px;
+  }
+
+  .home-monthly-heading strong {
+    font-size: 14px;
+  }
+
+  .home-month-row {
+    padding: 10px 0;
+  }
+
+  .home-month-row-top {
+    gap: 5px;
+  }
+
+  .home-month-name {
+    font-size: 11px;
+  }
+
+  .home-month-closing {
+    gap: 5px;
+  }
+
+  .home-month-closing small {
+    font-size: 8px;
+  }
+
+  .home-month-closing b {
+    font-size: 11px;
+  }
+
+  .home-month-flow {
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .home-month-income,
+  .home-month-expense {
+    font-size: 9px;
+    gap: 3px;
+  }
+
+  .home-month-income b,
+  .home-month-expense b {
+    font-size: 9px;
+  }
+}
+
+/* HP LEBAR SANGAT KECIL */
+@media screen and (max-width: 360px) {
+
+  .home-monthly-card {
+    padding: 10px;
+  }
+
+  .home-month-flow {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .home-month-row-top {
+    align-items: flex-start;
+  }
+
+  .home-month-closing {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
