@@ -1513,3 +1513,123 @@ select:disabled {
     font-size: 10.5px !important;
   }
 }
+/* =========================================
+   BERANDA - PENYELARASAN IKON DAN TEKS KARTU
+========================================= */
+
+@media (max-width: 800px) {
+
+  /* Susunan ikon dan isi kartu */
+  .overview-stat-grid > .stat-card {
+    display: grid !important;
+    grid-template-columns: 30px minmax(0, 1fr) !important;
+    grid-template-rows: auto !important;
+
+    align-items: start !important;
+    justify-items: stretch !important;
+
+    column-gap: 8px !important;
+    row-gap: 0 !important;
+
+    padding: 12px 10px !important;
+    text-align: left !important;
+  }
+
+  /* Posisi ikon di sebelah kiri */
+  .overview-stat-grid .stat-icon {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+
+    width: 30px !important;
+    height: 30px !important;
+
+    margin: 1px 0 0 !important;
+
+    align-self: start !important;
+    justify-self: start !important;
+  }
+
+  /* Seluruh tulisan berada dalam satu kolom */
+  .overview-stat-grid .stat-card-content {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    align-items: flex-start !important;
+    justify-content: center !important;
+
+    min-width: 0;
+    gap: 3px !important;
+
+    text-align: left !important;
+  }
+
+  /* Judul kartu */
+  .overview-stat-grid .stat-card-title {
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.4;
+    letter-spacing: .02em;
+    font-weight: 700 !important;
+  }
+
+  /* Warna judul pemasukan */
+  .overview-stat-grid
+  .stat-card-title[data-tone="green"] {
+    color: #15803D !important;
+  }
+
+  /* Warna judul pengeluaran */
+  .overview-stat-grid
+  .stat-card-title[data-tone="red"] {
+    color: #B91C1C !important;
+  }
+
+  /* Warna judul warga sudah bayar */
+  .overview-stat-grid
+  .stat-card-title[data-tone="gold"] {
+    color: #92400E !important;
+  }
+
+  /* Warna latar dan ikon pemasukan */
+  .overview-stat-grid .stat-icon.green {
+    background: #DCFCE7 !important;
+    color: #15803D !important;
+  }
+
+  /* Warna latar dan ikon pengeluaran */
+  .overview-stat-grid .stat-icon.red {
+    background: #FEE2E2 !important;
+    color: #B91C1C !important;
+  }
+
+  /* Warna latar dan ikon warga */
+  .overview-stat-grid .stat-icon.gold {
+    background: #FEF3C7 !important;
+    color: #92400E !important;
+  }
+
+  /* Nominal kartu */
+  .overview-stat-grid .stat-card-content strong {
+    margin: 0 !important;
+    font-size: 17px !important;
+    line-height: 1.3;
+    text-align: left !important;
+  }
+
+  /* Keterangan kartu */
+  .overview-stat-grid .stat-card-content small {
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.4;
+    text-align: left !important;
+  }
+
+  /* Kartu warga tetap memanjang */
+  .overview-stat-grid > .stat-card:nth-child(3) {
+    grid-column: 1 / -1 !important;
+  }
+
+}
