@@ -3960,14 +3960,16 @@ const monthlyRows = monthlyTotals
   </div>
 </div>
 
-  <div className="hero-art">
+    <div className="hero-art">
     <div className="sun" />
     <div className="hill h1" />
     <div className="hill h2" />
     <WalletCards size={42} />
   </div>
 </div>
-    <div className="section-head home-summary-head">
+</div>
+
+<div className="section-head home-summary-head">
   <div>
     <span className="eyebrow">Ringkasan tahun berjalan</span>
     <h2>Saldo kas per bulan</h2>
@@ -4082,8 +4084,11 @@ const monthlyRows = monthlyTotals
 </button>
       </div>
     </section>
+      
+  </section>
   );
 }
+
 function ThemedDropdown({
   value,
   onChange,
