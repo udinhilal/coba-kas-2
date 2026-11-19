@@ -2690,3 +2690,29 @@ select:disabled {
   text-align: right !important;
   transform: translateX(-8px) !important;
 }
+/* =========================================
+   POSISI NOMINAL MASUK
+   RATA KANAN + GESER SEDIKIT KE KIRI
+========================================= */
+
+@media (max-width: 650px) {
+
+  .home-month-flow > span.home-month-income {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    flex-wrap: nowrap !important;
+  }
+
+  .home-month-flow > span.home-month-income b {
+    display: block !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    margin-right: 5px !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+    transform: none !important;
+  }
+
+}
