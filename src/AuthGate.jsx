@@ -1,4 +1,5 @@
 
+import LoadingScreen from "./LoadingScreen.jsx";
 import { useEffect, useState } from "react";
 import { supabase, supabaseConfigured } from "./lib/supabaseClient";
 
@@ -210,13 +211,13 @@ export default function AuthGate({ children }) {
     }
   };
 
-  if (!ready) {
-    return (
-      <main className="auth-loading">
-        Memeriksa sesi Supabase…
-      </main>
-    );
-  }
+if (!ready) {
+  return (
+    <LoadingScreen
+      message="Memeriksa sesi login..."
+    />
+  );
+}
 
   // Masuk ke aplikasi jika sesi aktif,
   // kecuali sedang melakukan pemulihan kata sandi.
