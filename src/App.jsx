@@ -3467,8 +3467,9 @@ tbody tr:hover { background: #F8FAFC !important; }
   communityIdentityLine={communityIdentityLine}
   entries={entries}
   cashOut={cashOut}
-  residents={residents}
   runningBalance={runningBalance}
+  openingBalance={openingBalance}
+  manualAdjustment={manualAdjustment}
   setActive={setActive}
   setSettingsOpen={setSettingsOpen}
   onSignOut={onSignOut}
@@ -3739,63 +3740,186 @@ function Overview({
   entries = [],
   cashOut = [],
   runningBalance,
+  openingBalance = 0,
+  manualAdjustment = 0,
   setActive,
   setSettingsOpen,
-  residents = [],
   onSignOut,
   requestConfirmation
 }) {
-  // Semua nilai pada Beranda memakai akumulasi seluruh periode,
-  // agar konsisten dengan saldo kas berjalan.
-  const cleanTotal = entries.reduce(
-    (sum, e) => sum + Number(e.clean || 0),
-    0
-  );
-  const kasTotal = entries.reduce(
-    (sum, e) => sum + Number(e.kas || 0),
-    0
-  );
-  const otherTotal = entries.reduce(
-    (sum, e) => sum + Number(e.other || 0),
-    0
-  );
-  const totalIncome = cleanTotal + kasTotal + otherTotal;
-  const totalExpense = cashOut.reduce(
-    (sum, e) => sum + Number(e.amount || 0),
-    0
-  );
-  // Kartu warga di Beranda menampilkan total seluruh warga dan jumlah
-  // warga yang sudah membayar pada periode kalender yang sedang berjalan.
-  const currentPeriod = getPeriodeSekarang();
-  const currentPeriodEntries = entries.filter((entry) =>
-    cocokPeriode(entry, currentPeriod)
-  );
-  const paidResidentCount = residents.filter((resident) =>
-    currentPeriodEntries.some((payment) => {
-      const sameId =
-        payment.residentId != null && resident.id != null &&
-        String(payment.residentId) === String(resident.id);
+  
+// ============================================
+// TOTAL PEMASUKAN DAN PENGELUARAN KESELURUHAN
+// Untuk ditampilkan pada header navy
+// ============================================
 
-      const paymentName = String(payment.resident || "").trim().toLocaleLowerCase("id-ID");
-      const residentName = String(resident.name || "").trim().toLocaleLowerCase("id-ID");
-      const sameName = Boolean(paymentName && residentName && paymentName === residentName);
+const totalIncome = entries.reduce(
+  (sum, item) =>
+    sum +
+    Number(item.clean || 0) +
+    Number(item.kas || 0) +
+    Number(item.other || 0),
+  0
+);
 
-      const paymentBlock = String(payment.block || "").trim().toLocaleUpperCase("id-ID");
-      const residentBlock = String(resident.block || "").trim().toLocaleUpperCase("id-ID");
-      const paymentSubBlock = String(payment.subBlock || "").trim().toLocaleUpperCase("id-ID");
-      const residentSubBlock = String(resident.subBlock || "").trim().toLocaleUpperCase("id-ID");
-      const sameAddress = Boolean(
-        paymentBlock && residentBlock && paymentBlock === residentBlock &&
-        paymentSubBlock && residentSubBlock && paymentSubBlock === residentSubBlock
+const totalExpense = cashOut.reduce(
+  (sum, item) => sum + Number(item.amount || 0),
+  0
+);
+
+// ============================================
+// PERIODE TAHUN BERJALAN
+// ============================================
+
+const today = new Date();
+const currentYear = today.getFullYear();
+const currentMonthIndex = today.getMonth();
+
+// Membaca bulan dan tahun dari tanggal transaksi.
+// Mendukung tanggal ISO, 19 Nov 2026,
+// serta periode seperti November 2026.
+const getHomeDateParts = (item) => {
+  const candidates = [item?.date, item?.period];
+
+  for (const candidate of candidates) {
+    const value = String(candidate || "").trim();
+
+    if (!value) continue;
+
+    // Format ISO: 2026-11-19
+    let match = value.match(
+      /^(\d{4})-(\d{1,2})-\d{1,2}/
+    );
+
+    if (match) {
+      return {
+        year: Number(match[1]),
+        month: Number(match[2]) - 1
+      };
+    }
+
+    // Format numerik: 19/11/2026 atau 19-11-2026
+    match = value.match(
+      /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
+    );
+
+    if (match) {
+      return {
+        year: Number(match[3]),
+        month: Number(match[2]) - 1
+      };
+    }
+
+    // Format Indonesia: 19 Nov 2026 / November 2026
+    match = value.match(
+      /(?:\d{1,2}\s+)?([A-Za-z]+)\s+(\d{4})/
+    );
+
+    if (match) {
+      const monthIndex = namaBulan.findIndex(
+        (month) =>
+          month.slice(0, 3).toLowerCase() ===
+          match[1].slice(0, 3).toLowerCase()
       );
 
-      return sameId || sameName || sameAddress;
-    })
-  ).length;
-  const paidPercent = residents.length
-    ? Math.round((paidResidentCount / residents.length) * 100)
-    : 0;
+      if (monthIndex >= 0) {
+        return {
+          year: Number(match[2]),
+          month: monthIndex
+        };
+      }
+    }
+  }
 
+  return null;
+};
+
+// Total satu transaksi pembayaran
+const getPaymentAmount = (item) =>
+  Number(item.clean || 0) +
+  Number(item.kas || 0) +
+  Number(item.other || 0);
+
+// ============================================
+// REKAP PEMASUKAN DAN PENGELUARAN PER BULAN
+// ============================================
+
+const monthlyTotals = namaBulan.map(() => ({
+  income: 0,
+  expense: 0
+}));
+
+let previousYearIncome = 0;
+let previousYearExpense = 0;
+
+// Hitung transaksi pembayaran
+entries.forEach((item) => {
+  const dateParts = getHomeDateParts(item);
+  if (!dateParts) return;
+
+  const amount = getPaymentAmount(item);
+
+  if (dateParts.year < currentYear) {
+    previousYearIncome += amount;
+  }
+
+  if (
+    dateParts.year === currentYear &&
+    dateParts.month >= 0 &&
+    dateParts.month < 12
+  ) {
+    monthlyTotals[dateParts.month].income += amount;
+  }
+});
+
+// Hitung transaksi pengeluaran
+cashOut.forEach((item) => {
+  const dateParts = getHomeDateParts(item);
+  if (!dateParts) return;
+
+  const amount = Number(item.amount || 0);
+
+  if (dateParts.year < currentYear) {
+    previousYearExpense += amount;
+  }
+
+  if (
+    dateParts.year === currentYear &&
+    dateParts.month >= 0 &&
+    dateParts.month < 12
+  ) {
+    monthlyTotals[dateParts.month].expense += amount;
+  }
+});
+
+// ============================================
+// HITUNG SALDO AKHIR SECARA AKUMULATIF
+// ============================================
+
+// Saldo awal tahun berjalan:
+// saldo awal + koreksi + transaksi tahun sebelumnya.
+let accumulatedBalance =
+  Number(openingBalance || 0) +
+  Number(manualAdjustment || 0) +
+  previousYearIncome -
+  previousYearExpense;
+
+// Tampilkan Januari sampai bulan sekarang.
+const monthlyRows = monthlyTotals
+  .slice(0, currentMonthIndex + 1)
+  .map((item, index) => {
+
+    accumulatedBalance +=
+      item.income - item.expense;
+
+    return {
+      monthIndex: index,
+      income: item.income,
+      expense: item.expense,
+      closingBalance: accumulatedBalance
+    };
+  });
+  
   return (
     <section className="content">
     <div className="hero-card">
@@ -3812,23 +3936,29 @@ function Overview({
   <WalletCards size={15} />
   Saldo awal + total pemasukan − total pengeluaran + koreksi
 </span>
-    <div className="hero-income-details">
-      <div>
-        <span>Total iuran kebersihan</span>
-        <b>{money(cleanTotal)}</b>
-      </div>
+    
+<div className="hero-cashflow-details">
 
-      <div>
-        <span>Total iuran kas RT</span>
-        <b>{money(kasTotal)}</b>
-      </div>
+  {/* Total pemasukan */}
+  <div className="hero-cashflow-item incoming">
+    <span>
+      <ArrowDownLeft size={15} />
+      Total pemasukan
+    </span>
 
-      <div>
-        <span>Total iuran lainnya</span>
-        <b>{money(otherTotal)}</b>
-      </div>
-    </div>
+    <b>{money(totalIncome)}</b>
   </div>
+
+  {/* Total pengeluaran */}
+  <div className="hero-cashflow-item outgoing">
+    <span>
+      <ArrowUpRight size={15} />
+      Total pengeluaran
+    </span>
+
+    <b>{money(totalExpense)}</b>
+  </div>
+</div>
 
   <div className="hero-art">
     <div className="sun" />
@@ -3839,7 +3969,8 @@ function Overview({
 </div>
     <div className="section-head home-summary-head">
   <div>
-    <h2>Ringkasan kas</h2>
+    <span className="eyebrow">Ringkasan tahun berjalan</span>
+    <h2>Saldo kas per bulan</h2>
   </div>
 
   <button
@@ -3849,29 +3980,79 @@ function Overview({
     + Input pembayaran
   </button>
 </div>
-    <div className="stat-grid overview-stat-grid">
-      <Stat
-        title="Total pemasukan"
-        value={money(totalIncome)}
-        icon={ArrowDownLeft}
-        tone="green"
-        meta={`${entries.length} transaksi pembayaran`}
-      />
-      <Stat
-        title="Total pengeluaran"
-        value={money(totalExpense)}
-        icon={ArrowUpRight}
-        tone="red"
-        meta={`${cashOut.length} transaksi pengeluaran`}
-      />
-      <Stat
-        title="Warga sudah bayar"
-        value={`${paidResidentCount} / ${residents.length}`}
-        icon={Users}
-        tone="gold"
-        meta={residents.length ? `${paidPercent}% warga membayar pada ${currentPeriod}` : "Belum ada data warga"}
-      />
+    
+{/* KARTU RINCIAN SALDO KAS PER BULAN */}
+
+<section className="home-monthly-card">
+
+  <div className="home-monthly-heading">
+    <div>
+      <span>RINCIAN BULANAN</span>
+      <strong>Tahun {currentYear}</strong>
     </div>
+
+    <small>
+      Januari – {namaBulan[currentMonthIndex]}
+    </small>
+  </div>
+
+  <div className="home-monthly-list">
+
+    {monthlyRows.map((item) => (
+
+      <div
+        key={item.monthIndex}
+        className={`home-month-row ${
+          item.monthIndex === currentMonthIndex
+            ? "current"
+            : ""
+        }`}
+      >
+
+        {/* Nama bulan dan saldo akhir */}
+        <div className="home-month-row-top">
+
+          <strong className="home-month-name">
+            {namaBulan[item.monthIndex]}
+          </strong>
+
+          <div className="home-month-closing">
+            <small>Saldo akhir</small>
+            <b>{money(item.closingBalance)}</b>
+          </div>
+
+        </div>
+
+        {/* Pemasukan dan pengeluaran bulanan */}
+        <div className="home-month-flow">
+
+          <span className="home-month-income">
+            <ArrowDownLeft size={12} />
+            Masuk
+            <b>{money(item.income)}</b>
+          </span>
+
+          <span className="home-month-expense">
+            <ArrowUpRight size={12} />
+            Keluar
+            <b>{money(item.expense)}</b>
+          </span>
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+  <div className="home-monthly-footnote">
+    Saldo akhir merupakan akumulasi saldo awal,
+    pemasukan, dan pengeluaran sampai akhir setiap bulan.
+  </div>
+
+</section>
+
     <section className="home-shortcuts" aria-label="Menu lainnya">
       <div className="home-shortcuts-heading"><div><span className="eyebrow">Akses cepat</span><h2>Akses cepat</h2></div></div>
       <div className="home-shortcuts-grid">
