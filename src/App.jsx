@@ -3747,6 +3747,9 @@ function Overview({
   onSignOut,
   requestConfirmation
 }) {
+// Navigasi kartu rincian bulanan
+const [monthlyPage, setMonthlyPage] = useState(null);
+const [showAllMonthly, setShowAllMonthly] = useState(false);
   
 // ============================================
 // TOTAL PEMASUKAN DAN PENGELUARAN KESELURUHAN
@@ -3999,6 +4002,34 @@ const monthlyRows = monthlyTotals.map((item, index) => {
     closingBalance: accumulatedBalance
   };
 });
+  // ============================================
+// NAVIGASI KARTU BULANAN - 4 BULAN PER HALAMAN
+// ============================================
+
+// Jumlah halaman (setiap halaman berisi 4 bulan)
+const totalMonthlyPages = Math.max(
+  1,
+  Math.ceil(monthlyRows.length / 4)
+);
+
+// Pertama kali dibuka, tampilkan kelompok periode terbaru
+const activeMonthlyPage = Math.min(
+  monthlyPage === null
+    ? totalMonthlyPages - 1
+    : monthlyPage,
+  totalMonthlyPages - 1
+);
+
+// Posisi bulan yang ditampilkan
+const firstVisibleIndex = activeMonthlyPage * 4;
+const lastVisibleIndex = Math.min(
+  firstVisibleIndex + 3,
+  monthlyRows.length - 1
+);
+
+// Nama periode awal dan akhir halaman
+const pageStartRow = monthlyRows[firstVisibleIndex];
+const pageEndRow = monthlyRows[lastVisibleIndex];
   
   return (
     <section className="content">
@@ -4067,67 +4098,138 @@ const monthlyRows = monthlyTotals.map((item, index) => {
 
 <section className="home-monthly-card">
 
-  <div className="home-monthly-heading">
-    <div>
-      <span>RINCIAN BULANAN</span>
-      <strong>Rincian saldo kas</strong>
-
-<small>
-  Januari {currentYear} –{" "}
-  {monthlyRows[monthlyRows.length - 1]?.monthName}{" "}
-  {monthlyRows[monthlyRows.length - 1]?.year}
-</small>
+<div className="home-monthly-heading">
+  <div>
+    <span>RINCIAN BULANAN</span>
+    <strong>Saldo kas per periode</strong>
   </div>
+
+  <small>
+    {monthlyRows[0]?.monthName} {monthlyRows[0]?.year}
+    {" – "}
+    {monthlyRows[monthlyRows.length - 1]?.monthName}{" "}
+    {monthlyRows[monthlyRows.length - 1]?.year}
+  </small>
 </div>
+
+
+{/* NAVIGASI HALAMAN BULANAN */}
+
+{monthlyRows.length > 4 && !showAllMonthly && (
+  <div className="home-monthly-pagination">
+
+    <button
+      type="button"
+      disabled={activeMonthlyPage === 0}
+      onClick={() => {
+        setShowAllMonthly(false);
+        setMonthlyPage(Math.max(0, activeMonthlyPage - 1));
+      }}
+    >
+      ‹ Sebelumnya
+    </button>
+
+    <span>
+      {pageStartRow?.monthName} {pageStartRow?.year}
+      {" – "}
+      {pageEndRow?.monthName} {pageEndRow?.year}
+    </span>
+
+    <button
+      type="button"
+      disabled={activeMonthlyPage >= totalMonthlyPages - 1}
+      onClick={() => {
+        setShowAllMonthly(false);
+        setMonthlyPage(
+          Math.min(totalMonthlyPages - 1, activeMonthlyPage + 1)
+        );
+      }}
+    >
+      Berikutnya ›
+    </button>
+
+  </div>
+)}
+
+
+{/* TOMBOL LIHAT SEMUA / TUTUP */}
+
+{monthlyRows.length > 4 && (
+  <div className="home-monthly-expand-wrap">
+
+    <button
+      type="button"
+      onClick={() => {
+        setShowAllMonthly((prev) => !prev);
+      }}
+    >
+      {showAllMonthly
+        ? "Tampilkan 4 Bulan ↑"
+        : "Lihat Semua Periode ↓"}
+    </button>
+
+  </div>
+)}
   <div className="home-monthly-list">
 
-    {monthlyRows.map((item) => (
+    {monthlyRows.map((item, index) => {
 
-      <div
-        key={`${item.year}-${item.monthIndex}`}
-        className={`home-month-row ${
-          item.year === currentYear &&
-          item.monthIndex === currentMonthIndex
-            ? "current"
-            : ""
-        }`}
-      >
+  // Sembunyikan bulan di luar halaman aktif pada mobile
+  const isOutsidePage =
+    !showAllMonthly &&
+    (
+      index < firstVisibleIndex ||
+      index > lastVisibleIndex
+    );
 
-        {/* Nama bulan dan saldo akhir */}
-        <div className="home-month-row-top">
+  return (
+    <div
+      key={`${item.year}-${item.monthIndex}`}
+      className={`home-month-row ${
+        item.year === currentYear &&
+        item.monthIndex === currentMonthIndex
+          ? "current"
+          : ""
+      } ${
+        isOutsidePage ? "is-outside-page" : ""
+      }`}
+    >
 
-          <strong className="home-month-name">
-            {item.monthName} {item.year}
-          </strong>
+      {/* Nama bulan dan saldo akhir */}
+      <div className="home-month-row-top">
 
-          <div className="home-month-closing">
-            <small>Saldo akhir</small>
-            <b>{money(item.closingBalance)}</b>
-          </div>
+        <strong className="home-month-name">
+          {item.monthName} {item.year}
+        </strong>
 
-        </div>
-
-        {/* Pemasukan dan pengeluaran bulanan */}
-        <div className="home-month-flow">
-
-          <span className="home-month-income">
-            <ArrowDownLeft size={12} />
-            Masuk
-            <b>{money(item.income)}</b>
-          </span>
-
-          <span className="home-month-expense">
-            <ArrowUpRight size={12} />
-            Keluar
-            <b>{money(item.expense)}</b>
-          </span>
-
+        <div className="home-month-closing">
+          <small>Saldo akhir</small>
+          <b>{money(item.closingBalance)}</b>
         </div>
 
       </div>
 
-    ))}
 
+      {/* Pemasukan dan pengeluaran bulanan */}
+      <div className="home-month-flow">
+
+        <span className="home-month-income">
+          <ArrowDownLeft size={12} />
+          Masuk
+          <b>{money(item.income)}</b>
+        </span>
+
+        <span className="home-month-expense">
+          <ArrowUpRight size={12} />
+          Keluar
+          <b>{money(item.expense)}</b>
+        </span>
+
+      </div>
+
+    </div>
+  );
+})}
   </div>
 
   <div className="home-monthly-footnote">
