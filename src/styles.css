@@ -2862,3 +2862,71 @@ select:disabled {
   border-bottom: 1px solid #cbd5e1 !important;
   margin-bottom: 9px !important;
 }
+/* =========================================
+   LIHAT SEMUA TRANSAKSI ARUS KAS
+   KHUSUS VERSI MOBILE
+========================================= */
+
+/* Tombol disembunyikan pada desktop */
+.cashflow-view-all-wrap {
+  display: none;
+}
+
+@media (max-width: 650px) {
+
+  /* Tampilkan 5 transaksi pertama */
+  .cashflow-transaction-list:not(.expanded)
+  > .cashflow-transaction-card:nth-child(n + 6) {
+    display: none !important;
+  }
+
+  /* Area tombol */
+  .cashflow-view-all-wrap {
+    display: flex !important;
+    justify-content: center;
+    width: 100%;
+    margin: 10px 0 5px;
+  }
+
+  /* Tombol lihat semua */
+  .cashflow-view-all {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 14px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: transparent;
+    color: #173B65;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    cursor: pointer;
+  }
+
+  .cashflow-view-all:active {
+    opacity: 0.7;
+  }
+}
+
+
+/* =========================================
+   DESKTOP TETAP MENAMPILKAN SEMUA TRANSAKSI
+========================================= */
+
+@media (min-width: 651px) {
+
+  .cashflow-view-all-wrap {
+    display: none !important;
+  }
+
+  .cashflow-transaction-list
+  > .cashflow-transaction-card {
+    display: flex !important;
+  }
+
+}
