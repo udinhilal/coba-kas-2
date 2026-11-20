@@ -2856,3 +2856,9 @@ select:disabled {
   }
 
 }
+/* Garis pemisah di bawah judul kartu bulanan */
+.home-monthly-heading {
+  padding-bottom: 11px !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  margin-bottom: 9px !important;
+}
