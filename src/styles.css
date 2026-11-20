@@ -2930,3 +2930,118 @@ select:disabled {
   }
 
 }
+
+/* =====================================================
+   PENYEMPURNAAN KARTU SELURUH APLIKASI
+   NAVY BLUE + PUTIH
+   ===================================================== */
+
+/* STANDAR KARTU UTAMA */
+.stat-card,
+.big-card,
+.table-card,
+.form-card,
+.add-resident,
+.resident-card,
+.expense-form,
+.history-card,
+.balance-settings,
+.report-paper,
+.public-breakdown,
+.backup-card,
+.public-kpi,
+.report-stats > div,
+.home-monthly-card {
+
+  border: 1px solid #D4DFEA !important;
+  box-shadow: 0 4px 14px rgba(16, 42, 67, 0.065) !important;
+
+}
+
+/* KARTU TRANSAKSI ARUS KAS */
+.cashflow-transaction-card {
+  border-color: #D4DFEA !important;
+  box-shadow: 0 3px 10px rgba(16, 42, 67, 0.055) !important;
+}
+
+/* KARTU PERINGATAN
+   Tetap mempertahankan warna khususnya */
+.reset-card {
+  box-shadow: 0 4px 14px rgba(16, 42, 67, 0.055) !important;
+}
+
+/* KARTU UTAMA NAVY */
+.hero-card,
+.recap-banner,
+.cashflow-banner {
+  box-shadow: 0 8px 22px rgba(16, 42, 67, 0.13) !important;
+}
+
+/* MODAL */
+.payment-preview-modal,
+.cashflow-detail-modal,
+.login-card {
+  box-shadow: 0 12px 32px rgba(16, 42, 67, 0.12) !important;
+}
+
+/* =====================================================
+   PENYESUAIAN MOBILE
+   BAYANGAN LEBIH HALUS
+   ===================================================== */
+
+@media screen and (max-width: 760px) {
+
+  .stat-card,
+  .big-card,
+  .table-card,
+  .form-card,
+  .add-resident,
+  .resident-card,
+  .expense-form,
+  .history-card,
+  .balance-settings,
+  .report-paper,
+  .public-breakdown,
+  .backup-card,
+  .public-kpi,
+  .report-stats > div,
+  .home-monthly-card {
+
+    border-color: #DCE5EF !important;
+    box-shadow: 0 3px 10px rgba(16, 42, 67, 0.055) !important;
+
+  }
+
+  .cashflow-transaction-card {
+    box-shadow: 0 2px 8px rgba(16, 42, 67, 0.05) !important;
+  }
+
+}
+
+/* HOVER HALUS UNTUK DESKTOP */
+@media (hover: hover) and (min-width: 761px) {
+
+  .stat-card,
+  .big-card,
+  .resident-card,
+  .public-kpi {
+
+    transition:
+      box-shadow .2s ease,
+      border-color .2s ease,
+      transform .2s ease;
+
+  }
+
+  .stat-card:hover,
+  .big-card:hover,
+  .resident-card:hover,
+  .public-kpi:hover {
+
+    border-color: #B8CBE0 !important;
+    box-shadow: 0 7px 19px rgba(16, 42, 67, 0.09) !important;
+    transform: translateY(-1px);
+
+  }
+
+}
