@@ -2716,3 +2716,143 @@ select:disabled {
   }
 
 }
+/* =========================================
+   NAVIGASI KARTU RINCIAN BULANAN
+========================================= */
+
+/* Default: navigasi hanya untuk mobile */
+.home-monthly-pagination,
+.home-monthly-expand-wrap {
+  display: none;
+}
+
+
+/* =========================================
+   TAMPILAN MOBILE
+========================================= */
+
+@media (max-width: 650px) {
+
+  /* Baris tombol sebelumnya dan berikutnya */
+  .home-monthly-pagination {
+    display: grid !important;
+
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+
+    align-items: center;
+    gap: 5px;
+
+    width: 100%;
+    margin: 10px 0 5px;
+  }
+
+  .home-monthly-pagination button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 8px;
+
+    border: 1px solid #dce5ef;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #173B65;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    white-space: nowrap;
+  }
+
+  .home-monthly-pagination button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* Keterangan periode halaman */
+  .home-monthly-pagination span {
+    display: block;
+
+    min-width: 0;
+    text-align: center;
+
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+
+  /* Sembunyikan bulan di luar halaman aktif */
+  .home-month-row.is-outside-page {
+    display: none !important;
+  }
+
+
+  /* Tombol lihat semua */
+  .home-monthly-expand-wrap {
+    display: flex !important;
+    justify-content: center;
+    width: 100%;
+
+    margin: 7px 0 2px;
+  }
+
+  .home-monthly-expand-wrap button {
+    padding: 7px 12px;
+
+    border: 0;
+    border-radius: 7px;
+
+    background: transparent;
+    color: #173B65;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    cursor: pointer;
+  }
+
+}
+
+
+/* =========================================
+   LAYAR HP KECIL
+========================================= */
+
+@media (max-width: 360px) {
+
+  .home-monthly-pagination {
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+    gap: 3px;
+  }
+
+  .home-monthly-pagination button {
+    padding: 7px 5px;
+    font-size: 9px;
+  }
+
+  .home-monthly-pagination span {
+    font-size: 9px;
+  }
+
+}
+
+
+/* =========================================
+   DESKTOP TETAP MENAMPILKAN SEMUA BULAN
+========================================= */
+
+@media (min-width: 651px) {
+
+  .home-monthly-pagination,
+  .home-monthly-expand-wrap {
+    display: none !important;
+  }
+
+  .home-month-row.is-outside-page {
+    display: block !important;
+  }
+
+}
