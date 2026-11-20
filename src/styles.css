@@ -1929,7 +1929,7 @@ select:disabled {
 
 /* BULAN BERJALAN */
 .home-month-row.current {
-  margin: 0 -6px;
+  margin: 0 -4px;
   padding: 11px 0px;
 
   background: #EFF6FF;
