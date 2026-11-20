@@ -2455,8 +2455,8 @@ select:disabled {
 
   /* Penanda bulan berjalan */
   .home-month-row.current {
-    padding-left: 2px;
-    padding-right: 8px;
+    padding-left: 8px;
+    padding-right: 5px;
     border: 0;
     border-radius: 9px;
     background: #f3f7fc;
