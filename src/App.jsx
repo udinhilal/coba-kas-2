@@ -4806,59 +4806,88 @@ function Cashflow({
           <small>{transactions.length} transaksi</small>
         </div>
         {transactions.length ? (
-          <div
-            className={`cashflow-transaction-list ${showAllCashflowTransactions ? "expanded" : ""}`}>
-            {transactions.map((item) => (
-              <article
-                className={`cashflow-transaction-card ${item.type === "keluar" ? "is-clickable" : ""}`}
-                key={item.id}
-                role={item.type === "keluar" ? "button" : undefined}
-                tabIndex={item.type === "keluar" ? 0 : undefined}
-                onClick={item.type === "keluar" ? () => setSelectedExpense(item.raw) : undefined}
-                onKeyDown={item.type === "keluar" ? (event) => {
+  <>
+
+    {/* DAFTAR TRANSAKSI */}
+    <div
+      className={`cashflow-transaction-list ${
+        showAllCashflowTransactions ? "expanded" : ""
+      }`}
+    >
+      {transactions.map((item) => (
+        <article
+          className={`cashflow-transaction-card ${
+            item.type === "keluar" ? "is-clickable" : ""
+          }`}
+          key={item.id}
+          role={item.type === "keluar" ? "button" : undefined}
+          tabIndex={item.type === "keluar" ? 0 : undefined}
+          onClick={
+            item.type === "keluar"
+              ? () => setSelectedExpense(item.raw)
+              : undefined
+          }
+          onKeyDown={
+            item.type === "keluar"
+              ? (event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
                     setSelectedExpense(item.raw);
                   }
-                } : undefined}
-              >
-                <div className={`cashflow-transaction-icon ${item.type}`}>
-                  {item.type === "masuk" ? <ArrowDownLeft size={19} /> : <ArrowUpRight size={19} />}
-                </div>
-                <div className="cashflow-transaction-main">
-                  <strong>{item.title}</strong>
-                  <span>{item.date} · {item.type === "masuk" ? "Kas masuk" : "Kas keluar"}</span>
-                </div>
-                <div className={`cashflow-transaction-amount ${item.type}`}>
-                  {item.type === "masuk" ? "+" : "−"}{money(item.amount)}
-                  {item.type === "keluar" && <small className="cashflow-tap-hint">Lihat rincian</small>}
-                </div>
-              </article>
-            ))}
-          </div>
-      
-          {/* TOMBOL LIHAT SEMUA TRANSAKSI */}
-          {transactions.length > 5 && (
-            <div className="cashflow-view-all-wrap">
-              <button
-                type="button"
-                className="cashflow-view-all"
-                onClick={() =>
-                  setShowAllCashflowTransactions((prev) => !prev)
                 }
-              >
-                {showAllCashflowTransactions
-                  ? "Tampilkan Lebih Sedikit ↑"
-                  : "Lihat Semua Transaksi ↓"}
-              </button>
-            </div>
-          )}
-
-        ) : (
-          <div className="cashflow-empty">
-            Belum ada transaksi untuk filter yang dipilih.
+              : undefined
+          }
+        >
+          <div className={`cashflow-transaction-icon ${item.type}`}>
+            {item.type === "masuk"
+              ? <ArrowDownLeft size={19} />
+              : <ArrowUpRight size={19} />}
           </div>
-        )}
+
+          <div className="cashflow-transaction-main">
+            <strong>{item.title}</strong>
+            <span>
+              {item.date} · {item.type === "masuk" ? "Kas masuk" : "Kas keluar"}
+            </span>
+          </div>
+
+          <div className={`cashflow-transaction-amount ${item.type}`}>
+            {item.type === "masuk" ? "+" : "−"}{money(item.amount)}
+
+            {item.type === "keluar" && (
+              <small className="cashflow-tap-hint">
+                Lihat rincian
+              </small>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+
+
+    {/* TOMBOL LIHAT SEMUA TRANSAKSI */}
+    {transactions.length > 5 && (
+      <div className="cashflow-view-all-wrap">
+        <button
+          type="button"
+          className="cashflow-view-all"
+          onClick={() =>
+            setShowAllCashflowTransactions((prev) => !prev)
+          }
+        >
+          {showAllCashflowTransactions
+            ? "Tampilkan Lebih Sedikit ↑"
+            : "Lihat Semua Transaksi ↓"}
+        </button>
+      </div>
+    )}
+
+  </>
+) : (
+  <div className="cashflow-empty">
+    Belum ada transaksi untuk filter yang dipilih.
+  </div>
+)}
       </section>
 
       {selectedExpense && (
