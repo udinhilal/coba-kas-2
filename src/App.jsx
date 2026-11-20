@@ -4621,6 +4621,9 @@ function Cashflow({
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [cashType, setCashType] = useState("semua");
   const [selectedExpense, setSelectedExpense] = useState(null);
+  // Pengaturan tampilan riwayat transaksi mobile
+  const [showAllCashflowTransactions, setShowAllCashflowTransactions] =
+  useState(false);
 
   useEffect(() => {
     if (selectedExpense && !cashOut.some((item) => item.id === selectedExpense.id)) {
@@ -4803,7 +4806,8 @@ function Cashflow({
           <small>{transactions.length} transaksi</small>
         </div>
         {transactions.length ? (
-          <div className="cashflow-transaction-list">
+          <div
+            className={`cashflow-transaction-list ${showAllCashflowTransactions ? "expanded" : ""}`}>
             {transactions.map((item) => (
               <article
                 className={`cashflow-transaction-card ${item.type === "keluar" ? "is-clickable" : ""}`}
@@ -4832,8 +4836,28 @@ function Cashflow({
               </article>
             ))}
           </div>
+      
+          {/* TOMBOL LIHAT SEMUA TRANSAKSI */}
+          {transactions.length > 5 && (
+            <div className="cashflow-view-all-wrap">
+              <button
+                type="button"
+                className="cashflow-view-all"
+                onClick={() =>
+                  setShowAllCashflowTransactions((prev) => !prev)
+                }
+              >
+                {showAllCashflowTransactions
+                  ? "Tampilkan Lebih Sedikit ↑"
+                  : "Lihat Semua Transaksi ↓"}
+              </button>
+            </div>
+          )}
+
         ) : (
-          <div className="cashflow-empty">Belum ada transaksi untuk filter yang dipilih.</div>
+          <div className="cashflow-empty">
+            Belum ada transaksi untuk filter yang dipilih.
+          </div>
         )}
       </section>
 
