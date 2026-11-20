@@ -1930,7 +1930,7 @@ select:disabled {
 /* BULAN BERJALAN */
 .home-month-row.current {
   margin: 0 -8px;
-  padding: 11px 8px;
+  padding: 11px 0px;
 
   background: #EFF6FF;
   border-radius: 10px;
@@ -2455,8 +2455,8 @@ select:disabled {
 
   /* Penanda bulan berjalan */
   .home-month-row.current {
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
     border: 0;
     border-radius: 9px;
     background: #f3f7fc;
