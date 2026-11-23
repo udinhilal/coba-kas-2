@@ -1,6 +1,6 @@
 // Pinned subject: simple RT finance app for a neighborhood treasurer. Plan: warm paper ledger meets modern utility, with terracotta as the one owned accent, a fast entry flow, and monthly recaps that make cash movement obvious.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, Check, ChevronDown, FileText, Globe2, Home, LogOut, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
+import { ArrowDown, ArrowDownLeft, ArrowUp, ArrowUpRight, BookOpen, CalendarDays, Check, ChevronDown, FileText, Globe2, Home, LogOut, Menu, Pencil, Plus, ReceiptText, Search, Settings2, Trash2, Users, WalletCards, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import "./styles.css";
 
@@ -5092,14 +5092,26 @@ function Cashflow({
       </section>
 
       <div className="cashflow-entry-actions">
-        <button type="button" className="primary-btn cashflow-entry-trigger" onClick={openExpenseForm}>
-          <Plus size={17} /> {editingExpense ? "Ubah Pengeluaran" : "Input Pengeluaran"}
-        </button>
-        <button type="button" className="cashflow-entry-trigger income" onClick={openIncomeForm}>
-          <Plus size={17} /> {editingOtherIncome ? "Ubah Pemasukan Lain" : "Pemasukan Lain"}
-        </button>
-      </div>
+  {/* Tombol Input Pengeluaran */}
+  <button
+    type="button"
+    className="cashflow-entry-trigger expense"
+    onClick={openExpenseForm}
+  >
+    <ArrowUp size={17} strokeWidth={2.5} />
+    {editingExpense ? "Ubah Pengeluaran" : "Input Pengeluaran"}
+  </button>
 
+  {/* Tombol Input Pemasukan Lain */}
+  <button
+    type="button"
+    className="cashflow-entry-trigger income"
+    onClick={openIncomeForm}
+  >
+    <ArrowDown size={17} strokeWidth={2.5} />
+    {editingOtherIncome ? "Ubah Pemasukan Lain" : "Pemasukan Lain"}
+  </button>
+</div>
       {activeEntryForm === "expense" && (
         <div className="cashflow-entry-panel">
           <form className="expense-form" onSubmit={(event) => {
