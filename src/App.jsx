@@ -3561,26 +3561,46 @@ tbody tr:hover { background: #F8FAFC !important; }
             padding-bottom: 20px !important;
           }
           .topbar.apphead {
-            min-height: 78px !important;
-            padding: 13px 14px !important;
-            margin: 0 0 20px !important;
-            border-radius: 14px !important;
+            /* Header mobile memenuhi lebar layar, mulai tepat di bawah status bar */
+            width: calc(100% + 28px) !important;
+            min-height: 92px !important;
+            margin: -20px -14px 20px !important;
+            padding: 18px 18px 16px !important;
+            border: 0 !important;
+            border-bottom: 1px solid rgba(219,234,254,.30) !important;
+            border-radius: 0 0 17px 17px !important;
+            background-color: #174B7A !important;
+            background-image: linear-gradient(116deg, #123B63 0%, #1C5689 48%, #347FB9 100%) !important;
+            /* Bayangan gelap di batas atas memberi pemisah visual dari status bar Android */
+            box-shadow: 0 -7px 18px rgba(0,0,0,.28), 0 9px 22px rgba(16,42,67,.22) !important;
           }
           .topbar.apphead::after {
-            right: -12%;
-            width: 54%;
-            opacity: .72;
+            top: -22%;
+            right: -5%;
+            width: 62%;
+            height: 170%;
+            opacity: .95;
+            background:
+              linear-gradient(135deg, transparent 0 24%, rgba(191,219,254,.22) 24% 43%, transparent 43% 100%),
+              linear-gradient(45deg, transparent 0 46%, rgba(147,197,253,.20) 46% 66%, transparent 66% 100%),
+              linear-gradient(135deg, transparent 0 70%, rgba(219,234,254,.13) 70% 100%);
           }
           .topbar.apphead > div {
-            padding-left: 11px !important;
+            padding-left: 12px !important;
+            border-left-color: rgba(219,234,254,.78) !important;
           }
           .topbar.apphead .eyebrow {
-            font-size: 9px !important;
+            color: #DCEBFA !important;
+            font-size: 10px !important;
+            font-weight: 650 !important;
+            text-shadow: 0 1px 3px rgba(5,24,43,.28) !important;
           }
           .topbar.apphead h1 {
+            color: #FFFFFF !important;
             font-size: clamp(20px, 5.8vw, 25px) !important;
             line-height: 1.22 !important;
             margin-top: 5px !important;
+            text-shadow: 0 2px 5px rgba(4,22,40,.36) !important;
           }
         }
         @media screen and (max-width: 360px) {
