@@ -3441,6 +3441,168 @@ tbody tr:hover { background: #F8FAFC !important; }
           }
         }
 
+
+
+        /* =========================================================
+           PENYEGARAN HEADER GEOMETRIS + NAVBAR MOBILE NON-MELAYANG
+           Hanya mengubah presentasi; struktur menu dan fungsi tetap.
+           ========================================================= */
+        .topbar.apphead {
+          position: relative !important;
+          isolation: isolate;
+          overflow: hidden;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          min-height: 88px;
+          padding: 17px 22px !important;
+          margin: 0 0 24px !important;
+          border: 1px solid #DCEAF8 !important;
+          border-radius: 17px !important;
+          background-color: #F3F8FF !important;
+          background-image: linear-gradient(112deg, #FFFFFF 0%, #F3F8FF 52%, #E7F1FD 100%) !important;
+          box-shadow: 0 5px 18px rgba(16,42,67,.055) !important;
+        }
+        .topbar.apphead::after {
+          content: "";
+          position: absolute;
+          z-index: 0;
+          pointer-events: none;
+          top: -28%;
+          right: -3%;
+          width: 48%;
+          height: 160%;
+          opacity: .9;
+          background:
+            linear-gradient(135deg, transparent 0 28%, rgba(191,219,254,.42) 28% 49%, transparent 49% 100%),
+            linear-gradient(45deg, transparent 0 49%, rgba(147,197,253,.25) 49% 70%, transparent 70% 100%),
+            linear-gradient(135deg, transparent 0 72%, rgba(37,99,235,.075) 72% 100%);
+          clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+        }
+        .topbar.apphead > * {
+          position: relative;
+          z-index: 1;
+        }
+        .topbar.apphead > div {
+          border-left: 3px solid #93BCEB !important;
+          padding-left: 15px !important;
+        }
+        .topbar.apphead .eyebrow {
+          color: #526F91 !important;
+          letter-spacing: .08em;
+        }
+        .topbar.apphead h1 {
+          color: #102A43 !important;
+          margin-top: 6px !important;
+          line-height: 1.22 !important;
+          text-shadow: none !important;
+        }
+
+        @media screen and (max-width: 800px) {
+          /* Ruang konten cukup untuk navbar bawah yang menempel di tepi layar */
+          .app-shell {
+            padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+          }
+          .mobile-floating-nav {
+            display: flex !important;
+            position: fixed !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+            min-height: 68px !important;
+            z-index: 1200 !important;
+            align-items: center !important;
+            justify-content: space-around !important;
+            gap: 3px !important;
+            padding: 6px 7px calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+            border: 0 !important;
+            border-top: 1px solid #294966 !important;
+            border-radius: 0 !important;
+            background: #102A43 !important;
+            box-shadow: 0 -4px 16px rgba(16,42,67,.13) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+          }
+          .mobile-floating-nav button {
+            appearance: none;
+            display: flex !important;
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            min-height: 50px !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 4px !important;
+            padding: 4px 2px !important;
+            border: 1px solid transparent !important;
+            border-radius: 10px !important;
+            background: transparent !important;
+            color: #D5E2F0 !important;
+            font: 600 10px/1.1 'Inter', sans-serif !important;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+          }
+          .mobile-floating-nav button svg {
+            flex: 0 0 auto !important;
+            color: #C7D9ED !important;
+          }
+          .mobile-floating-nav button.active {
+            color: #FFFFFF !important;
+            background: rgba(147,197,253,.16) !important;
+            border-color: rgba(191,219,254,.16) !important;
+          }
+          .mobile-floating-nav button.active svg {
+            color: #BFDBFE !important;
+            stroke-width: 2.5;
+          }
+          .main {
+            padding-bottom: 20px !important;
+          }
+          .topbar.apphead {
+            min-height: 78px !important;
+            padding: 13px 14px !important;
+            margin: 0 0 20px !important;
+            border-radius: 14px !important;
+          }
+          .topbar.apphead::after {
+            right: -12%;
+            width: 54%;
+            opacity: .72;
+          }
+          .topbar.apphead > div {
+            padding-left: 11px !important;
+          }
+          .topbar.apphead .eyebrow {
+            font-size: 9px !important;
+          }
+          .topbar.apphead h1 {
+            font-size: clamp(20px, 5.8vw, 25px) !important;
+            line-height: 1.22 !important;
+            margin-top: 5px !important;
+          }
+        }
+        @media screen and (max-width: 360px) {
+          .mobile-floating-nav {
+            padding-left: 4px !important;
+            padding-right: 4px !important;
+          }
+          .mobile-floating-nav button {
+            gap: 3px !important;
+            font-size: 9px !important;
+          }
+          .mobile-floating-nav button svg {
+            width: 18px;
+            height: 18px;
+          }
+        }
+        @media print {
+          .topbar.apphead { display: none !important; }
+          .mobile-floating-nav { display: none !important; }
+          .app-shell { padding-bottom: 0 !important; }
+        }
+
   `}</style>
       {mobileMenuOpen && (
   <button
@@ -3491,7 +3653,7 @@ tbody tr:hover { background: #F8FAFC !important; }
       </nav>
       <main className="main">
         <div className="connection-status" style={{ display: "none" }}></div>
-        <header className="topbar">
+        <header className="topbar apphead">
 
   <button
     type="button"
