@@ -1,28 +1,33 @@
-# Patch struktur repository siap commit
+# Pembaruan fitur Pemasukan Lain
 
-Bundle ini berisi isi root project Vite, bukan folder pembungkus. Ekstrak ke root repository GitHub sehingga susunannya langsung seperti berikut:
+Bundle ini berisi isi root project Vite. Saat memperbarui repository GitHub yang sudah ada, unggah dan timpa file dengan nama yang sama sesuai struktur di bawah ini. Jangan mengunggah folder pembungkus ZIP sebagai satu tingkat tambahan.
 
+```text
+repository-root/
+├── index.html
+├── package.json
+├── vite.config.js
+├── vercel.json
+├── README.md
+├── SUPABASE-PEMASUKAN-LAIN.sql
+├── PETUNJUK-PEMASUKAN-LAIN.md
+└── src/
+    ├── App.jsx
+    ├── CloudApp.jsx
+    ├── AuthGate.jsx
+    ├── LoadingScreen.jsx
+    ├── auth.css
+    ├── styles.css
+    ├── main.jsx
+    └── lib/supabaseClient.js
 ```
-.gitignore
-.env.example
-index.html
-package.json
-vite.config.js
-vercel.json
-src/main.jsx
-src/App.jsx
-src/AuthGate.jsx
-src/auth.css
-src/styles.css
-src/lib/supabaseClient.js
-```
 
-## Cara commit ke repository yang sudah ada
-1. Unduh dan ekstrak bundle.
-2. Di repository GitHub, pilih **Add file → Upload files**.
-3. Unggah file dan folder di atas dari hasil ekstrak, jangan unggah folder pembungkus.
-4. Pastikan `index.html` dan `package.json` berada di root, dan `src/main.jsx` berada di `src/`.
-5. Commit dengan pesan `Fix Vite root structure and add Supabase Auth`.
-6. Pastikan Vercel **Root Directory** menunjuk ke lokasi `package.json`, lalu redeploy.
+## Urutan pembaruan
 
-Jangan upload `.env.local` atau `service_role` key. Tambahkan `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY` melalui Vercel Environment Variables.
+1. Sebelum deployment kode, buka Supabase Dashboard → SQL Editor → New query.
+2. Salin isi `SUPABASE-PEMASUKAN-LAIN.sql`, lalu jalankan satu kali. SQL hanya membuat tabel `other_income` beserta RLS; tabel transaksi lama tidak dihapus.
+3. Di GitHub, pilih **Add file → Upload files**. Unggah file/folder proyek hasil ekstrak ke root repository dan timpa file dengan nama yang sama.
+4. Commit perubahan, misalnya dengan pesan `Add other income records to cashflow`.
+5. Pastikan Vercel **Root Directory** tetap menunjuk ke lokasi `package.json`, lalu pantau deployment.
+
+Jangan mengunggah `.env.local` atau `service_role` key. Variabel `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY` tetap dikelola melalui Vercel Environment Variables.

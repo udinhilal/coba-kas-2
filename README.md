@@ -10,6 +10,8 @@ repository-root/
 ├── vite.config.js
 ├── vercel.json
 ├── .env.example
+├── SUPABASE-PEMASUKAN-LAIN.sql
+├── PETUNJUK-PEMASUKAN-LAIN.md
 └── src/
     ├── main.jsx
     ├── App.jsx
@@ -32,4 +34,4 @@ Import repository di Vercel. Atur Framework Preset `Vite`, Build Command `npm ru
 ## Supabase Auth
 Atur Supabase Authentication → URL Configuration: Site URL = domain Vercel, Redirect URLs mencakup domain Vercel dan `http://localhost:5173/**`. Aktifkan Email provider.
 
-Catatan: autentikasi disambungkan ke Supabase; data warga/transaksi saat ini tetap tersimpan lokal di browser, belum memakai tabel cloud. Jangan pernah memasukkan `service_role` key ke frontend.
+Data warga dan transaksi disinkronkan melalui tabel Supabase yang dipakai aplikasi. Untuk fitur Pemasukan Lain, jalankan isi file `SUPABASE-PEMASUKAN-LAIN.sql` melalui Supabase Dashboard → SQL Editor sebelum melakukan deployment kode baru. Petunjuk lengkap ada di `PETUNJUK-PEMASUKAN-LAIN.md`. Jangan pernah memasukkan `service_role` key ke frontend.
