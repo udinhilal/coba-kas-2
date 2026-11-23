@@ -3073,15 +3073,32 @@ select:disabled {
   white-space: normal;
 }
 
+/* ===================================
+   TOMBOL INPUT ARUS KAS
+   =================================== */
+
+/* Pengeluaran - merah */
+.cashflow-entry-trigger.expense {
+  color: #B91C1C;
+  background: #FFFFFF;
+  border: 1px solid #FECACA;
+  box-shadow: none;
+}
+
+.cashflow-entry-trigger.expense:hover {
+  background: #FEF2F2;
+}
+
+/* Pemasukan lain - hijau */
 .cashflow-entry-trigger.income {
-  color: #173B65;
-  background: #EAF2FB;
-  border: 1px solid #C6D8EC;
+  color: #15803D;
+  background: #FFFFFF;
+  border: 1px solid #BBF7D0;
   box-shadow: none;
 }
 
 .cashflow-entry-trigger.income:hover {
-  background: #DCEAF8;
+  background: #F0FDF4;
 }
 
 .cashflow-entry-panel {
