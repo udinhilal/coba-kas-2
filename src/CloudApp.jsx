@@ -116,6 +116,18 @@ const expenseRow = (x, owner) => ({
   title: String(x.title || "").trim() || "Pengeluaran",
   amount: num(x.amount),
 });
+const otherIncomeRow = (x, owner) => {
+  const periodMonth = periodToMonth(x.period);
+  const incomeDate = parseDisplayDate(x.date, periodMonth ? periodMonth.slice(0, 4) : undefined) || periodMonth || todayIso();
+  return {
+    id: idToUuid(x.id),
+    owner_id: owner,
+    income_date: incomeDate,
+    period_month: periodMonth || `${incomeDate.slice(0, 7)}-01`,
+    title: String(x.title || "").trim() || "Pemasukan lain",
+    amount: num(x.amount),
+  };
+};
 const historyRow = (item, owner) => ({
   id: idToUuid(item.id),
   owner_id: owner,
@@ -128,6 +140,7 @@ const TABLES = [
   ["residents", "residents", residentRow],
   ["payments", "entries", paymentRow],
   ["expenses", "cashOut", expenseRow],
+  ["other_income", "otherIncome", otherIncomeRow],
   ["balance_history", "balanceHistory", historyRow],
 ];
 
@@ -192,10 +205,11 @@ const pushDiff = async (prev, next, owner) => {
 };
 
 const loadFromSupabase = async (owner) => {
-  const [residents, payments, expenses, history, settings, identity] = await Promise.all([
+  const [residents, payments, expenses, otherIncome, history, settings, identity] = await Promise.all([
     supabase.from("residents").select("*").eq("owner_id", owner).order("created_at", { ascending: true }),
     supabase.from("payments").select("*").eq("owner_id", owner).order("payment_date", { ascending: false }).order("created_at", { ascending: false }),
     supabase.from("expenses").select("*").eq("owner_id", owner).order("expense_date", { ascending: false }).order("created_at", { ascending: false }),
+    supabase.from("other_income").select("*").eq("owner_id", owner).order("income_date", { ascending: false }).order("created_at", { ascending: false }),
     supabase.from("balance_history").select("*").eq("owner_id", owner).order("changed_at", { ascending: false }),
     supabase.from("cash_settings").select("*").eq("owner_id", owner).maybeSingle(),
     supabase.from("community_identity").select("*").eq("id", 1).maybeSingle(),
@@ -203,6 +217,7 @@ const loadFromSupabase = async (owner) => {
   raise(residents.error, "Muat data warga");
   raise(payments.error, "Muat pembayaran");
   raise(expenses.error, "Muat pengeluaran");
+  raise(otherIncome.error, "Muat pemasukan lain");
   raise(history.error, "Muat riwayat saldo");
   raise(settings.error, "Muat saldo");
   raise(identity.error, "Muat identitas RT/RW");
@@ -221,6 +236,13 @@ const loadFromSupabase = async (owner) => {
       other: num(p.other_amount),
     })),
     cashOut: (expenses.data || []).map((x) => ({ id: uuidToId(x.id), date: formatShortDate(x.expense_date), title: x.title, amount: num(x.amount) })),
+    otherIncome: (otherIncome.data || []).map((x) => ({
+      id: uuidToId(x.id),
+      date: formatShortDate(x.income_date),
+      period: formatPeriod(x.period_month || x.income_date),
+      title: x.title,
+      amount: num(x.amount),
+    })),
     openingBalance: num(settings.data?.opening_balance),
     manualAdjustment: num(settings.data?.manual_adjustment),
     balanceHistory: (history.data || []).map((item) => ({

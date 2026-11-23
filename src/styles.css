@@ -3045,3 +3045,117 @@ select:disabled {
   }
 
 }
+
+/* =====================================================
+   FORM PEMASUKAN LAIN DAN FORMAT NOMINAL ARUS KAS
+   NAVY BLUE + PUTIH
+===================================================== */
+.cashflow-entry-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 17px 0 12px;
+}
+
+.cashflow-entry-trigger {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.cashflow-entry-trigger.income {
+  color: #173B65;
+  background: #EAF2FB;
+  border: 1px solid #C6D8EC;
+  box-shadow: none;
+}
+
+.cashflow-entry-trigger.income:hover {
+  background: #DCEAF8;
+}
+
+.cashflow-entry-panel {
+  width: 100%;
+  margin: 0 0 18px;
+}
+
+.cashflow-entry-panel .expense-form {
+  margin: 0;
+  border-color: #DCE5EF;
+  box-shadow: 0 3px 10px rgba(16, 42, 67, .045);
+}
+
+.cashflow-entry-panel .input-money {
+  min-width: 0;
+  width: 100%;
+}
+
+.cashflow-entry-panel .input-money input {
+  min-width: 0;
+  width: 100%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.cashflow-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cashflow-form-actions .primary-btn,
+.cashflow-form-actions .secondary-btn {
+  justify-content: center;
+  min-height: 42px;
+}
+
+.category-dot.other-income {
+  background: #0F766E;
+}
+
+@media (max-width: 800px) {
+  .cashflow-entry-panel .expense-form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .cashflow-entry-panel .expense-form > * {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .cashflow-form-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cashflow-form-actions .primary-btn,
+  .cashflow-form-actions .secondary-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .cashflow-entry-actions {
+    gap: 7px;
+  }
+
+  .cashflow-entry-trigger {
+    min-height: 42px;
+    padding: 9px 7px;
+    gap: 4px;
+    font-size: 11px;
+  }
+}

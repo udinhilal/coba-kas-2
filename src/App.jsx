@@ -92,6 +92,7 @@ const readStored = () => { try { return JSON.parse(localStorage.getItem(STORAGE_
 const money = (n) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 // Format angka input dengan pemisah ribuan.
 // Nilai yang disimpan tetap berupa angka tanpa titik.
+const parseNominalInput = (value) => Number(String(value ?? "").replace(/\D/g, "")) || 0;
 const formatNominalInput = (value) => {
   const digits = String(value ?? "").replace(/\D/g, "");
 
@@ -248,6 +249,7 @@ export default function App({ user, onSignOut }) {
   const [entries, setEntries] = useState(stored?.entries ?? []);
   const defaultCashOut = [{ id: 1, date: "19 Okt 2026", title: "Pembelian alat kebersihan", amount: 850000 }, { id: 2, date: "12 Okt 2026", title: "Lampu jalan RT", amount: 400000 }];
   const [cashOut, setCashOut] = useState(stored?.cashOut ?? []);
+  const [otherIncome, setOtherIncome] = useState(stored?.otherIncome ?? []);
   const [openingBalance, setOpeningBalance] = useState(stored?.openingBalance ?? 0);
   const [manualAdjustment, setManualAdjustment] = useState(stored?.manualAdjustment ?? 0);
   const [balanceHistory, setBalanceHistory] = useState(stored?.balanceHistory ?? []);
@@ -261,6 +263,10 @@ export default function App({ user, onSignOut }) {
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expensePeriod, setExpensePeriod] = useState(getPeriodeSekarang());
   const [editingExpense, setEditingExpense] = useState(null);
+  const [otherIncomeTitle, setOtherIncomeTitle] = useState("");
+  const [otherIncomeAmount, setOtherIncomeAmount] = useState("");
+  const [otherIncomePeriod, setOtherIncomePeriod] = useState(getPeriodeSekarang());
+  const [editingOtherIncome, setEditingOtherIncome] = useState(null);
   const [block, setBlock] = useState("");
   const [paymentSubBlock, setPaymentSubBlock] = useState("");
   const [resident, setResident] = useState("");
@@ -352,19 +358,19 @@ export default function App({ user, onSignOut }) {
     setEntries((current) => current.map((item) => item.resident ? item : { ...item, resident: residents.find((r) => r.block === item.block && r.subBlock === item.subBlock)?.name || "Nama belum diisi" }));
   }, []);
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory, communityIdentity }));
-  }, [residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory, communityIdentity]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ residents, entries, cashOut, otherIncome, openingBalance, manualAdjustment, balanceHistory, communityIdentity }));
+  }, [residents, entries, cashOut, otherIncome, openingBalance, manualAdjustment, balanceHistory, communityIdentity]);
 
   const total = useMemo(
     () => entries.reduce((sum, e) => sum + Number(e.clean || 0) + Number(e.kas || 0) + Number(e.other || 0), 0),
     [entries]
   );
   const runningBalance = useMemo(
-    () => Number(openingBalance || 0) + total - cashOut.reduce((sum, e) => sum + Number(e.amount || 0), 0) + Number(manualAdjustment || 0),
-    [openingBalance, total, cashOut, manualAdjustment]
+    () => Number(openingBalance || 0) + total + otherIncome.reduce((sum, item) => sum + Number(item.amount || 0), 0) - cashOut.reduce((sum, e) => sum + Number(e.amount || 0), 0) + Number(manualAdjustment || 0),
+    [openingBalance, total, otherIncome, cashOut, manualAdjustment]
   );
   const backupData = () => {
-    const payload = { app: `Kas Warga ${communityIdentityLine}`, version: 1, exportedAt: new Date().toISOString(), residents, entries, cashOut, openingBalance, manualAdjustment, balanceHistory, communityIdentity };
+    const payload = { app: `Kas Warga ${communityIdentityLine}`, version: 2, exportedAt: new Date().toISOString(), residents, entries, cashOut, otherIncome, openingBalance, manualAdjustment, balanceHistory, communityIdentity };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob); const link = document.createElement("a");
     link.href = url; link.download = `backup-kas-rt-${new Date().toISOString().slice(0, 10)}.json`; link.click(); URL.revokeObjectURL(url);
@@ -372,18 +378,18 @@ export default function App({ user, onSignOut }) {
   };
   const resetData = () => {
     if (!window.confirm("Kosongkan semua data kas, warga, transaksi, dan riwayat? Data dummy akan dihapus.")) return;
-    setResidents([]); setEntries([]); setCashOut([]); setOpeningBalance(0); setManualAdjustment(0); setBalanceHistory([]);
+    setResidents([]); setEntries([]); setCashOut([]); setOtherIncome([]); setOpeningBalance(0); setManualAdjustment(0); setBalanceHistory([]);
     setNotice("Semua data berhasil dikosongkan"); setTimeout(() => setNotice(""), 2600);
   };
   const restoreData = (event) => {
     const file = event.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => { try { const data = JSON.parse(reader.result); if (!Array.isArray(data.residents) || !Array.isArray(data.entries)) throw new Error(); setResidents(data.residents); setEntries(data.entries); if (Number.isFinite(Number(data.openingBalance))) setOpeningBalance(Number(data.openingBalance)); if (Number.isFinite(Number(data.manualAdjustment))) setManualAdjustment(Number(data.manualAdjustment)); if (Array.isArray(data.balanceHistory)) setBalanceHistory(data.balanceHistory); if (data.communityIdentity && typeof data.communityIdentity === "object") setCommunityIdentity({ ...DEFAULT_COMMUNITY_IDENTITY, ...data.communityIdentity }); setNotice("Data berhasil dipulihkan"); } catch { setNotice("File backup tidak valid"); } setTimeout(() => setNotice(""), 2600); event.target.value = ""; };
+    reader.onload = () => { try { const data = JSON.parse(reader.result); if (!Array.isArray(data.residents) || !Array.isArray(data.entries)) throw new Error(); setResidents(data.residents); setEntries(data.entries); setCashOut(Array.isArray(data.cashOut) ? data.cashOut : []); setOtherIncome(Array.isArray(data.otherIncome) ? data.otherIncome : []); if (Number.isFinite(Number(data.openingBalance))) setOpeningBalance(Number(data.openingBalance)); if (Number.isFinite(Number(data.manualAdjustment))) setManualAdjustment(Number(data.manualAdjustment)); if (Array.isArray(data.balanceHistory)) setBalanceHistory(data.balanceHistory); if (data.communityIdentity && typeof data.communityIdentity === "object") setCommunityIdentity({ ...DEFAULT_COMMUNITY_IDENTITY, ...data.communityIdentity }); setNotice("Data berhasil dipulihkan"); } catch { setNotice("File backup tidak valid"); } setTimeout(() => setNotice(""), 2600); event.target.value = ""; };
     reader.readAsText(file);
   };
   const addExpense = (event) => {
     event.preventDefault();
-    if (!expenseTitle.trim() || Number(expenseAmount) <= 0) return;
+    if (!expenseTitle.trim() || parseNominalInput(expenseAmount) <= 0) return;
     
 const record = {
   id: editingExpense ? editingExpense.id : Date.now(),
@@ -392,7 +398,7 @@ const record = {
     : getTanggalTransaksi(),
   title: expenseTitle.trim(),
   period: expensePeriod || getPeriodeSekarang(),
-  amount: Number(expenseAmount)
+  amount: parseNominalInput(expenseAmount)
 };
 
     setCashOut(editingExpense ? cashOut.map((item) => item.id === editingExpense.id ? record : item) : [record, ...cashOut]);
@@ -401,6 +407,30 @@ const record = {
     setExpenseAmount("");
     setExpensePeriod(getPeriodeSekarang());
     setNotice(editingExpense ? "Pengeluaran diperbarui" : "Pengeluaran berhasil dicatat");
+    setTimeout(() => setNotice(""), 2200);
+  };
+  const addOtherIncomeEntry = (event) => {
+    event.preventDefault();
+    const amount = parseNominalInput(otherIncomeAmount);
+    if (!otherIncomeTitle.trim() || amount <= 0) return;
+
+    const record = {
+      id: editingOtherIncome ? editingOtherIncome.id : Date.now(),
+      date: editingOtherIncome ? editingOtherIncome.date : getTanggalTransaksi(),
+      title: otherIncomeTitle.trim(),
+      period: otherIncomePeriod || getPeriodeSekarang(),
+      amount,
+    };
+
+    setOtherIncome(editingOtherIncome
+      ? otherIncome.map((item) => item.id === editingOtherIncome.id ? record : item)
+      : [record, ...otherIncome]
+    );
+    setEditingOtherIncome(null);
+    setOtherIncomeTitle("");
+    setOtherIncomeAmount("");
+    setOtherIncomePeriod(getPeriodeSekarang());
+    setNotice(editingOtherIncome ? "Pemasukan lain diperbarui" : "Pemasukan lain berhasil dicatat");
     setTimeout(() => setNotice(""), 2200);
   };
   const addEntry = (e) => {
@@ -487,6 +517,41 @@ const record = {
     setExpenseAmount(String(expense.amount));
     setExpensePeriod(expense.period || periodeDariTanggal(expense.date) || getPeriodeSekarang());
     setActive("cashflow");
+  };
+  const cancelExpenseEdit = () => {
+    setEditingExpense(null);
+    setExpenseTitle("");
+    setExpenseAmount("");
+    setExpensePeriod(getPeriodeSekarang());
+  };
+  const startEditOtherIncome = (item) => {
+    setEditingOtherIncome(item);
+    setOtherIncomeTitle(item.title);
+    setOtherIncomeAmount(String(item.amount));
+    setOtherIncomePeriod(item.period || periodeDariTanggal(item.date) || getPeriodeSekarang());
+    setActive("cashflow");
+  };
+  const cancelOtherIncomeEdit = () => {
+    setEditingOtherIncome(null);
+    setOtherIncomeTitle("");
+    setOtherIncomeAmount("");
+    setOtherIncomePeriod(getPeriodeSekarang());
+  };
+  const deleteOtherIncome = (id) => {
+    const target = otherIncome.find((item) => item.id === id);
+    if (!target) return;
+    const originMenu = active;
+
+    requestConfirmation(
+      `Apakah Anda yakin ingin menghapus pemasukan lain "${target.title}"?`,
+      () => {
+        setOtherIncome(otherIncome.filter((item) => item.id !== id));
+        setActive(originMenu);
+        setSettingsOpen(false);
+        setNotice("Pemasukan lain dihapus");
+        setTimeout(() => setNotice(""), 2200);
+      }
+    );
   };
   const deleteExpense = (id) => {
   const target = cashOut.find((item) => item.id === id);
@@ -3467,6 +3532,7 @@ tbody tr:hover { background: #F8FAFC !important; }
   communityIdentityLine={communityIdentityLine}
   entries={entries}
   cashOut={cashOut}
+  otherIncome={otherIncome}
   runningBalance={runningBalance}
   openingBalance={openingBalance}
   manualAdjustment={manualAdjustment}
@@ -3476,7 +3542,36 @@ tbody tr:hover { background: #F8FAFC !important; }
   requestConfirmation={requestConfirmation}
 />}
         {active === "input" && !settingsOpen && <InputView {...{ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentSubBlock, resident, setResident, clean, setClean, kas, setKas, other, setOther, paymentPeriod, setPaymentPeriod, addEntry, residents, editingEntry, setEditingEntry }} />}
-        {active === "cashflow" && !settingsOpen && <Cashflow entries={entries} cashOut={cashOut} runningBalance={runningBalance} addExpense={addExpense} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} expensePeriod={expensePeriod} setExpensePeriod={setExpensePeriod} editingExpense={editingExpense} setEditingExpense={setEditingExpense} startEditExpense={startEditExpense} deleteExpense={deleteExpense} />}
+        {active === "cashflow" && !settingsOpen && <Cashflow
+          entries={entries}
+          cashOut={cashOut}
+          otherIncome={otherIncome}
+          runningBalance={runningBalance}
+          addExpense={addExpense}
+          expenseTitle={expenseTitle}
+          setExpenseTitle={setExpenseTitle}
+          expenseAmount={expenseAmount}
+          setExpenseAmount={setExpenseAmount}
+          expensePeriod={expensePeriod}
+          setExpensePeriod={setExpensePeriod}
+          editingExpense={editingExpense}
+          setEditingExpense={setEditingExpense}
+          startEditExpense={startEditExpense}
+          deleteExpense={deleteExpense}
+          cancelExpenseEdit={cancelExpenseEdit}
+          addOtherIncomeEntry={addOtherIncomeEntry}
+          otherIncomeTitle={otherIncomeTitle}
+          setOtherIncomeTitle={setOtherIncomeTitle}
+          otherIncomeAmount={otherIncomeAmount}
+          setOtherIncomeAmount={setOtherIncomeAmount}
+          otherIncomePeriod={otherIncomePeriod}
+          setOtherIncomePeriod={setOtherIncomePeriod}
+          editingOtherIncome={editingOtherIncome}
+          setEditingOtherIncome={setEditingOtherIncome}
+          startEditOtherIncome={startEditOtherIncome}
+          deleteOtherIncome={deleteOtherIncome}
+          cancelOtherIncomeEdit={cancelOtherIncomeEdit}
+        />}
         {active === "recap" && !settingsOpen && <Recap
   communityIdentityLine={communityIdentityLine}
   communityLocationLine={communityLocationLine}
@@ -3488,8 +3583,8 @@ tbody tr:hover { background: #F8FAFC !important; }
   startEditEntry={startEditEntry}
   deleteEntry={deleteEntry}
 />}
-        {active === "report" && !settingsOpen && <ResidentReport entries={entries} cashOut={cashOut} runningBalance={runningBalance} openingBalance={openingBalance} manualAdjustment={manualAdjustment} residents={residents} communityIdentityLine={communityIdentityLine} communityLocationLine={communityLocationLine} />}
-        {active === "public" && !settingsOpen && <PublicSummary entries={entries} cashOut={cashOut} openingBalance={openingBalance} manualAdjustment={manualAdjustment} communityIdentityLine={communityIdentityLine} communityLocationLine={communityLocationLine} />}
+        {active === "report" && !settingsOpen && <ResidentReport entries={entries} cashOut={cashOut} otherIncome={otherIncome} runningBalance={runningBalance} openingBalance={openingBalance} manualAdjustment={manualAdjustment} residents={residents} communityIdentityLine={communityIdentityLine} communityLocationLine={communityLocationLine} />}
+        {active === "public" && !settingsOpen && <PublicSummary entries={entries} cashOut={cashOut} otherIncome={otherIncome} openingBalance={openingBalance} manualAdjustment={manualAdjustment} communityIdentityLine={communityIdentityLine} communityLocationLine={communityLocationLine} />}
         {settingsOpen && <SettingsPanel backupData={backupData} restoreData={restoreData} resetData={resetData} openingBalance={openingBalance} setOpeningBalance={setOpeningBalance} manualAdjustment={manualAdjustment} setManualAdjustment={setManualAdjustment} balanceHistory={balanceHistory} setBalanceHistory={setBalanceHistory} setNotice={setNotice} communityIdentity={communityIdentity} setCommunityIdentity={setCommunityIdentity} communityIdentityLine={communityIdentityLine} communityLocationLine={communityLocationLine} />}
         {active === "residents" && !settingsOpen && <Residents {...{ residents, residentName, setResidentName, residentBlock, setResidentBlock, residentSubBlock, setResidentSubBlock, addResident, editingResident, setEditingResident, startEditResident, deleteResident, residentSearch, setResidentSearch, residentFilter, setResidentFilter, residentSubFilter, setResidentSubFilter, communityIdentityLine, communityLocationLine }} />}
       </main>
@@ -3725,7 +3820,7 @@ function SettingsPanel({
     </div>
 
     <div className="backup-card">
-      <div><span className="eyebrow">Backup dan pemulihan</span><h3>Simpan salinan data kas</h3><p>Backup menyimpan identitas lingkungan, daftar warga, dan seluruh catatan pembayaran dalam file JSON.</p></div>
+      <div><span className="eyebrow">Backup dan pemulihan</span><h3>Simpan salinan data kas</h3><p>Backup menyimpan identitas lingkungan, daftar warga, pembayaran iuran, pemasukan lain, pengeluaran, serta riwayat saldo dalam file JSON.</p></div>
       <div className="backup-actions">
         <button className="primary-btn" onClick={backupData}><FileText size={17} /> Backup data</button>
         <label className="restore-btn"><UploadIcon /> Pulihkan data<input type="file" accept="application/json,.json" onChange={restoreData} /></label>
@@ -3739,6 +3834,7 @@ function Overview({
   communityIdentityLine = "RT 26 / RW 04",
   entries = [],
   cashOut = [],
+  otherIncome = [],
   runningBalance,
   openingBalance = 0,
   manualAdjustment = 0,
@@ -3763,7 +3859,7 @@ const totalIncome = entries.reduce(
     Number(item.kas || 0) +
     Number(item.other || 0),
   0
-);
+) + otherIncome.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
 const totalExpense = cashOut.reduce(
   (sum, item) => sum + Number(item.amount || 0),
@@ -3863,7 +3959,8 @@ const currentMonthIndex = today.getMonth();
 // Menentukan periode terakhir dari seluruh data
 const allPeriodDates = [
   ...entries.map((item) => getHomeDateParts(item)),
-  ...cashOut.map((item) => getHomeDateParts(item))
+  ...cashOut.map((item) => getHomeDateParts(item)),
+  ...otherIncome.map((item) => getHomeDateParts(item))
 ].filter(Boolean);
 
 const latestPeriod = allPeriodDates.reduce(
@@ -3950,6 +4047,19 @@ entries.forEach((item) => {
   }
 });
 
+// Pemasukan lain masuk ke perhitungan saldo dan rekap per bulan.
+otherIncome.forEach((item) => {
+  const dateParts = getHomeDateParts(item);
+  if (!dateParts) return;
+
+  const amount = Number(item.amount || 0);
+  if (dateParts.year < currentYear) previousYearIncome += amount;
+
+  if (dateParts.year >= currentYear && dateParts.month >= 0 && dateParts.month < 12) {
+    const monthIndex = (dateParts.year - currentYear) * 12 + dateParts.month;
+    if (monthlyTotals[monthIndex]) monthlyTotals[monthIndex].income += amount;
+  }
+});
 
 // Hitung transaksi pengeluaran
 cashOut.forEach((item) => {
@@ -4086,12 +4196,7 @@ const pageEndRow = monthlyRows[lastVisibleIndex];
     <h2>Saldo kas per bulan</h2>
   </div>
 
-  <button
-    className="text-btn"
-    onClick={() => setActive("input")}
-  >
-    + Input pembayaran
-  </button>
+
 </div>
     
 {/* KARTU RINCIAN SALDO KAS PER BULAN */}
@@ -4595,6 +4700,7 @@ function InputView({ block, setBlock, autoSubBlock, paymentSubBlock, setPaymentS
 function Cashflow({
   entries,
   cashOut,
+  otherIncome = [],
   runningBalance,
   addExpense,
   expenseTitle,
@@ -4606,7 +4712,20 @@ function Cashflow({
   editingExpense,
   setEditingExpense,
   startEditExpense,
-  deleteExpense
+  deleteExpense,
+  cancelExpenseEdit,
+  addOtherIncomeEntry,
+  otherIncomeTitle,
+  setOtherIncomeTitle,
+  otherIncomeAmount,
+  setOtherIncomeAmount,
+  otherIncomePeriod,
+  setOtherIncomePeriod,
+  editingOtherIncome,
+  setEditingOtherIncome,
+  startEditOtherIncome,
+  deleteOtherIncome,
+  cancelOtherIncomeEdit
 }) {
   const currentYear = String(new Date().getFullYear());
   const getYear = (value) => {
@@ -4616,14 +4735,15 @@ function Cashflow({
   const years = [...new Set([
     currentYear,
     ...entries.map((item) => getYear(item.date || item.period)),
-    ...cashOut.map((item) => getYear(item.date || item.period))
+    ...cashOut.map((item) => getYear(item.date || item.period)),
+    ...otherIncome.map((item) => getYear(item.period || item.date))
   ])].sort((a, b) => Number(b) - Number(a));
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [cashType, setCashType] = useState("semua");
   const [selectedExpense, setSelectedExpense] = useState(null);
-  // Pengaturan tampilan riwayat transaksi mobile
-  const [showAllCashflowTransactions, setShowAllCashflowTransactions] =
-  useState(false);
+  const [selectedOtherIncome, setSelectedOtherIncome] = useState(null);
+  const [activeEntryForm, setActiveEntryForm] = useState(null);
+  const [showAllCashflowTransactions, setShowAllCashflowTransactions] = useState(false);
 
   useEffect(() => {
     if (selectedExpense && !cashOut.some((item) => item.id === selectedExpense.id)) {
@@ -4631,17 +4751,32 @@ function Cashflow({
     }
   }, [cashOut, selectedExpense]);
 
+  useEffect(() => {
+    if (selectedOtherIncome && !otherIncome.some((item) => item.id === selectedOtherIncome.id)) {
+      setSelectedOtherIncome(null);
+    }
+  }, [otherIncome, selectedOtherIncome]);
+
+  useEffect(() => {
+    if (editingExpense) setActiveEntryForm("expense");
+    else if (editingOtherIncome) setActiveEntryForm("income");
+  }, [editingExpense, editingOtherIncome]);
+
   const yearEntries = entries.filter((item) =>
     getYear(item.date || item.period) === selectedYear
   );
   const yearExpenses = cashOut.filter((item) =>
     getYear(item.date || item.period) === selectedYear
   );
+  const yearOtherIncome = otherIncome.filter((item) =>
+    getYear(item.period || item.date) === selectedYear
+  );
 
   const cleanTotal = yearEntries.reduce((sum, item) => sum + Number(item.clean || 0), 0);
   const kasTotal = yearEntries.reduce((sum, item) => sum + Number(item.kas || 0), 0);
   const otherTotal = yearEntries.reduce((sum, item) => sum + Number(item.other || 0), 0);
-  const incoming = cleanTotal + kasTotal + otherTotal;
+  const otherIncomeTotal = yearOtherIncome.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const incoming = cleanTotal + kasTotal + otherTotal + otherIncomeTotal;
   const outgoing = yearExpenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   const transactions = [
@@ -4653,11 +4788,21 @@ function Cashflow({
       amount: Number(item.clean || 0) + Number(item.kas || 0) + Number(item.other || 0),
       raw: item
     })),
+    ...yearOtherIncome.map((item) => ({
+      id: `other-in-${item.id}`,
+      date: item.date || item.period || "-",
+      title: item.title || "Pemasukan lain",
+      type: "masuk",
+      source: "otherIncome",
+      amount: Number(item.amount || 0),
+      raw: item
+    })),
     ...yearExpenses.map((item) => ({
       id: `out-${item.id}`,
       date: item.date || item.period || "-",
       title: item.title || "Pengeluaran",
       type: "keluar",
+      source: "expense",
       amount: Number(item.amount || 0),
       raw: item
     }))
@@ -4674,6 +4819,15 @@ function Cashflow({
     return monthIndex >= 0 ? new Date(year, monthIndex, day).getTime() : 0;
   };
   transactions.sort((a, b) => dateValue(b.date) - dateValue(a.date));
+
+  const openExpenseForm = () => {
+    if (activeEntryForm === "expense" && !editingExpense) setActiveEntryForm(null);
+    else setActiveEntryForm("expense");
+  };
+  const openIncomeForm = () => {
+    if (activeEntryForm === "income" && !editingOtherIncome) setActiveEntryForm(null);
+    else setActiveEntryForm("income");
+  };
 
   return (
     <section className="content cashflow-page cashflow-redesign">
@@ -4734,7 +4888,7 @@ function Cashflow({
         <div className="cashflow-section-heading">
           <div>
             <span className="eyebrow">Rincian pemasukan</span>
-            <h3>Total iuran tahun {selectedYear}</h3>
+            <h3>Total pemasukan tahun {selectedYear}</h3>
           </div>
         </div>
         <div className="cashflow-category-row">
@@ -4749,53 +4903,138 @@ function Cashflow({
           <span><i className="category-dot other" /> Iuran lainnya</span>
           <strong>{money(otherTotal)}</strong>
         </div>
+        <div className="cashflow-category-row">
+          <span><i className="category-dot other-income" /> Pemasukan lain</span>
+          <strong>{money(otherIncomeTotal)}</strong>
+        </div>
       </section>
 
-      <details className="cashflow-expense-details" open={Boolean(editingExpense)}>
-        <summary><Plus size={18} /> {editingExpense ? "Ubah pengeluaran" : "Input pengeluaran"}</summary>
-        <form className="expense-form" onSubmit={addExpense}>
-          <div>
-            <span className="eyebrow">Catatan kas keluar</span>
-            <h2>{editingExpense ? "Simpan perubahan" : "Catat uang keluar"}</h2>
-          </div>
-          <label>
-            Periode pengeluaran
-            <ThemedDropdown
-              value={expensePeriod}
-              onChange={setExpensePeriod}
-              options={getDaftarPeriode().map((period) => ({ value: period, label: period }))}
-              className="input-select"
-              ariaLabel="Periode pengeluaran"
-            />
-          </label>
-          <input
-            placeholder="Keterangan pengeluaran"
-            value={expenseTitle}
-            onChange={(event) => setExpenseTitle(event.target.value)}
-            required
-          />
-          <div className="input-money">
-            <span>Rp</span>
+      <div className="cashflow-entry-actions">
+        <button type="button" className="primary-btn cashflow-entry-trigger" onClick={openExpenseForm}>
+          <Plus size={17} /> {editingExpense ? "Ubah Pengeluaran" : "Input Pengeluaran"}
+        </button>
+        <button type="button" className="cashflow-entry-trigger income" onClick={openIncomeForm}>
+          <Plus size={17} /> {editingOtherIncome ? "Ubah Pemasukan Lain" : "Pemasukan Lain"}
+        </button>
+      </div>
+
+      {activeEntryForm === "expense" && (
+        <div className="cashflow-entry-panel">
+          <form className="expense-form" onSubmit={(event) => {
+            if (!expenseTitle.trim() || parseNominalInput(expenseAmount) <= 0) {
+              event.preventDefault();
+              return;
+            }
+            addExpense(event);
+            setActiveEntryForm(null);
+          }}>
+            <div>
+              <span className="eyebrow">Catatan kas keluar</span>
+              <h2>{editingExpense ? "Ubah pengeluaran" : "Catat uang keluar"}</h2>
+            </div>
+            <label>
+              Periode pengeluaran
+              <ThemedDropdown
+                value={expensePeriod}
+                onChange={setExpensePeriod}
+                options={getDaftarPeriode().map((period) => ({ value: period, label: period }))}
+                className="input-select"
+                ariaLabel="Periode pengeluaran"
+              />
+            </label>
             <input
-              type="number"
-              min="1"
-              value={expenseAmount}
-              onChange={(event) => setExpenseAmount(event.target.value)}
+              placeholder="Keterangan pengeluaran"
+              value={expenseTitle}
+              onChange={(event) => setExpenseTitle(event.target.value)}
               required
             />
-          </div>
-          <div className="cashflow-form-actions">
-            <button className="primary-btn" type="submit">
-              <Plus size={18} /> {editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}
-            </button>
-            {editingExpense && (
-              <button type="button" className="secondary-btn" onClick={() => setEditingExpense(null)}>
-                Batal
+            <div className="input-money">
+              <span>Rp</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="Jumlah pengeluaran"
+                value={formatNominalInput(expenseAmount)}
+                onChange={(event) => setExpenseAmount(event.target.value.replace(/\D/g, ""))}
+                required
+              />
+            </div>
+            <div className="cashflow-form-actions">
+              <button className="primary-btn" type="submit">
+                <Plus size={18} /> {editingExpense ? "Simpan perubahan" : "Simpan pengeluaran"}
               </button>
-            )}
-          </div>
-        </form>
-      </details>
+              {editingExpense && (
+                <button type="button" className="secondary-btn" onClick={() => {
+                  cancelExpenseEdit();
+                  setActiveEntryForm(null);
+                }}>
+                  Batal
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+      )}
+
+      {activeEntryForm === "income" && (
+        <div className="cashflow-entry-panel">
+          <form className="expense-form" onSubmit={(event) => {
+            if (!otherIncomeTitle.trim() || parseNominalInput(otherIncomeAmount) <= 0) {
+              event.preventDefault();
+              return;
+            }
+            addOtherIncomeEntry(event);
+            setActiveEntryForm(null);
+          }}>
+            <div>
+              <span className="eyebrow">Catatan kas masuk</span>
+              <h2>{editingOtherIncome ? "Ubah pemasukan lain" : "Catat pemasukan lain"}</h2>
+            </div>
+            <label>
+              Periode pemasukan
+              <ThemedDropdown
+                value={otherIncomePeriod}
+                onChange={setOtherIncomePeriod}
+                options={getDaftarPeriode().map((period) => ({ value: period, label: period }))}
+                className="input-select"
+                ariaLabel="Periode pemasukan lain"
+              />
+            </label>
+            <input
+              placeholder="Keterangan pemasukan"
+              value={otherIncomeTitle}
+              onChange={(event) => setOtherIncomeTitle(event.target.value)}
+              required
+            />
+            <div className="input-money">
+              <span>Rp</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="Jumlah pemasukan"
+                value={formatNominalInput(otherIncomeAmount)}
+                onChange={(event) => setOtherIncomeAmount(event.target.value.replace(/\D/g, ""))}
+                required
+              />
+            </div>
+            <div className="cashflow-form-actions">
+              <button className="primary-btn" type="submit">
+                <Plus size={18} /> {editingOtherIncome ? "Simpan perubahan" : "Simpan pemasukan"}
+              </button>
+              {editingOtherIncome && (
+                <button type="button" className="secondary-btn" onClick={() => {
+                  cancelOtherIncomeEdit();
+                  setActiveEntryForm(null);
+                }}>
+                  Batal
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+      )}
 
       <section className="cashflow-activity">
         <div className="cashflow-section-heading">
@@ -4806,143 +5045,111 @@ function Cashflow({
           <small>{transactions.length} transaksi</small>
         </div>
         {transactions.length ? (
-  <>
+          <>
+            <div className={`cashflow-transaction-list ${showAllCashflowTransactions ? "expanded" : ""}`}>
+              {transactions.map((item) => {
+                const editable = item.type === "keluar" || item.source === "otherIncome";
+                const detailLabel = item.source === "otherIncome" ? "Pemasukan lain" : item.type === "masuk" ? "Kas masuk" : "Kas keluar";
+                const openDetails = () => {
+                  if (item.source === "otherIncome") setSelectedOtherIncome(item.raw);
+                  else if (item.type === "keluar") setSelectedExpense(item.raw);
+                };
+                return (
+                  <article
+                    className={`cashflow-transaction-card ${editable ? "is-clickable" : ""}`}
+                    key={item.id}
+                    role={editable ? "button" : undefined}
+                    tabIndex={editable ? 0 : undefined}
+                    onClick={editable ? openDetails : undefined}
+                    onKeyDown={editable ? (event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openDetails();
+                      }
+                    } : undefined}
+                  >
+                    <div className={`cashflow-transaction-icon ${item.type}`}>
+                      {item.type === "masuk" ? <ArrowDownLeft size={19} /> : <ArrowUpRight size={19} />}
+                    </div>
+                    <div className="cashflow-transaction-main">
+                      <strong>{item.title}</strong>
+                      <span>{item.date} · {detailLabel}</span>
+                    </div>
+                    <div className={`cashflow-transaction-amount ${item.type}`}>
+                      {item.type === "masuk" ? "+" : "−"}{money(item.amount)}
+                      {editable && <small className="cashflow-tap-hint">Lihat rincian</small>}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
 
-    {/* DAFTAR TRANSAKSI */}
-    <div
-      className={`cashflow-transaction-list ${
-        showAllCashflowTransactions ? "expanded" : ""
-      }`}
-    >
-      {transactions.map((item) => (
-        <article
-          className={`cashflow-transaction-card ${
-            item.type === "keluar" ? "is-clickable" : ""
-          }`}
-          key={item.id}
-          role={item.type === "keluar" ? "button" : undefined}
-          tabIndex={item.type === "keluar" ? 0 : undefined}
-          onClick={
-            item.type === "keluar"
-              ? () => setSelectedExpense(item.raw)
-              : undefined
-          }
-          onKeyDown={
-            item.type === "keluar"
-              ? (event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setSelectedExpense(item.raw);
-                  }
-                }
-              : undefined
-          }
-        >
-          <div className={`cashflow-transaction-icon ${item.type}`}>
-            {item.type === "masuk"
-              ? <ArrowDownLeft size={19} />
-              : <ArrowUpRight size={19} />}
-          </div>
-
-          <div className="cashflow-transaction-main">
-            <strong>{item.title}</strong>
-            <span>
-              {item.date} · {item.type === "masuk" ? "Kas masuk" : "Kas keluar"}
-            </span>
-          </div>
-
-          <div className={`cashflow-transaction-amount ${item.type}`}>
-            {item.type === "masuk" ? "+" : "−"}{money(item.amount)}
-
-            {item.type === "keluar" && (
-              <small className="cashflow-tap-hint">
-                Lihat rincian
-              </small>
+            {transactions.length > 5 && (
+              <div className="cashflow-view-all-wrap">
+                <button type="button" className="cashflow-view-all" onClick={() => setShowAllCashflowTransactions((prev) => !prev)}>
+                  {showAllCashflowTransactions ? "Tampilkan Lebih Sedikit ↑" : "Lihat Semua Transaksi ↓"}
+                </button>
+              </div>
             )}
-          </div>
-        </article>
-      ))}
-    </div>
-
-
-    {/* TOMBOL LIHAT SEMUA TRANSAKSI */}
-    {transactions.length > 5 && (
-      <div className="cashflow-view-all-wrap">
-        <button
-          type="button"
-          className="cashflow-view-all"
-          onClick={() =>
-            setShowAllCashflowTransactions((prev) => !prev)
-          }
-        >
-          {showAllCashflowTransactions
-            ? "Tampilkan Lebih Sedikit ↑"
-            : "Lihat Semua Transaksi ↓"}
-        </button>
-      </div>
-    )}
-
-  </>
-) : (
-  <div className="cashflow-empty">
-    Belum ada transaksi untuk filter yang dipilih.
-  </div>
-)}
+          </>
+        ) : (
+          <div className="cashflow-empty">Belum ada transaksi untuk filter yang dipilih.</div>
+        )}
       </section>
 
       {selectedExpense && (
         <div className="cashflow-detail-backdrop" onClick={() => setSelectedExpense(null)}>
-          <section
-            className="cashflow-detail-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cashflow-detail-title"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <section className="cashflow-detail-modal" role="dialog" aria-modal="true" aria-labelledby="cashflow-expense-detail-title" onClick={(event) => event.stopPropagation()}>
             <div className="cashflow-detail-heading">
               <div>
                 <span className="eyebrow">Rincian pengeluaran</span>
-                <h3 id="cashflow-detail-title">{selectedExpense.title || "Pengeluaran"}</h3>
+                <h3 id="cashflow-expense-detail-title">{selectedExpense.title || "Pengeluaran"}</h3>
               </div>
-              <button type="button" className="cashflow-detail-close" aria-label="Tutup rincian" onClick={() => setSelectedExpense(null)}>
-                <X size={19} />
-              </button>
+              <button type="button" className="cashflow-detail-close" aria-label="Tutup rincian" onClick={() => setSelectedExpense(null)}><X size={19} /></button>
             </div>
-            <div className="cashflow-detail-amount">
-              <span>Total pengeluaran</span>
-              <strong>{money(selectedExpense.amount)}</strong>
-            </div>
-            <div className="cashflow-detail-row">
-              <span>Tanggal transaksi</span>
-              <strong>{selectedExpense.date || "-"}</strong>
-            </div>
-            <div className="cashflow-detail-row">
-              <span>Periode</span>
-              <strong>{selectedExpense.period || "-"}</strong>
-            </div>
+            <div className="cashflow-detail-amount"><span>Total pengeluaran</span><strong>{money(selectedExpense.amount)}</strong></div>
+            <div className="cashflow-detail-row"><span>Tanggal transaksi</span><strong>{selectedExpense.date || "-"}</strong></div>
+            <div className="cashflow-detail-row"><span>Periode</span><strong>{selectedExpense.period || "-"}</strong></div>
             <div className="cashflow-detail-actions">
-              <button
-                type="button"
-                className="primary-btn"
-                onClick={() => {
-                  const expense = selectedExpense;
-                  setSelectedExpense(null);
-                  startEditExpense(expense);
-                }}
-              >
-                <Pencil size={16} /> Edit pengeluaran
-              </button>
-              <button
-                type="button"
-                className="danger-btn"
-                onClick={() => {
-                  const id = selectedExpense.id;
-                  setSelectedExpense(null);
-                  deleteExpense(id);
-                }}
-              >
-                <Trash2 size={16} /> Hapus pengeluaran
-              </button>
+              <button type="button" className="primary-btn" onClick={() => {
+                const expense = selectedExpense;
+                setSelectedExpense(null);
+                startEditExpense(expense);
+              }}><Pencil size={16} /> Edit pengeluaran</button>
+              <button type="button" className="danger-btn" onClick={() => {
+                const id = selectedExpense.id;
+                setSelectedExpense(null);
+                deleteExpense(id);
+              }}><Trash2 size={16} /> Hapus pengeluaran</button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {selectedOtherIncome && (
+        <div className="cashflow-detail-backdrop" onClick={() => setSelectedOtherIncome(null)}>
+          <section className="cashflow-detail-modal" role="dialog" aria-modal="true" aria-labelledby="cashflow-income-detail-title" onClick={(event) => event.stopPropagation()}>
+            <div className="cashflow-detail-heading">
+              <div>
+                <span className="eyebrow">Rincian pemasukan lain</span>
+                <h3 id="cashflow-income-detail-title">{selectedOtherIncome.title || "Pemasukan lain"}</h3>
+              </div>
+              <button type="button" className="cashflow-detail-close" aria-label="Tutup rincian" onClick={() => setSelectedOtherIncome(null)}><X size={19} /></button>
+            </div>
+            <div className="cashflow-detail-amount"><span>Total pemasukan</span><strong>{money(selectedOtherIncome.amount)}</strong></div>
+            <div className="cashflow-detail-row"><span>Tanggal transaksi</span><strong>{selectedOtherIncome.date || "-"}</strong></div>
+            <div className="cashflow-detail-row"><span>Periode</span><strong>{selectedOtherIncome.period || "-"}</strong></div>
+            <div className="cashflow-detail-actions">
+              <button type="button" className="primary-btn" onClick={() => {
+                const item = selectedOtherIncome;
+                setSelectedOtherIncome(null);
+                startEditOtherIncome(item);
+              }}><Pencil size={16} /> Edit pemasukan</button>
+              <button type="button" className="danger-btn" onClick={() => {
+                const id = selectedOtherIncome.id;
+                setSelectedOtherIncome(null);
+                deleteOtherIncome(id);
+              }}><Trash2 size={16} /> Hapus pemasukan</button>
             </div>
           </section>
         </div>
@@ -4950,10 +5157,10 @@ function Cashflow({
     </section>
   );
 }
-
 function ResidentReport({
   entries,
   cashOut,
+  otherIncome = [],
   runningBalance,
   openingBalance = 0,
   manualAdjustment = 0,
@@ -4970,6 +5177,9 @@ function ResidentReport({
   const reportExpenses = cashOut.filter(
     e => cocokPeriode(e, reportPeriod)
   );
+  const reportOtherIncome = otherIncome.filter(
+    item => cocokPeriode(item, reportPeriod)
+  );
 
   // Total pemasukan keseluruhan
   const incoming = reportEntries.reduce(
@@ -4979,7 +5189,7 @@ function ResidentReport({
       Number(e.kas || 0) +
       Number(e.other || 0),
     0
-  );
+  ) + reportOtherIncome.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   // Total pengeluaran
   const outgoing = reportExpenses.reduce(
@@ -5145,8 +5355,9 @@ function ResidentReport({
 
         <table>
           <tbody>
-            {groupedIncome.length > 0 ? (
-              groupedIncome.map((item, index) => (
+            {groupedIncome.length > 0 || reportOtherIncome.length > 0 ? (
+              <>
+              {groupedIncome.map((item, index) => (
                 <tr key={`${item.block}-${item.period}-${index}`}>
                   <td>
                     Pemasukan iuran blok {item.block}
@@ -5157,7 +5368,14 @@ function ResidentReport({
                     <strong>{money(item.total)}</strong>
                   </td>
                 </tr>
-              ))
+              ))}
+              {reportOtherIncome.map((item) => (
+                <tr key={`other-income-${item.id}`}>
+                  <td>Pemasukan lain — {item.title} ({item.period || item.date || "-"})</td>
+                  <td><strong>{money(item.amount)}</strong></td>
+                </tr>
+              ))}
+              </>
             ) : (
               <tr>
                 <td colSpan="2">
@@ -5207,21 +5425,23 @@ function ResidentReport({
     </section>
   );
 }
-function PublicSummary({ entries, cashOut, openingBalance, manualAdjustment, communityIdentityLine = "RT 26 / RW 04", communityLocationLine = "" }) {
+function PublicSummary({ entries, cashOut, otherIncome = [], openingBalance, manualAdjustment, communityIdentityLine = "RT 26 / RW 04", communityLocationLine = "" }) {
   const [period, setPeriod] = useState(getPeriodeSekarang());
   const periodEntries = entries.filter((e) => cocokPeriode(e, period));
   const periodExpenses = cashOut.filter((e) => cocokPeriode(e, period));
+  const periodOtherIncome = otherIncome.filter((item) => cocokPeriode(item, period));
   const cleanTotal = periodEntries.reduce((sum, e) => sum + Number(e.clean || 0), 0);
   const kasTotal = periodEntries.reduce((sum, e) => sum + Number(e.kas || 0), 0);
   const otherTotal = periodEntries.reduce((sum, e) => sum + Number(e.other || 0), 0);
-  const income = cleanTotal + kasTotal + otherTotal;
+  const otherIncomeTotal = periodOtherIncome.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const income = cleanTotal + kasTotal + otherTotal + otherIncomeTotal;
   const expense = periodExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
   const balance = Number(openingBalance || 0) + income - expense + Number(manualAdjustment || 0);
   return <section className="content public-summary">
     <div className="public-heading"><div><span className="eyebrow">Informasi untuk warga</span><h2>Laporan Kas Warga</h2><p>{communityIdentityLine}{communityLocationLine ? ` · ${communityLocationLine}` : ""} · Ringkasan terbuka pengelolaan kas</p></div><div className="public-controls"><label>Pilih periode<ThemedDropdown value={period} onChange={setPeriod} options={[{value:"Semua periode",label:"Semua periode"}, ...getDaftarPeriode().map(periode=>({value:periode,label:periode}))]} className="public-period-select" ariaLabel="Pilih periode ringkasan publik" /></label><button className="primary-btn" onClick={() => window.print()}><FileText size={16}/> Cetak / Simpan PDF</button></div></div>
     <div className="privacy-note"><span>✓</span><div><b>Tampilan publik, data pribadi disembunyikan</b><p>Tidak menampilkan nama warga, nomor rumah, blok, atau rincian pembayaran per orang.</p></div></div>
     <div className="public-kpis"><article className="public-kpi income"><span>Total pemasukan</span><strong>{money(income)}</strong><small>Periode {period}</small></article><article className="public-kpi expense"><span>Total pengeluaran</span><strong>{money(expense)}</strong><small>Periode {period}</small></article><article className="public-kpi balance"><span>Saldo akhir</span><strong>{money(balance)}</strong><small>Saldo awal + masuk - keluar + koreksi</small></article></div>
-    <div className="public-breakdown"><div className="section-head"><div><span className="eyebrow">Rangkuman kategori</span><h2>Rangkuman kategori iuran</h2></div></div><div className="public-breakdown-row"><span>Iuran kebersihan</span><b>{money(cleanTotal)}</b></div><div className="public-breakdown-row"><span>Iuran kas RT</span><b>{money(kasTotal)}</b></div><div className="public-breakdown-row"><span>Iuran lainnya</span><b>{money(otherTotal)}</b></div><div className="public-breakdown-row"><span>Total pengeluaran</span><b>{money(expense)}</b></div></div>
+    <div className="public-breakdown"><div className="section-head"><div><span className="eyebrow">Rangkuman kategori</span><h2>Rangkuman pemasukan</h2></div></div><div className="public-breakdown-row"><span>Iuran kebersihan</span><b>{money(cleanTotal)}</b></div><div className="public-breakdown-row"><span>Iuran kas RT</span><b>{money(kasTotal)}</b></div><div className="public-breakdown-row"><span>Iuran lainnya</span><b>{money(otherTotal)}</b></div><div className="public-breakdown-row"><span>Pemasukan lain</span><b>{money(otherIncomeTotal)}</b></div><div className="public-breakdown-row"><span>Total pengeluaran</span><b>{money(expense)}</b></div></div>
     <footer className="public-footer"><span>Kas Warga {communityIdentityLine}{communityLocationLine ? ` · ${communityLocationLine}` : ""}</span><span>Ringkasan agregat · {period}</span></footer>
   </section>;
 }
