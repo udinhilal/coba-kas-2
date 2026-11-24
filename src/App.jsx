@@ -3484,7 +3484,6 @@ tbody tr:hover { background: #F8FAFC !important; }
           z-index: 1;
         }
         .topbar.apphead > div {
-          border-left: 3px solid #93BCEB !important;
           padding-left: 15px !important;
         }
         .topbar.apphead .eyebrow {
@@ -3594,7 +3593,6 @@ tbody tr:hover { background: #F8FAFC !important; }
           }
           .topbar.apphead > div {
             padding-left: 12px !important;
-            border-left-color: rgba(219,234,254,.78) !important;
           }
           .topbar.apphead .eyebrow {
             color: #DCEBFA !important;
