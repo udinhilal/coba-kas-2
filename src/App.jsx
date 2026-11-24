@@ -3518,45 +3518,52 @@ tbody tr:hover { background: #F8FAFC !important; }
             gap: 3px !important;
             padding: 6px 7px calc(6px + env(safe-area-inset-bottom, 0px)) !important;
             border: 0 !important;
-            border-top: 1px solid #294966 !important;
+            border-top: 1px solid rgba(219,234,254,.30) !important;
             border-radius: 0 !important;
-            background: #102A43 !important;
-            box-shadow: 0 -4px 16px rgba(16,42,67,.13) !important;
+            background-color: #174B7A !important;
+            background-image: linear-gradient( 116deg, #123B63 0%, #1C5689 48%, #347FB9 100% ) !important;
+            box-shadow: 0 -5px 18px rgba(0,0,0,.20) !important;
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
           }
-          .mobile-floating-nav button {
-            appearance: none;
-            display: flex !important;
-            flex: 1 1 0 !important;
-            min-width: 0 !important;
-            min-height: 50px !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 4px !important;
-            padding: 4px 2px !important;
-            border: 1px solid transparent !important;
-            border-radius: 10px !important;
-            background: transparent !important;
-            color: #D5E2F0 !important;
-            font: 600 10px/1.1 'Inter', sans-serif !important;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-          }
-          .mobile-floating-nav button svg {
-            flex: 0 0 auto !important;
-            color: #C7D9ED !important;
-          }
-          .mobile-floating-nav button.active {
-            color: #FFFFFF !important;
-            background: rgba(147,197,253,.16) !important;
-            border-color: rgba(191,219,254,.16) !important;
-          }
-          .mobile-floating-nav button.active svg {
-            color: #BFDBFE !important;
-            stroke-width: 2.5;
-          }
+          /* Navbar senada dengan apphead */
+.mobile-floating-nav {
+  background-color: #174B7A !important;
+  background-image: linear-gradient(
+    116deg,
+    #123B63 0%,
+    #1C5689 48%,
+    #347FB9 100%
+  ) !important;
+
+  border-top: 1px solid rgba(219,234,254,.30) !important;
+
+  box-shadow:
+    0 -5px 18px rgba(0,0,0,.20) !important;
+}
+
+/* Ikon dan tulisan menu */
+.mobile-floating-nav button {
+  color: #DCEBFA !important;
+  background: transparent !important;
+}
+
+/* Ikon menu */
+.mobile-floating-nav button svg {
+  color: #DCEBFA !important;
+}
+
+/* Menu aktif */
+.mobile-floating-nav button.active {
+  color: #FFFFFF !important;
+  background: rgba(255,255,255,.16) !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+
+.mobile-floating-nav button.active svg {
+  color: #FFFFFF !important;
+  stroke-width: 2.5;
+}
           .main {
             padding-bottom: 20px !important;
           }
