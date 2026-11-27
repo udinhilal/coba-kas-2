@@ -3627,7 +3627,21 @@ tbody tr:hover { background: #F8FAFC !important; }
           .mobile-floating-nav { display: none !important; }
           .app-shell { padding-bottom: 0 !important; }
         }
-
+        
+        /* Latar belakang halaman PDF putih polos */
+@media print {
+  html,
+  body,
+  #root,
+  .app-shell,
+  .main,
+  .content,
+  .content.narrow,
+  .recap-page,
+  .public-summary {
+    background: #FFFFFF !important;
+  }
+}
   `}</style>
       {mobileMenuOpen && (
   <button
