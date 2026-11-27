@@ -3628,18 +3628,28 @@ tbody tr:hover { background: #F8FAFC !important; }
           .app-shell { padding-bottom: 0 !important; }
         }
         
-        /* Latar belakang halaman PDF putih polos */
+   /* PDF: seluruh lembar putih, jarak isi tetap 10mm */
 @media print {
   html,
   body,
   #root,
-  .app-shell,
-  .main,
-  .content,
-  .content.narrow,
-  .recap-page,
-  .public-summary {
+  .app-shell {
     background: #FFFFFF !important;
+  }
+
+  html,
+  body,
+  #root {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .app-shell {
+    margin: 0 !important;
+    padding: 10mm !important;
+    box-sizing: border-box !important;
+    -webkit-box-decoration-break: clone !important;
+    box-decoration-break: clone !important;
   }
 }
   `}</style>
