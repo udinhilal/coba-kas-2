@@ -3628,28 +3628,22 @@ tbody tr:hover { background: #F8FAFC !important; }
           .app-shell { padding-bottom: 0 !important; }
         }
         
-   /* PDF: seluruh lembar putih, jarak isi tetap 10mm */
+/* HILANGKAN LATAR ABU-ABU DI LUAR LAPORAN PDF */
 @media print {
   html,
   body,
   #root,
-  .app-shell {
+  .app-shell,
+  .main,
+  .content,
+  .recap-page {
     background: #FFFFFF !important;
-  }
+    background-color: #FFFFFF !important;
+    background-image: none !important;
 
-  html,
-  body,
-  #root {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  .app-shell {
-    margin: 0 !important;
-    padding: 10mm !important;
-    box-sizing: border-box !important;
-    -webkit-box-decoration-break: clone !important;
-    box-decoration-break: clone !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
   }
 }
   `}</style>
